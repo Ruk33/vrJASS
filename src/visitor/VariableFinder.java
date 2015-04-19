@@ -7,6 +7,7 @@ import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser.FunctionDefinitionContext;
+import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.ParametersContext;
 
@@ -74,6 +75,25 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 	}
 	
 	@Override
+	public Void visitLocalVariableStatement(LocalVariableStatementContext ctx) {
+		String variableName = ctx.varName.getText();
+		String variableType = ctx.variableType().getText();
+		boolean isArray = ctx.array != null;
+		
+		VariableSymbol variable = new VariableSymbol(
+			variableName,
+			variableType,
+			isArray,
+			null,
+			ctx.varName
+		);
+		
+		this.put(this.funcName, variable);
+		
+		return null;
+	}
+	
+	@Override
 	public Void visitParameters(ParametersContext ctx) {
 		String variableName;
 		String variableType;
@@ -83,7 +103,11 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 			variableName = param.ID().getText();
 			variableType = param.variableType().getText();
 			variable = new VariableSymbol(
-				variableName, variableType, false, null, param.ID().getSymbol()
+				variableName,
+				variableType,
+				false,
+				null,
+				param.ID().getSymbol()
 			);
 			
 			this.put(this.funcName, variable);
@@ -94,6 +118,8 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 	
 	@Override
 	public Void visitFunctionDefinition(FunctionDefinitionContext ctx) {
+		String prevFuncName = this.funcName;
+		
 		this.funcName = ctx.functionName.getText();
 		
 		if (!this.localVariables.containsKey(this.funcName)) {
@@ -104,7 +130,9 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		}
 		
 		this.visit(ctx.parameters());
-		this.funcName = "";
+		this.visit(ctx.statements());
+		
+		this.funcName = prevFuncName;
 		
 		return null;
 	}

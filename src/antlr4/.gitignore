@@ -10,3 +10,7 @@
 /vrjassLexer.tokens
 /vrjassParser.java
 /vrjassVisitor.java
+/vrjassVisitor.java
+/vrjassParser.java
+/vrjassBaseVisitor.java
+/vrjass.tokens

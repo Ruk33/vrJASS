@@ -258,10 +258,12 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
 		String variableName = this.visit(ctx.varName);
+		String index = (ctx.index != null) ? "[" + this.visit(ctx.index) + "]" : "";
+		
 		VariableSymbol prevVar = this.variable;
 		
 		this.variable = this.variableFinder.get(this.function, variableName);
-		String result = "set " + variableName + "=" + this.visit(ctx.value);
+		String result = "set " + variableName + index + "=" + this.visit(ctx.value);
 		
 		if (!this.variable.getType().equals(this.expressionType)) {
 			throw new IncorrectVariableTypeException(
@@ -280,7 +282,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitLocalVariableStatement(LocalVariableStatementContext ctx) {
 		String variableName = ctx.varName.getText();
 		String variableType = this.visit(ctx.variableType());
-		String result = "local " + variableType + " " + variableName;
+		String array = (ctx.array != null) ? " array" : "";
+		String result = "local " + variableType + array + " " + variableName;
 		
 		if (ctx.value != null) {
 			result += "=" + this.visit(ctx.value);

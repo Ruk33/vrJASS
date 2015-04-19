@@ -14,7 +14,7 @@ public class LocalVariableStatementTest {
 		Compile compile = new Compile();
 		String testPath = ProjectPath.getTest();
 		String code =
-				"function foo takes integer bar returns integer\n" +
+				"function foo takes integer i returns integer\n" +
 					"local integer bar=2\n" +
 					"local integer nop\n" +
 					"return 1\n" +

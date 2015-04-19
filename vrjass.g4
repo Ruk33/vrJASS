@@ -60,9 +60,9 @@ functionExpression: functionName=ID '(' arguments ')';
 
 returnStatement: 'return' expression;
 
-setVariableStatement: 'set' varName=expression '=' value=expression;
+setVariableStatement: 'set' varName=expression ('[' index=expression ']')? '=' value=expression;
 
-localVariableStatement: 'local' variableType varName=ID ('=' value=expression)?;
+localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
 ID: [a-zA-Z][a-zA-Z0-9_]*;
 INT: [0-9]+;
