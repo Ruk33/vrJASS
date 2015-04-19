@@ -10,6 +10,7 @@ import exception.TooFewArgumentsFunctionCallException;
 import exception.TooManyArgumentsFunctionCallException;
 import exception.UndefinedFunctionException;
 import exception.UndefinedVariableException;
+import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
 import util.VariableTypeDetector;
@@ -259,11 +260,18 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
 		String variableName = this.visit(ctx.varName);
 		String index = (ctx.index != null) ? "[" + this.visit(ctx.index) + "]" : "";
-		
+		String result = "set " + variableName + index + "=" + this.visit(ctx.value);
 		VariableSymbol prevVar = this.variable;
 		
 		this.variable = this.variableFinder.get(this.function, variableName);
-		String result = "set " + variableName + index + "=" + this.visit(ctx.value);
+		
+		if (this.variable == null) {
+			throw new UndefinedVariableException(ctx.varName.getStart());
+		}
+		
+		if (ctx.index != null && !this.variable.isArray()) {
+			throw new VariableIsNotArrayException(ctx.varName.getStart());
+		}
 		
 		if (!this.variable.getType().equals(this.expressionType)) {
 			throw new IncorrectVariableTypeException(

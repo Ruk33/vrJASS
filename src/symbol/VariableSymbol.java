@@ -6,15 +6,15 @@ public class VariableSymbol {
 
 	protected String name;
 	protected String type;
-	protected boolean _array;
+	protected boolean array;
 	protected String value;
 	protected Token token;
 	
 	public VariableSymbol(
-			String name, String type, boolean _array, String value, Token token) {
+			String name, String type, boolean array, String value, Token token) {
 		this.name = name;
 		this.type = type;
-		this._array = _array;
+		this.array = array;
 		this.value = value;
 		this.token = token;
 	}
@@ -25,6 +25,10 @@ public class VariableSymbol {
 	
 	public String getType() {
 		return this.type;
+	}
+	
+	public boolean isArray() {
+		return this.array;
 	}
 	
 	public int getLine() {

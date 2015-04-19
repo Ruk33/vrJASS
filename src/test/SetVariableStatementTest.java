@@ -2,15 +2,21 @@ package test;
 
 import static org.junit.Assert.*;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import exception.UndefinedVariableException;
 import util.Compile;
 import util.ProjectPath;
 
 public class SetVariableStatementTest {
 
+	@Rule
+	public ExpectedException expectedEx = ExpectedException.none();
+	
 	@Test
-	public void test() {
+	public void setVariable() {
 		Compile compile = new Compile();
 		String testPath = ProjectPath.getTest();
 		String code =
@@ -20,6 +26,21 @@ public class SetVariableStatementTest {
 				"endfunction";
 		
 		assertEquals(code, compile.run(code));
+	}
+	
+	@Test
+	public void setUndefinedVariable() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n" +
+					"set bar=2\n" +
+				"endfunction";
+		
+		expectedEx.expect(UndefinedVariableException.class);
+		expectedEx.expectMessage("2:4 Variable <bar> is not defined");
+		
+		compile.run(code);
 	}
 
 }
