@@ -41,6 +41,7 @@ expression
 	|left=expression '*' right=expression #Mult
 	|left=expression '-' right=expression #Minus
 	|left=expression '+' right=expression #Plus
+	|left=expression operator=('==' | '!=' | '>' | '>=' | '<' | '<=') right=expression #Comparison
 	|functionExpression #Function
 	|INT #Integer
 	|STR #String

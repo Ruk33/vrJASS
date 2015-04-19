@@ -20,6 +20,7 @@ import antlr4.vrjassParser;
 import antlr4.vrjassParser.AltInitContext;
 import antlr4.vrjassParser.ArgumentContext;
 import antlr4.vrjassParser.ArgumentsContext;
+import antlr4.vrjassParser.ComparisonContext;
 import antlr4.vrjassParser.DivContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.FunctionExpressionContext;
@@ -198,6 +199,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.expressionType = "integer";
 		return left + '+' + right;
+	}
+	
+	@Override
+	public String visitComparison(ComparisonContext ctx) {
+		String left = this.visit(ctx.left);
+		String right = this.visit(ctx.right);
+		
+		this.expressionType = "boolean";
+		return left + ctx.operator.getText() + right;
 	}
 	
 	@Override
