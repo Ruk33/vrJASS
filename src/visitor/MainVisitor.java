@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import exception.EqualNotEqualComparisonException;
 import exception.IncorrectReturnTypeFunctionException;
+import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
 import exception.LessGreaterComparisonException;
 import exception.MathematicalExpressionException;
@@ -401,6 +402,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String result = "local " + variableType + array + " " + variableName;
 		
 		if (ctx.value != null) {
+			if (ctx.array != null) {
+				throw new InitializeArrayVariableException(ctx.varName);
+			}
+			
 			result += "=" + this.visit(ctx.value);
 			
 			if (!ctx.variableType().getText().equals(this.expressionType)) {

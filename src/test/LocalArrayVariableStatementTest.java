@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
 import exception.VariableIsNotArrayException;
 import util.Compile;
@@ -85,6 +86,21 @@ public class LocalArrayVariableStatementTest {
 		
 		expectedEx.expect(InvalidArrayVariableIndexException.class);
 		expectedEx.expectMessage("3:15 Invalid index (only integer type)");
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void initializeAtDeclaration() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n" +
+					"local integer array bar = 2\n" +
+				"endfunction";
+		
+		expectedEx.expect(InitializeArrayVariableException.class);
+		expectedEx.expectMessage("2:20 Arrays can not be initialized on declaration");
 		
 		compile.run(code);
 	}
