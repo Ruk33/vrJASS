@@ -98,5 +98,25 @@ public class MathExpressionTest {
 		
 		compile.run(code);
 	}
+	
+	@Test
+	public void wrongUsingFunction() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes integer a returns nothing\n" +
+					"set a=a+bar()\n" +
+				"endfunction\n"
+				+ "function bar takes nothing returns string\n"
+				+ "return \"nope\"\n"
+				+ "endfunction";
+		
+		expectedEx.expect(MathematicalExpressionException.class);
+		expectedEx.expectMessage(
+			"2:8 Incorrect mathematical expression (only integers and reals)"
+		);
+		
+		compile.run(code);
+	}
 
 }
