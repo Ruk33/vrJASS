@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import exception.EqualNotEqualComparisonException;
 import exception.IncorrectReturnTypeFunctionException;
+import exception.InvalidArrayVariableIndexException;
 import exception.LessGreaterComparisonException;
 import exception.MathematicalExpressionException;
 import exception.NoReturnFunctionException;
@@ -356,6 +357,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
 		String variableName = this.visit(ctx.varName);
 		String index = (ctx.index != null) ? "[" + this.visit(ctx.index) + "]" : "";
+		String indexType = this.expressionType;
 		String result = "set " + variableName + index + "=" + this.visit(ctx.value);
 		VariableSymbol prevVar = this.variable;
 		
@@ -367,6 +369,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		if (ctx.index != null && !this.variable.isArray()) {
 			throw new VariableIsNotArrayException(ctx.varName.getStart());
+		}
+		
+		if (!"integer".equals(indexType)) {
+			throw new InvalidArrayVariableIndexException(ctx.index.getStart());
 		}
 		
 		if (!this.variable.getType().equals(this.expressionType)) {
