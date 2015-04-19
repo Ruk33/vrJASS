@@ -72,5 +72,21 @@ public class LocalArrayVariableStatementTest {
 		
 		compile.run(code);
 	}
+	
+	@Test
+	public void useInvalidIndex() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n" +
+					"local integer array bar\n" +
+					"set bar[1]=bar[\"nope\"]\n" +
+				"endfunction";
+		
+		expectedEx.expect(InvalidArrayVariableIndexException.class);
+		expectedEx.expectMessage("3:15 Invalid index (only integer type)");
+		
+		compile.run(code);
+	}
 
 }

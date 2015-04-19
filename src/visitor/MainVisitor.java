@@ -74,14 +74,19 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.output = this.visit(parser.init());
 	}
-	
+		
 	@Override
 	public String visitVariable(VariableContext ctx) {
-		String name = ctx.getText();
+		String name = ctx.varName.getText();
+		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
 		VariableSymbol variable = this.variableFinder.get(this.function, name);
 		
 		if (variable == null) {
-			throw new UndefinedVariableException(ctx.getStart());
+			throw new UndefinedVariableException(ctx.varName);
+		}
+		
+		if (ctx.index != null && !"integer".equals(indexType)) {
+			throw new InvalidArrayVariableIndexException(ctx.index.getStart());
 		}
 		
 		this.expressionType = variable.getType();
@@ -355,8 +360,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
-		String variableName = this.visit(ctx.varName);
-		String index = (ctx.index != null) ? "[" + this.visit(ctx.index) + "]" : "";
+		String variableName = ctx.varName.getText();
+		String index = (ctx.index == null) ? "" : "[" + this.visit(ctx.index) + "]";
 		String indexType = this.expressionType;
 		String result = "set " + variableName + index + "=" + this.visit(ctx.value);
 		VariableSymbol prevVar = this.variable;
@@ -364,20 +369,20 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.variable = this.variableFinder.get(this.function, variableName);
 		
 		if (this.variable == null) {
-			throw new UndefinedVariableException(ctx.varName.getStart());
+			throw new UndefinedVariableException(ctx.varName);
 		}
 		
 		if (ctx.index != null && !this.variable.isArray()) {
-			throw new VariableIsNotArrayException(ctx.varName.getStart());
+			throw new VariableIsNotArrayException(ctx.varName);
 		}
 		
-		if (!"integer".equals(indexType)) {
+		if (ctx.index != null && !"integer".equals(indexType)) {
 			throw new InvalidArrayVariableIndexException(ctx.index.getStart());
 		}
 		
 		if (!this.variable.getType().equals(this.expressionType)) {
 			throw new IncorrectVariableTypeException(
-				ctx.varName.getStart(),
+				ctx.varName,
 				this.variable.getType(),
 				this.expressionType
 			);

@@ -45,7 +45,7 @@ expression
 	|functionExpression #Function
 	|INT #Integer
 	|STR #String
-	|ID #Variable
+	|varName=ID ('[' index=expression ']')? #Variable
 	;
 	
 argument: expression;
@@ -61,7 +61,7 @@ functionExpression: functionName=ID '(' arguments ')';
 
 returnStatement: 'return' expression;
 
-setVariableStatement: 'set' varName=expression ('[' index=expression ']')? '=' value=expression;
+setVariableStatement: 'set' varName=ID ('[' index=expression ']')? '=' value=expression;
 
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 

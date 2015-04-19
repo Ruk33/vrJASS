@@ -9,7 +9,6 @@ import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.ParameterContext;
-import antlr4.vrjassParser.ParametersContext;
 
 public class VariableFinder extends vrjassBaseVisitor<Void> {
 
@@ -94,24 +93,18 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 	}
 	
 	@Override
-	public Void visitParameters(ParametersContext ctx) {
-		String variableName;
-		String variableType;
-		VariableSymbol variable;
+	public Void visitParameter(ParameterContext ctx) {
+		String variableName = ctx.ID().getText();
+		String variableType = ctx.variableType().getText();
+		VariableSymbol variable = new VariableSymbol(
+			variableName,
+			variableType,
+			false,
+			null,
+			ctx.ID().getSymbol()
+		);
 		
-		for (ParameterContext param : ctx.parameter()) {
-			variableName = param.ID().getText();
-			variableType = param.variableType().getText();
-			variable = new VariableSymbol(
-				variableName,
-				variableType,
-				false,
-				null,
-				param.ID().getSymbol()
-			);
-			
-			this.put(this.funcName, variable);
-		}
+		this.put(this.funcName, variable);
 		
 		return null;
 	}
