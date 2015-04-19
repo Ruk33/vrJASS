@@ -2,6 +2,7 @@ package visitor;
 
 import java.util.Stack;
 
+import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
 import exception.IncorrectVariableTypeException;
 import exception.TooFewArgumentsFunctionCallException;
@@ -45,6 +46,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected VariableFinder variableFinder;
 	
 	protected FunctionSymbol function;
+	
+	protected boolean hasReturn;
 	
 	protected VariableSymbol variable;
 	
@@ -166,7 +169,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				);
 			}
 			
-			this.expressionType = "";
+			this.expressionType = null;
 		}
 		
 		return String.join(",", args);
@@ -229,6 +232,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitReturnStatement(ReturnStatementContext ctx) {
+		this.hasReturn = true;
 		return "return " + this.visit(ctx.expression());
 	}
 	
@@ -293,8 +297,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String name = ctx.functionName.getText();
 		String params = this.visit(ctx.parameters());
 		String type = this.visit(ctx.returnType());
+		FunctionSymbol prevFunc = this.function;
+		boolean prevHasReturn = this.hasReturn;
 		
 		this.function = this.functionFinder.get(name);
+		this.hasReturn = false;
 		
 		String result =
 				"function " + name +
@@ -303,7 +310,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				this.visit(ctx.statements()) + System.lineSeparator() +
 				"endfunction";
 		
-		this.function = null;
+		if (!type.equals("nothing")) {
+			if (!this.hasReturn) {
+				throw new NoReturnFunctionException(ctx.getStart(), this.function);
+			}
+		}
+		
+		this.hasReturn = prevHasReturn;
+		this.function = prevFunc;
 		
 		return result;
 	}
