@@ -4,8 +4,8 @@ grammar vrjass;
 // Final EOF prevent a rare but known bug of Antlr4, dont remove it
 init: altInit+ EOF;
 
-altInit:
-	 functionDefinition (EOL functionDefinition)*
+altInit
+	:functionDefinition (EOL functionDefinition)*
 	|EOL
 	;
 
@@ -13,13 +13,13 @@ variableType: ID;
 
 parameter: variableType ID; 
 
-parameters: 
-	 (parameter (',' parameter)*)
+parameters
+	:(parameter (',' parameter)*)
 	|'nothing'
 	;
 
-statement:
-	 functionStatement
+statement
+	:functionStatement
 	|returnStatement
 	|setVariableStatement
 	|localVariableStatement
@@ -35,8 +35,8 @@ functionDefinition:
 	 'endfunction'
 	 ;
 
-expression:
-	'(' expression ')' #Parenthesis
+expression
+	:'(' expression ')' #Parenthesis
 	|left=expression '/' right=expression #Div
 	|left=expression '*' right=expression #Mult
 	|left=expression '-' right=expression #Minus
@@ -49,8 +49,8 @@ expression:
 	
 argument: expression;
 
-arguments:
-	 argument (',' argument)*
+arguments
+	:argument (',' argument)*
 	|
 	; 
 
