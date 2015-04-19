@@ -17,7 +17,7 @@ public class AlreadyDefinedVariableTest {
 	public ExpectedException expectedEx = ExpectedException.none();
 	
 	@Test
-	public void test() throws CompileException, IOException {
+	public void parameters() throws CompileException, IOException {
 		Compile compile = new Compile();
 		String testPath = ProjectPath.getTest();
 		
@@ -25,6 +25,22 @@ public class AlreadyDefinedVariableTest {
 		expectedEx.expectMessage("1:49 Variable <a> already defined in 1:27");
 		
 		compile.runFromFile(testPath + "/AlreadyDefinedVariableTest.txt");
+	}
+	
+	@Test
+	public void locals() throws CompileException, IOException {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n" +
+					"local integer bar\n" +
+					"local integer bar\n" +
+				"endfunction";
+		
+		expectedEx.expect(AlreadyDefinedVariableException.class);
+		expectedEx.expectMessage("3:14 Variable <bar> already defined in 2:14");
+		
+		compile.run(code);
 	}
 
 }
