@@ -1,0 +1,2 @@
+function foo takes integer a, integer b, integer a returns nothing
+endfunction
