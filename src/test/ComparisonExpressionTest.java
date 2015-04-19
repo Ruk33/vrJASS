@@ -2,13 +2,20 @@ package test;
 
 import static org.junit.Assert.*;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import exception.EqualNotEqualComparisonException;
+import exception.LessGreaterComparisonException;
 import util.Compile;
 import util.ProjectPath;
 
 public class ComparisonExpressionTest {
 
+	@Rule
+	public ExpectedException expectedEx = ExpectedException.none();
+	
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
@@ -25,6 +32,114 @@ public class ComparisonExpressionTest {
 				+ "endfunction";
 		
 		assertEquals(code, compile.run(code));
+	}
+	
+	@Test
+	public void incorrectLessThan() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "local boolean bar\n"
+				+ "set bar=2<\"nope\"\n"
+				+ "endfunction";
+		
+		expectedEx.expect(LessGreaterComparisonException.class);
+		expectedEx.expectMessage(
+			"3:10 Lower and greater than comparison can only be used with integers and reals"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void incorrectLessThanOrEqual() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "local boolean bar\n"
+				+ "set bar=2<=\"nope\"\n"
+				+ "endfunction";
+		
+		expectedEx.expect(LessGreaterComparisonException.class);
+		expectedEx.expectMessage(
+			"3:11 Lower and greater than comparison can only be used with integers and reals"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void incorrectGreaterThan() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "local boolean bar\n"
+				+ "set bar=2>\"nope\"\n"
+				+ "endfunction";
+		
+		expectedEx.expect(LessGreaterComparisonException.class);
+		expectedEx.expectMessage(
+			"3:10 Lower and greater than comparison can only be used with integers and reals"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void incorrectGreaterThanOrEqual() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "local boolean bar\n"
+				+ "set bar=2>=\"nope\"\n"
+				+ "endfunction";
+		
+		expectedEx.expect(LessGreaterComparisonException.class);
+		expectedEx.expectMessage(
+			"3:11 Lower and greater than comparison can only be used with integers and reals"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void incorrectEqual() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "local boolean bar\n"
+				+ "set bar=2==\"nope\"\n"
+				+ "endfunction";
+		
+		expectedEx.expect(EqualNotEqualComparisonException.class);
+		expectedEx.expectMessage(
+			"3:8 Equal than and not equal than comparison can only be interchangeable with integers and reals"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void incorrectNotEqual() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "local boolean bar\n"
+				+ "set bar=2!=\"nope\"\n"
+				+ "endfunction";
+		
+		expectedEx.expect(EqualNotEqualComparisonException.class);
+		expectedEx.expectMessage(
+			"3:8 Equal than and not equal than comparison can only be interchangeable with integers and reals"
+		);
+		
+		compile.run(code);
 	}
 
 }

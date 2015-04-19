@@ -2,7 +2,9 @@ package visitor;
 
 import java.util.Stack;
 
+import exception.EqualNotEqualComparisonException;
 import exception.IncorrectReturnTypeFunctionException;
+import exception.LessGreaterComparisonException;
 import exception.MathematicalExpressionException;
 import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
@@ -204,10 +206,43 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitComparison(ComparisonContext ctx) {
 		String left = this.visit(ctx.left);
+		String leftType = this.expressionType;
+		boolean leftIsNumeric = "real".equals(leftType) || "integer".equals(leftType);
+		
 		String right = this.visit(ctx.right);
+		String rightType = this.expressionType;
+		boolean rightIsNumeric = "real".equals(rightType) || "integer".equals(rightType);
+		
+		String operator = ctx.operator.getText();
+		
+		switch (operator) {
+		case "==":
+		case "!=":
+			if (!leftType.equals(rightType)) {
+				if (!leftIsNumeric || !rightIsNumeric) {
+					throw new EqualNotEqualComparisonException(ctx.getStart());
+				}
+			}
+			
+			break;
+		
+		case "<":
+		case ">":
+		case "<=":
+		case ">=":
+			if (!leftIsNumeric) {
+				throw new LessGreaterComparisonException(ctx.left.getStart());
+			}
+			
+			if (!rightIsNumeric) {
+				throw new LessGreaterComparisonException(ctx.right.getStart());
+			}
+			
+			break;
+		}
 		
 		this.expressionType = "boolean";
-		return left + ctx.operator.getText() + right;
+		return left + operator + right;
 	}
 	
 	@Override
