@@ -52,7 +52,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	protected VariableSymbol variable;
 	
-	protected String expressionType = "";
+	protected String expressionType;
 	
 	protected String output;
 	
