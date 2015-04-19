@@ -28,6 +28,7 @@ import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.ParametersContext;
 import antlr4.vrjassParser.PlusContext;
 import antlr4.vrjassParser.ReturnStatementContext;
+import antlr4.vrjassParser.ReturnTypeContext;
 import antlr4.vrjassParser.SetVariableStatementContext;
 import antlr4.vrjassParser.StatementContext;
 import antlr4.vrjassParser.StatementsContext;
@@ -165,6 +166,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 	
 	@Override
+	public String visitReturnType(ReturnTypeContext ctx) {
+		return ctx.getText();
+	}
+	
+	@Override
 	public String visitParameter(ParameterContext ctx) {
 		return this.visit(ctx.variableType()) + ' ' + ctx.ID().getText();
 	}
@@ -173,8 +179,12 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitParameters(ParametersContext ctx) {
 		Stack<String> params = new Stack<String>();
 		
-		for (ParameterContext param : ctx.parameter()) {
-			params.push(this.visit(param));
+		if (ctx.parameter().size() == 0) {
+			params.push("nothing");
+		} else {
+			for (ParameterContext param : ctx.parameter()) {
+				params.push(this.visit(param));
+			}
 		}
 		
 		return String.join(",", params);
