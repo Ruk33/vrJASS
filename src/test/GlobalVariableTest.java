@@ -19,6 +19,35 @@ public class GlobalVariableTest {
 	public ExpectedException expectedEx = ExpectedException.none();
 	
 	@Test
+	public void severalGlobalBlock() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"globals\n"
+				+ "integer foo=3\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "globals\n"
+				+ "integer e\n"
+				+ "endglobals\n"
+				+ "globals\n"
+				+ "integer a=9\n"
+				+ "endglobals";
+		
+		String result =
+				"globals\n"
+				+ "integer foo=3\n"
+				+ "integer e\n"
+				+ "integer a=9\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns nothing\n\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
 	public void declaration() {
 		Compile compile = new Compile();
 		String testPath = ProjectPath.getTest();

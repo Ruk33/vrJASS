@@ -533,6 +533,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitInit(InitContext ctx) {
+		Stack<String> globals = new Stack<String>();
+		Stack<String> functions = new Stack<String>();
 		Stack<String> result = new Stack<String>();
 		String visited;
 		
@@ -540,9 +542,26 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			visited = this.visit(alt);
 						
 			if (visited != null) {
-				result.push(visited);
+				if (alt.globalDefinition() != null) {
+					globals.push(
+						visited
+							.replace("endglobals", "")
+							.replace("globals", "")
+							.trim()
+					);
+				} else {
+					functions.push(visited);
+				}
 			}
 		}
+		
+		if (globals.size() != 0) {
+			result.push("globals");
+			result.addAll(globals);
+			result.push("endglobals");
+		}
+		
+		result.addAll(functions);
 		
 		return String.join(System.lineSeparator(), result);
 	}

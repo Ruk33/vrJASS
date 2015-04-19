@@ -5,8 +5,8 @@ grammar vrjass;
 init: altInit+ EOF;
 
 altInit
-	:functionDefinition (EOL functionDefinition)*
-	|globalDefinition (EOL globalDefinition)*
+	:functionDefinition
+	|globalDefinition
 	|EOL
 	;
 
@@ -30,7 +30,7 @@ statements: (statement EOL)*;
 
 returnType: variableType|'nothing';
 
-globals: (globalVariableStatement EOL)*;	
+globals: (globalVariableStatement EOL)*;
 
 globalDefinition:
 	'globals' EOL
