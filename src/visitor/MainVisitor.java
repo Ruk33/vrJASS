@@ -2,6 +2,7 @@ package visitor;
 
 import java.util.Stack;
 
+import exception.IncorrectReturnTypeFunctionException;
 import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
 import exception.IncorrectVariableTypeException;
@@ -205,6 +206,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String name = ctx.functionName.getText();
 		FunctionSymbol func = this.functionFinder.get(name);
 		int argumentsCount = ctx.arguments().argument().size();
+		FunctionSymbol prevFunction = this.function;
 		
 		if (func == null) {
 			throw new UndefinedFunctionException(ctx.functionName);
@@ -219,8 +221,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.function = func;
+		
 		String result = name + "(" + this.visit(ctx.arguments()) + ")";
-		this.function = null;
+		this.expressionType = this.function.getReturnType();
+		
+		this.function = prevFunction;
 		
 		return result;
 	}
@@ -232,8 +237,19 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitReturnStatement(ReturnStatementContext ctx) {
+		String result = "return " + this.visit(ctx.expression());
+		
+		if (!this.function.getReturnType().equals(this.expressionType)) {
+			throw new IncorrectReturnTypeFunctionException(
+				ctx.getStart(),
+				this.function,
+				this.expressionType
+			);
+		}
+		
 		this.hasReturn = true;
-		return "return " + this.visit(ctx.expression());
+		
+		return result;
 	}
 	
 	@Override

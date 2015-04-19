@@ -9,6 +9,7 @@ import org.junit.rules.ExpectedException;
 import util.Compile;
 import util.ProjectPath;
 import exception.CompileException;
+import exception.IncorrectReturnTypeFunctionException;
 import exception.NoReturnFunctionException;
 
 public class FunctionReturnTypeTest {
@@ -17,7 +18,7 @@ public class FunctionReturnTypeTest {
 	public ExpectedException expectedEx = ExpectedException.none();
 	
 	@Test
-	public void test() throws CompileException, IOException {
+	public void noReturn() throws CompileException, IOException {
 		Compile compile = new Compile();
 		String testPath = ProjectPath.getTest();
 		
@@ -27,6 +28,19 @@ public class FunctionReturnTypeTest {
 		);
 		
 		compile.runFromFile(testPath + "/NoReturnFunctionReturnTypeTest.txt");
+	}
+	
+	@Test
+	public void incorrectReturnType() throws CompileException, IOException {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		
+		expectedEx.expect(IncorrectReturnTypeFunctionException.class);
+		expectedEx.expectMessage(
+			"3:4 Function <foo> must return <integer> but it is trying to return <string>"
+		);
+		
+		compile.runFromFile(testPath + "/IncorrectReturnTypeFunctionReturnTypeTest.txt");
 	}
 
 }
