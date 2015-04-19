@@ -157,6 +157,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitArguments(ArgumentsContext ctx) {
 		Stack<String> params = this.function.getParams();
 		Stack<String> args = new Stack<String>();
+		String prevExprType = this.expressionType;
 		int i = 0;
 		
 		for (ArgumentContext arg : ctx.argument()) {
@@ -172,6 +173,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			
 			this.expressionType = null;
 		}
+		
+		this.expressionType = prevExprType;
 		
 		return String.join(",", args);
 	}
@@ -255,6 +258,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
 		String variableName = this.visit(ctx.varName);
+		VariableSymbol prevVar = this.variable;
 		
 		this.variable = this.variableFinder.get(this.function, variableName);
 		String result = "set " + variableName + "=" + this.visit(ctx.value);
@@ -267,7 +271,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			);
 		}
 		
-		this.variable = null;
+		this.variable = prevVar;
 		
 		return result;
 	}
