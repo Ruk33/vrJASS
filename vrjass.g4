@@ -6,6 +6,7 @@ init: altInit+ EOF;
 
 altInit
 	:functionDefinition (EOL functionDefinition)*
+	|globalDefinition (EOL globalDefinition)*
 	|EOL
 	;
 
@@ -28,6 +29,14 @@ statement
 statements: (statement EOL)*;
 
 returnType: variableType|'nothing';
+
+globals: (globalVariableStatement EOL)*;	
+
+globalDefinition:
+	'globals' EOL
+		globals
+	'endglobals'
+	;
 
 functionDefinition:
 	 'function' functionName=ID 'takes' parameters 'returns' returnType EOL
@@ -64,6 +73,8 @@ returnStatement: 'return' expression;
 setVariableStatement: 'set' varName=ID ('[' index=expression ']')? '=' value=expression;
 
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
+
+globalVariableStatement: variableType (array='array')? varName=ID ('=' value=expression)?;
 
 ID: [a-zA-Z][a-zA-Z0-9_]*;
 INT: [0-9]+;

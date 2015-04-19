@@ -7,6 +7,7 @@ import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser.FunctionDefinitionContext;
+import antlr4.vrjassParser.GlobalVariableStatementContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.ParameterContext;
 
@@ -33,7 +34,9 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		} else {
 			if (this.localVariables.containsKey(funcName)) {
 				variable = this.localVariables.get(funcName).get(variableName);
-			} else {
+			}
+			
+			if (variable == null) {
 				variable = this.globalVariables.get(variableName);
 			}
 		}
@@ -71,6 +74,25 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		}
 		
 		return variable;
+	}
+	
+	@Override
+	public Void visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
+		String variableName = ctx.varName.getText();
+		String variableType = ctx.variableType().getText();
+		boolean isArray = ctx.array != null;
+		
+		VariableSymbol variable = new VariableSymbol(
+			variableName,
+			variableType,
+			isArray,
+			null,
+			ctx.varName
+		);
+		
+		this.put(null, variable);
+		
+		return null;
 	}
 	
 	@Override

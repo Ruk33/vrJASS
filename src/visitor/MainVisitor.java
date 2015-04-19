@@ -29,6 +29,9 @@ import antlr4.vrjassParser.DivContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.FunctionExpressionContext;
 import antlr4.vrjassParser.FunctionStatementContext;
+import antlr4.vrjassParser.GlobalDefinitionContext;
+import antlr4.vrjassParser.GlobalVariableStatementContext;
+import antlr4.vrjassParser.GlobalsContext;
 import antlr4.vrjassParser.InitContext;
 import antlr4.vrjassParser.IntegerContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
@@ -478,14 +481,66 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 	
 	@Override
+	public String visitGlobalVariableStatement(
+			GlobalVariableStatementContext ctx) {
+		String variableType = this.visit(ctx.variableType());
+		String array = (ctx.array != null) ? " array" : "";
+		String variableName = ctx.varName.getText();
+		
+		String result = variableType + array + " " + variableName;
+		
+		if (ctx.value != null) {
+			if (ctx.array != null) {
+				throw new InitializeArrayVariableException(ctx.varName);
+			}
+			
+			result += "=" + this.visit(ctx.value);
+			
+			if (!ctx.variableType().getText().equals(this.expressionType)) {
+				throw new IncorrectVariableTypeException(
+					ctx.varName,
+					ctx.variableType().getText(),
+					this.expressionType
+				);
+			}
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public String visitGlobals(GlobalsContext ctx) {
+		Stack<String> globals = new Stack<String>();
+		String visited;
+		
+		for (GlobalVariableStatementContext global : ctx.globalVariableStatement()) {
+			visited = this.visit(global);
+			
+			if (visited != null) {
+				globals.push(visited);
+			}
+		}
+		
+		return String.join(System.lineSeparator(), globals);
+	}
+	
+	@Override
+	public String visitGlobalDefinition(GlobalDefinitionContext ctx) {
+		return "globals" + System.lineSeparator() +
+				this.visit(ctx.globals()) + System.lineSeparator() +
+				"endglobals";
+	}
+	
+	@Override
 	public String visitInit(InitContext ctx) {
 		Stack<String> result = new Stack<String>();
+		String visited;
 		
 		for (AltInitContext alt : ctx.altInit()) {
-			result.push(this.visit(alt));
-			
-			if (result.lastElement() == null) {
-				result.pop();
+			visited = this.visit(alt);
+						
+			if (visited != null) {
+				result.push(visited);
 			}
 		}
 		
