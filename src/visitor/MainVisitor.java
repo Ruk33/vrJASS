@@ -18,6 +18,7 @@ import antlr4.vrjassParser.ArgumentContext;
 import antlr4.vrjassParser.ArgumentsContext;
 import antlr4.vrjassParser.DivContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
+import antlr4.vrjassParser.FunctionExpressionContext;
 import antlr4.vrjassParser.FunctionStatementContext;
 import antlr4.vrjassParser.InitContext;
 import antlr4.vrjassParser.IntegerContext;
@@ -26,6 +27,7 @@ import antlr4.vrjassParser.MinusContext;
 import antlr4.vrjassParser.MultContext;
 import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.ParametersContext;
+import antlr4.vrjassParser.ParenthesisContext;
 import antlr4.vrjassParser.PlusContext;
 import antlr4.vrjassParser.ReturnStatementContext;
 import antlr4.vrjassParser.ReturnTypeContext;
@@ -99,6 +101,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitInteger(IntegerContext ctx) {
 		this.expressionType = "integer";
 		return ctx.INT().getText();
+	}
+	
+	@Override
+	public String visitParenthesis(ParenthesisContext ctx) {
+		return "(" + this.visit(ctx.expression()) + ")";
 	}
 	
 	@Override
@@ -191,7 +198,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 	
 	@Override
-	public String visitFunctionStatement(FunctionStatementContext ctx) {
+	public String visitFunctionExpression(FunctionExpressionContext ctx) {
 		String name = ctx.functionName.getText();
 		FunctionSymbol func = this.functionFinder.get(name);
 		int argumentsCount = ctx.arguments().argument().size();
@@ -209,14 +216,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.function = func;
-		
-		String result =
-				"call " + name +
-				"(" + this.visit(ctx.arguments()) + ")";
-		
+		String result = name + "(" + this.visit(ctx.arguments()) + ")";
 		this.function = null;
 		
 		return result;
+	}
+	
+	@Override
+	public String visitFunctionStatement(FunctionStatementContext ctx) {
+		return "call " + this.visit(ctx.functionExpression());
 	}
 	
 	@Override

@@ -36,7 +36,8 @@ functionDefinition:
 	 ;
 
 expression:
-	 left=expression '/' right=expression #Div
+	'(' expression ')' #Parenthesis
+	|left=expression '/' right=expression #Div
 	|left=expression '*' right=expression #Mult
 	|left=expression '-' right=expression #Minus
 	|left=expression '+' right=expression #Plus
@@ -53,7 +54,7 @@ arguments:
 	|
 	; 
 
-functionStatement: 'call' functionName=ID '(' arguments ')';
+functionStatement: 'call' functionExpression;
 
 functionExpression: functionName=ID '(' arguments ')';
 
