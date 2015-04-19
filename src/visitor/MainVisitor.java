@@ -422,17 +422,29 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitStatements(StatementsContext ctx) {
+		Stack<String> variables = new Stack<String>();
 		Stack<String> statements = new Stack<String>();
+		Stack<String> result = new Stack<String>();
+		String visited;
 		
 		for (StatementContext stat : ctx.statement()) {
-			statements.push(this.visit(stat));
+			visited = this.visit(stat);
 			
-			if (statements.lastElement() == null) {
-				statements.pop();
+			if (visited == null) {
+				continue;
+			}
+			
+			if (stat.localVariableStatement() != null) {
+				variables.push(visited);
+			} else {
+				statements.push(visited);
 			}
 		}
 		
-		return String.join(System.lineSeparator(), statements);
+		result.addAll(variables);
+		result.addAll(statements);
+		
+		return String.join(System.lineSeparator(), result);
 	}
 	
 	@Override
