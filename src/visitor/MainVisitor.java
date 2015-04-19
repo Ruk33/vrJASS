@@ -3,6 +3,7 @@ package visitor;
 import java.util.Stack;
 
 import exception.IncorrectReturnTypeFunctionException;
+import exception.MathematicalExpressionException;
 import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
 import exception.IncorrectVariableTypeException;
@@ -72,16 +73,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitVariable(VariableContext ctx) {
-		String funcName = null;
+		String name = ctx.getText();
+		VariableSymbol variable = this.variableFinder.get(this.function, name);
 		
-		if (this.function != null) {
-			funcName = this.function.getName();
-		}
-		
-		if (this.variableFinder.get(funcName, ctx.getText()) == null) {
+		if (variable == null) {
 			throw new UndefinedVariableException(ctx.getStart());
 		}
 		
+		this.expressionType = variable.getType();
 		return ctx.getText();
 	}
 		
@@ -116,7 +115,20 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitDiv(DivContext ctx) {
 		String left = this.visit(ctx.left);
+		String leftType = this.expressionType;
+		boolean leftIsNumeric = "real".equals(leftType) || "integer".equals(leftType);
+		
 		String right = this.visit(ctx.right);
+		String rightType = this.expressionType;
+		boolean rightIsNumeric = "real".equals(rightType) || "integer".equals(rightType);
+		
+		if (!leftIsNumeric) {
+			throw new MathematicalExpressionException(ctx.left.getStart());
+		}
+		
+		if (!rightIsNumeric) {
+			throw new MathematicalExpressionException(ctx.right.getStart());
+		}
 		
 		this.expressionType = "integer";
 		return left + '/' + right;
@@ -125,7 +137,20 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitMult(MultContext ctx) {
 		String left = this.visit(ctx.left);
+		String leftType = this.expressionType;
+		boolean leftIsNumeric = "real".equals(leftType) || "integer".equals(leftType);
+		
 		String right = this.visit(ctx.right);
+		String rightType = this.expressionType;
+		boolean rightIsNumeric = "real".equals(rightType) || "integer".equals(rightType);
+		
+		if (!leftIsNumeric) {
+			throw new MathematicalExpressionException(ctx.left.getStart());
+		}
+		
+		if (!rightIsNumeric) {
+			throw new MathematicalExpressionException(ctx.right.getStart());
+		}
 		
 		this.expressionType = "integer";
 		return left + '*' + right;
@@ -134,7 +159,20 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitMinus(MinusContext ctx) {
 		String left = this.visit(ctx.left);
+		String leftType = this.expressionType;
+		boolean leftIsNumeric = "real".equals(leftType) || "integer".equals(leftType);
+		
 		String right = this.visit(ctx.right);
+		String rightType = this.expressionType;
+		boolean rightIsNumeric = "real".equals(rightType) || "integer".equals(rightType);
+		
+		if (!leftIsNumeric) {
+			throw new MathematicalExpressionException(ctx.left.getStart());
+		}
+		
+		if (!rightIsNumeric) {
+			throw new MathematicalExpressionException(ctx.right.getStart());
+		}
 		
 		this.expressionType = "integer";
 		return left + '-' + right;
@@ -143,7 +181,20 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitPlus(PlusContext ctx) {
 		String left = this.visit(ctx.left);
+		String leftType = this.expressionType;
+		boolean leftIsNumeric = "real".equals(leftType) || "integer".equals(leftType);
+		
 		String right = this.visit(ctx.right);
+		String rightType = this.expressionType;
+		boolean rightIsNumeric = "real".equals(rightType) || "integer".equals(rightType);
+		
+		if (!leftIsNumeric) {
+			throw new MathematicalExpressionException(ctx.left.getStart());
+		}
+		
+		if (!rightIsNumeric) {
+			throw new MathematicalExpressionException(ctx.right.getStart());
+		}
 		
 		this.expressionType = "integer";
 		return left + '+' + right;
