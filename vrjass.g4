@@ -88,7 +88,7 @@ setVariableStatement: 'set' varName=ID ('[' index=expression ']')? operator=('='
 
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
-globalVariableStatement: variableType (array='array')? varName=ID ('=' value=expression)?;
+globalVariableStatement: (visibility=('private'|'public'))? variableType (array='array')? varName=ID ('=' value=expression)?;
 
 ID: [a-zA-Z][a-zA-Z0-9_]*;
 INT: [0-9]+;

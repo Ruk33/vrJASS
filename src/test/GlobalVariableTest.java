@@ -189,5 +189,28 @@ public class GlobalVariableTest {
 		
 		compile.run(code);
 	}
+	
+	@Test
+	public void inScope() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"library foo\n"
+				+ "globals\n"
+				+ "integer bar\n"
+				+ "private integer nope\n"
+				+ "public integer yep\n"
+				+ "endglobals\n"
+				+ "endlibrary";
+		
+		String result =
+				"globals\n"
+				+ "integer bar\n"
+				+ "integer foo__nope\n"
+				+ "integer foo_yep\n"
+				+ "endglobals";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

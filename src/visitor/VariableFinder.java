@@ -8,6 +8,8 @@ import symbol.VariableSymbol;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.GlobalVariableStatementContext;
+import antlr4.vrjassParser.LibraryDefinitionContext;
+import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.ParameterContext;
 
@@ -18,6 +20,7 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 	protected HashMap<String, VariableSymbol> globalVariables;
 	protected HashMap<String, HashMap<String, VariableSymbol>> localVariables;
 	
+	protected String scopeName;
 	protected String funcName;
 	
 	public VariableFinder(MainVisitor main) {
@@ -78,7 +81,8 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 	
 	@Override
 	public Void visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
-		String variableName = ctx.varName.getText();
+		String prefix = this.main.getPrefix(ctx.visibility, this.scopeName);
+		String variableName = prefix + ctx.varName.getText();
 		String variableType = ctx.variableType().getText();
 		boolean isArray = ctx.array != null;
 		
@@ -148,6 +152,21 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		this.visit(ctx.statements());
 		
 		this.funcName = prevFuncName;
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitLibraryDefinition(LibraryDefinitionContext ctx) {
+		String prevScopeName = this.scopeName;
+		
+		this.scopeName = ctx.libraryName.getText();
+		
+		for (LibraryStatementsContext library : ctx.libraryStatements()) {
+			this.visit(library);
+		}
+		
+		this.scopeName = prevScopeName;
 		
 		return null;
 	}

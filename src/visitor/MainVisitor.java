@@ -539,9 +539,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitGlobalVariableStatement(
 			GlobalVariableStatementContext ctx) {
+		String prefix = this.getPrefix(ctx.visibility, this.scopeName);
 		String variableType = this.visit(ctx.variableType());
 		String array = (ctx.array != null) ? " array" : "";
-		String variableName = ctx.varName.getText();
+		String variableName = prefix + ctx.varName.getText();
 		
 		String result = variableType + array + " " + variableName;
 		

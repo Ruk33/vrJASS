@@ -48,7 +48,7 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 			throw new AlreadyDefinedFunctionException(ctx.functionName, func);
 		}
 		
-		this.lastFunction = new FunctionSymbol(name, returnType, prefix, ctx.functionName);
+		this.lastFunction = new FunctionSymbol(name, returnType, ctx.functionName);
 		this.functions.put(name, this.lastFunction);
 		this.visit(ctx.parameters());
 		this.lastFunction = null;
