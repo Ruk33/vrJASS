@@ -391,8 +391,19 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String variableName = ctx.varName.getText();
 		String index = (ctx.index == null) ? "" : "[" + this.visit(ctx.index) + "]";
 		String indexType = this.expressionType;
-		String result = "set " + variableName + index + "=" + this.visit(ctx.value);
+		String operator = ctx.operator.getText();
+		String result = "set " + variableName + index + "=";
 		VariableSymbol prevVar = this.variable;
+		
+		switch (operator) {
+		case "/=":
+		case "*=":
+		case "-=":
+		case "+=":
+			result += variableName + index + operator.replace("=", "");
+		}
+		
+		result += this.visit(ctx.value);
 		
 		this.variable = this.variableFinder.get(this.function, variableName);
 		

@@ -45,5 +45,34 @@ public class LocalVariableStatementTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void compoundOperator() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"function foo takes nothing returns nothing\n" +
+					"local integer i\n" +
+					"set i/=5\n" +
+					"set i*=6\n" +
+					"set i-=6\n" +
+					"set i+=6\n" +
+					"local integer array bar\n" +
+					"set bar[1+3]+=4\n" +
+				"endfunction";
+		
+		String result =
+				"function foo takes nothing returns nothing\n" +
+					"local integer i\n" +
+					"local integer array bar\n" +
+					"set i=i/5\n" +
+					"set i=i*6\n" +
+					"set i=i-6\n" +
+					"set i=i+6\n" +
+					"set bar[1+3]=bar[1+3]+4\n" +
+				"endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

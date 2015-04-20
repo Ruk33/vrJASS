@@ -71,7 +71,7 @@ functionExpression: functionName=ID '(' arguments ')';
 
 returnStatement: 'return' expression;
 
-setVariableStatement: 'set' varName=ID ('[' index=expression ']')? '=' value=expression;
+setVariableStatement: 'set' varName=ID ('[' index=expression ']')? operator=('=' | '/=' | '*=' | '-=' | '+=') value=expression;
 
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
