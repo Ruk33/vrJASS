@@ -544,6 +544,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String array = (ctx.array != null) ? " array" : "";
 		String variableName = prefix + ctx.varName.getText();
 		
+		if (ctx.visibility != null && this.scopeName == null) {
+			throw new NoScopeVisibilityException(ctx.varName);
+		}
+		
 		String result = variableType + array + " " + variableName;
 		
 		if (ctx.value != null) {

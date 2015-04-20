@@ -9,6 +9,7 @@ import org.junit.rules.ExpectedException;
 import exception.IncorrectVariableTypeException;
 import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
+import exception.NoScopeVisibilityException;
 import exception.VariableIsNotArrayException;
 import util.Compile;
 import util.ProjectPath;
@@ -211,6 +212,40 @@ public class GlobalVariableTest {
 				+ "endglobals";
 		
 		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void privateOnNoScope() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"globals\n"
+				+ "private integer foo\n"
+				+ "endglobals";
+		
+		expectedEx.expect(NoScopeVisibilityException.class);
+		expectedEx.expectMessage(
+			"2:16 Element <foo> must be inside of an scope to declare visibility"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void publicOnNoScope() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"globals\n"
+				+ "public integer foo\n"
+				+ "endglobals";
+		
+		expectedEx.expect(NoScopeVisibilityException.class);
+		expectedEx.expectMessage(
+			"2:15 Element <foo> must be inside of an scope to declare visibility"
+		);
+		
+		compile.run(code);
 	}
 
 }

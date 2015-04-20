@@ -15,7 +15,7 @@ public class NoScopeVisibilityException extends CompileException {
 	public String getMessage() {
 		return super.getMessage() +
 				String.format(
-					" Function <%s> must be inside of an scope to declare visibility",
+					" Element <%s> must be inside of an scope to declare visibility",
 					this.name
 				);
 	}

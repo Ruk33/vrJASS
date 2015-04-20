@@ -36,7 +36,7 @@ public class FunctionDefinitionTest {
 		
 		expectedEx.expect(NoScopeVisibilityException.class);
 		expectedEx.expectMessage(
-			"1:17 Function <foo> must be inside of an scope to declare visibility"
+			"1:17 Element <foo> must be inside of an scope to declare visibility"
 		);
 		
 		compile.run(code);
@@ -52,7 +52,7 @@ public class FunctionDefinitionTest {
 		
 		expectedEx.expect(NoScopeVisibilityException.class);
 		expectedEx.expectMessage(
-			"1:16 Function <foo> must be inside of an scope to declare visibility"
+			"1:16 Element <foo> must be inside of an scope to declare visibility"
 		);
 		
 		compile.run(code);
