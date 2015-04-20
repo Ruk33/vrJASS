@@ -73,7 +73,7 @@ public class FunctionCallTest {
 	}
 	
 	@Test
-	public void autoPrefixFromInsideOfScope() {
+	public void publicAutoPrefixFromInsideOfScope() {
 		Compile compile = new Compile();
 		String testPath = ProjectPath.getTest();
 		String code =
@@ -82,6 +82,7 @@ public class FunctionCallTest {
 				+ "endfunction\n"
 				+ "public function yep takes nothing returns nothing\n"
 				+ "call bar()\n"
+				+ "call foo_bar()\n"
 				+ "endfunction\n"
 				+ "endlibrary\n";
 		
@@ -90,6 +91,32 @@ public class FunctionCallTest {
 				+ "endfunction\n"
 				+ "function foo_yep takes nothing returns nothing\n"
 				+ "call foo_bar()\n"
+				+ "call foo_bar()\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void privateAutoPrefixFromInsideOfScope() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"library foo\n"
+				+ "private function bar takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "public function yep takes nothing returns nothing\n"
+				+ "call bar()\n"
+				+ "call foo__bar()\n"
+				+ "endfunction\n"
+				+ "endlibrary\n";
+		
+		String result =
+				"function foo__bar takes nothing returns nothing\n\n"
+				+ "endfunction\n"
+				+ "function foo_yep takes nothing returns nothing\n"
+				+ "call foo__bar()\n"
+				+ "call foo__bar()\n"
 				+ "endfunction";
 		
 		assertEquals(result, compile.run(code));
