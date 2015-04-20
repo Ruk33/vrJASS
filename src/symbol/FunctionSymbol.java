@@ -8,12 +8,14 @@ public class FunctionSymbol {
 	protected String name;
 	protected Stack<String> params;
 	protected String returnType;
+	protected String prefix;
 	protected Token token;
 	
-	public FunctionSymbol(String name, String returnType, Token token) {
+	public FunctionSymbol(String name, String returnType, String prefix, Token token) {
 		this.name = name;
 		this.params = new Stack<String>();
 		this.returnType = returnType;
+		this.prefix = prefix;
 		this.token = token;
 	}
 	
@@ -23,6 +25,10 @@ public class FunctionSymbol {
 	}
 	
 	public String getName() {
+		if (this.prefix != null) {
+			return this.prefix + this.name;
+		}
+		
 		return this.name;
 	}
 	

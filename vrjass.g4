@@ -7,6 +7,7 @@ init: altInit+ EOF;
 altInit
 	:functionDefinition
 	|globalDefinition
+	|libraryDefinition
 	|EOL
 	;
 
@@ -38,8 +39,20 @@ globalDefinition:
 	'endglobals'
 	;
 
+libraryStatements
+	:globalDefinition
+	|functionDefinition
+	|EOL
+	;
+
+libraryDefinition:
+	'library' libraryName=ID EOL
+		libraryStatements*
+	'endlibrary'
+	;
+
 functionDefinition:
-	 'function' functionName=ID 'takes' parameters 'returns' returnType EOL
+	 (visibility=('private'|'public'))? 'function' functionName=ID 'takes' parameters 'returns' returnType EOL
 	 	statements
 	 'endfunction'
 	 ;

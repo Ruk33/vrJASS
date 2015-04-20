@@ -2,6 +2,8 @@ package visitor;
 
 import java.util.Stack;
 
+import org.antlr.v4.runtime.Token;
+
 import exception.EqualNotEqualComparisonException;
 import exception.IncorrectReturnTypeFunctionException;
 import exception.InitializeArrayVariableException;
@@ -12,6 +14,7 @@ import exception.MathematicalExpressionException;
 import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
 import exception.IncorrectVariableTypeException;
+import exception.NoScopeVisibilityException;
 import exception.TooFewArgumentsFunctionCallException;
 import exception.TooManyArgumentsFunctionCallException;
 import exception.UndefinedFunctionException;
@@ -19,6 +22,7 @@ import exception.UndefinedVariableException;
 import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
+import util.Prefix;
 import util.VariableTypeDetector;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser;
@@ -35,6 +39,8 @@ import antlr4.vrjassParser.GlobalVariableStatementContext;
 import antlr4.vrjassParser.GlobalsContext;
 import antlr4.vrjassParser.InitContext;
 import antlr4.vrjassParser.IntegerContext;
+import antlr4.vrjassParser.LibraryDefinitionContext;
+import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.LogicalContext;
 import antlr4.vrjassParser.MinusContext;
@@ -54,9 +60,13 @@ import antlr4.vrjassParser.VariableTypeContext;
 
 public class MainVisitor extends vrjassBaseVisitor<String> {
 
+	protected Prefix prefixer;
+	
 	protected FunctionFinder functionFinder;
 	
 	protected VariableFinder variableFinder;
+	
+	protected String scopeName;
 	
 	protected FunctionSymbol function;
 	
@@ -69,6 +79,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected String output;
 	
 	public MainVisitor(vrjassParser parser) {
+		this.prefixer = new Prefix();
+		
 		this.functionFinder = new FunctionFinder(this);
 		this.variableFinder = new VariableFinder(this);
 		
@@ -79,6 +91,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		parser.reset();
 		
 		this.output = this.visit(parser.init());
+	}
+	
+	public String getPrefix(Token visibility, String scopeName) {
+		return this.prefixer.get(visibility, scopeName);
 	}
 		
 	@Override
@@ -487,11 +503,16 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitFunctionDefinition(FunctionDefinitionContext ctx) {
-		String name = ctx.functionName.getText();
+		String prefix = this.getPrefix(ctx.visibility, this.scopeName);
+		String name = prefix + ctx.functionName.getText();
 		String params = this.visit(ctx.parameters());
 		String type = this.visit(ctx.returnType());
 		FunctionSymbol prevFunc = this.function;
 		boolean prevHasReturn = this.hasReturn;
+		
+		if (ctx.visibility != null && this.scopeName == null) {
+			throw new NoScopeVisibilityException(ctx.functionName);
+		}
 		
 		this.function = this.functionFinder.get(name);
 		this.hasReturn = false;
@@ -564,6 +585,27 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		return "globals" + System.lineSeparator() +
 				this.visit(ctx.globals()) + System.lineSeparator() +
 				"endglobals";
+	}
+	
+	@Override
+	public String visitLibraryDefinition(LibraryDefinitionContext ctx) {
+		String prevScopeName = this.scopeName;
+		Stack<String> result = new Stack<String>();
+		String visited;
+		
+		this.scopeName = ctx.libraryName.getText();
+		
+		for (LibraryStatementsContext library : ctx.libraryStatements()) {
+			visited = this.visit(library);
+			
+			if (visited != null) {
+				result.push(visited);
+			}
+		}
+		
+		this.scopeName = prevScopeName;
+		
+		return String.join(System.lineSeparator(), result);
 	}
 	
 	@Override
