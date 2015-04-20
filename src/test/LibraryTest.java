@@ -38,5 +38,66 @@ public class LibraryTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void noCollisionPublic() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"library foo\n"
+				+ "public function yep takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary\n"
+				+ "library bar\n"
+				+ "public function yep takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary";
+		
+		String result =
+				"function foo_yep takes nothing returns nothing\n\n"
+				+ "endfunction\n"
+				+ "function bar_yep takes nothing returns nothing\n\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void noCollisionPrivate() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"library foo\n"
+				+ "private function yep takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary\n"
+				+ "library bar\n"
+				+ "private function yep takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary";
+		
+		String result =
+				"function foo__yep takes nothing returns nothing\n\n"
+				+ "endfunction\n"
+				+ "function bar__yep takes nothing returns nothing\n\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void requires() {
+		Compile compile = new Compile();
+		String testPath = ProjectPath.getTest();
+		String code =
+				"library foo requires bar, other\n"
+				+ "endlibrary\n"
+				+ "library bar\n"
+				+ "endlibrary\n"
+				+ "library other\n"
+				+ "endlibrary";
+				
+		assertEquals("\n\n", compile.run(code));
+	}
 
 }

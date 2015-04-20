@@ -44,9 +44,11 @@ libraryStatements
 	|functionDefinition
 	|EOL
 	;
+	
+requirements: 'requires' ID (',' ID)*;
 
 libraryDefinition:
-	'library' libraryName=ID EOL
+	'library' libraryName=ID requirements? EOL
 		libraryStatements*
 	'endlibrary'
 	;

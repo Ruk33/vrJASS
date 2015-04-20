@@ -1,9 +1,9 @@
 package visitor;
 
 import java.util.HashMap;
-
 import exception.AlreadyDefinedFunctionException;
 import symbol.FunctionSymbol;
+import symbol.Visibility;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.LibraryDefinitionContext;
@@ -24,8 +24,20 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 		this.lastFunction = null;
 	}
 	
-	public FunctionSymbol get(String name) {
-		return this.functions.get(name);
+	public FunctionSymbol get(String name, String scopeName) {
+		String privateName = this.main.getPrefixedName(scopeName, name, false);
+		String publicName = this.main.getPrefixedName(scopeName, name, true);
+		FunctionSymbol result = this.functions.get(privateName);
+		
+		if (result == null) {
+			result = this.functions.get(publicName);
+		}
+		
+		if (result == null) {
+			result = this.functions.get(name);
+		}
+		
+		return result;
 	}
 	
 	@Override
@@ -42,13 +54,17 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 		String prefix = this.main.getPrefix(ctx.visibility, this.scopeName);
 		String name = prefix + ctx.functionName.getText();
 		String returnType = this.main.visit(ctx.returnType());
+		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		FunctionSymbol func = this.functions.get(name);
 		
 		if (func != null) {
 			throw new AlreadyDefinedFunctionException(ctx.functionName, func);
 		}
 		
-		this.lastFunction = new FunctionSymbol(name, returnType, ctx.functionName);
+		this.lastFunction = new FunctionSymbol(
+			this.scopeName, name, returnType, visibility, ctx.functionName
+		);
+		
 		this.functions.put(name, this.lastFunction);
 		this.visit(ctx.parameters());
 		this.lastFunction = null;

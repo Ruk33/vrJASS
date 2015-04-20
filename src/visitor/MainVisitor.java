@@ -3,7 +3,9 @@ package visitor;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
+import exception.ElementNoAccessException;
 import exception.EqualNotEqualComparisonException;
 import exception.IncorrectReturnTypeFunctionException;
 import exception.InitializeArrayVariableException;
@@ -22,6 +24,7 @@ import exception.UndefinedVariableException;
 import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
+import symbol.Visibility;
 import util.Prefix;
 import util.VariableTypeDetector;
 import antlr4.vrjassBaseVisitor;
@@ -68,6 +71,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	protected String scopeName;
 	
+	protected Stack<String> requiredLibraries;
+	
 	protected FunctionSymbol function;
 	
 	protected boolean hasReturn;
@@ -80,6 +85,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	public MainVisitor(vrjassParser parser) {
 		this.prefixer = new Prefix();
+		this.requiredLibraries = new Stack<String>();
 		
 		this.functionFinder = new FunctionFinder(this);
 		this.variableFinder = new VariableFinder(this);
@@ -93,8 +99,49 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.output = this.visit(parser.init());
 	}
 	
+	protected String getPrefixedName(String scopeName, String element, boolean _public) {
+		if (scopeName != null) {
+			if (_public) {
+				return scopeName + "_" + element;
+			} else {
+				return scopeName + "__" + element;
+			}
+		}
+		
+		return element;
+	}
+	
 	public String getPrefix(Token visibility, String scopeName) {
 		return this.prefixer.get(visibility, scopeName);
+	}
+	
+	public Visibility getVisibility(Token visibility) {
+		if (visibility == null) {
+			return Visibility.PUBLIC;
+		}
+		
+		if (visibility.getText().equals("private")) {
+			return Visibility.PRIVATE;
+		}
+		
+		return Visibility.PUBLIC;
+	}
+	
+	public boolean hasAccess(
+			FunctionSymbol function,
+			String callingScope,
+			Stack<String> libraries) {
+		if (function == null) {
+			return false;
+		}
+		
+		if (function.getVisibility() == Visibility.PRIVATE) {
+			if (!function.getScopeName().equals(callingScope)) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 		
 	@Override
@@ -354,12 +401,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitFunctionExpression(FunctionExpressionContext ctx) {
 		String name = ctx.functionName.getText();
-		FunctionSymbol func = this.functionFinder.get(name);
-		int argumentsCount = ctx.arguments().argument().size();
-		FunctionSymbol prevFunction = this.function;
+		FunctionSymbol func = this.functionFinder.get(name, this.scopeName);
 		
 		if (func == null) {
 			throw new UndefinedFunctionException(ctx.functionName);
+		}
+		
+		int argumentsCount = ctx.arguments().argument().size();
+		FunctionSymbol prevFunction = this.function;
+		
+		if (!this.hasAccess(func, this.scopeName, this.requiredLibraries)) {
+			throw new ElementNoAccessException(ctx.functionName);
 		}
 		
 		if (argumentsCount > func.getParams().size()) {
@@ -372,7 +424,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.function = func;
 		
-		String result = name + "(" + this.visit(ctx.arguments()) + ")";
+		String result = func.getName() + "(" + this.visit(ctx.arguments()) + ")";
 		this.expressionType = this.function.getReturnType();
 		
 		this.function = prevFunction;
@@ -514,7 +566,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new NoScopeVisibilityException(ctx.functionName);
 		}
 		
-		this.function = this.functionFinder.get(name);
+		this.function = this.functionFinder.get(name, this.scopeName);
 		this.hasReturn = false;
 		
 		String result =
@@ -595,10 +647,18 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitLibraryDefinition(LibraryDefinitionContext ctx) {
 		String prevScopeName = this.scopeName;
+		Stack<String> prevRequiredLibraries = this.requiredLibraries;
 		Stack<String> result = new Stack<String>();
 		String visited;
 		
 		this.scopeName = ctx.libraryName.getText();
+		this.requiredLibraries = new Stack<String>();
+		
+		if (ctx.requirements() != null) {
+			for (TerminalNode req : ctx.requirements().ID()) {
+				this.requiredLibraries.push(req.getText());
+			}
+		}
 		
 		for (LibraryStatementsContext library : ctx.libraryStatements()) {
 			visited = this.visit(library);
@@ -609,6 +669,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.scopeName = prevScopeName;
+		this.requiredLibraries = prevRequiredLibraries;
 		
 		return String.join(System.lineSeparator(), result);
 	}
