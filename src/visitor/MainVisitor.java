@@ -37,7 +37,6 @@ import antlr4.vrjassParser.DivContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.FunctionExpressionContext;
 import antlr4.vrjassParser.FunctionStatementContext;
-import antlr4.vrjassParser.GlobalDefinitionContext;
 import antlr4.vrjassParser.GlobalVariableStatementContext;
 import antlr4.vrjassParser.GlobalsContext;
 import antlr4.vrjassParser.InitContext;
@@ -81,11 +80,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	protected String expressionType;
 	
+	protected Stack<String> globalsBlock;
+	protected Stack<String> functions;
+	
 	protected String output;
 	
 	public MainVisitor(vrjassParser parser) {
 		this.prefixer = new Prefix();
 		this.requiredLibraries = new Stack<String>();
+		
+		this.globalsBlock = new Stack<String>();
+		this.functions = new Stack<String>();
 		
 		this.functionFinder = new FunctionFinder(this);
 		this.variableFinder = new VariableFinder(this);
@@ -620,6 +625,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.hasReturn = prevHasReturn;
 		this.function = prevFunc;
 		
+		this.functions.push(result);
+		
 		return result;
 	}
 	
@@ -658,25 +665,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitGlobals(GlobalsContext ctx) {
-		Stack<String> globals = new Stack<String>();
 		String visited;
 		
 		for (GlobalVariableStatementContext global : ctx.globalVariableStatement()) {
 			visited = this.visit(global);
 			
 			if (visited != null) {
-				globals.push(visited);
+				this.globalsBlock.push(visited);
 			}
 		}
 		
-		return String.join(System.lineSeparator(), globals);
-	}
-	
-	@Override
-	public String visitGlobalDefinition(GlobalDefinitionContext ctx) {
-		return "globals" + System.lineSeparator() +
-				this.visit(ctx.globals()) + System.lineSeparator() +
-				"endglobals";
+		return null;
 	}
 	
 	@Override
@@ -711,35 +710,19 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitInit(InitContext ctx) {
-		Stack<String> globals = new Stack<String>();
-		Stack<String> functions = new Stack<String>();
 		Stack<String> result = new Stack<String>();
-		String visited;
 		
 		for (AltInitContext alt : ctx.altInit()) {
-			visited = this.visit(alt);
-						
-			if (visited != null) {
-				if (alt.globalDefinition() != null) {
-					globals.push(
-						visited
-							.replace("endglobals", "")
-							.replace("globals", "")
-							.trim()
-					);
-				} else {
-					functions.push(visited);
-				}
-			}
+			this.visit(alt);
 		}
 		
-		if (globals.size() != 0) {
+		if (this.globalsBlock.size() != 0) {
 			result.push("globals");
-			result.addAll(globals);
+			result.addAll(this.globalsBlock);
 			result.push("endglobals");
 		}
 		
-		result.addAll(functions);
+		result.addAll(this.functions);
 		
 		return String.join(System.lineSeparator(), result);
 	}

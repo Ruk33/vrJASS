@@ -92,7 +92,7 @@ public class LibraryTest {
 				+ "library other\n"
 				+ "endlibrary";
 				
-		assertEquals("\n\n", compile.run(code));
+		assertEquals("", compile.run(code));
 	}
 
 }

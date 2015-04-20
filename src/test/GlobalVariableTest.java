@@ -33,13 +33,19 @@ public class GlobalVariableTest {
 				+ "endglobals\n"
 				+ "globals\n"
 				+ "integer a=9\n"
-				+ "endglobals";
+				+ "endglobals\n"
+				+ "library lorem\n"
+				+ "globals\n"
+				+ "public integer e\n"
+				+ "endglobals\n"
+				+ "endlibrary";
 		
 		String result =
 				"globals\n"
 				+ "integer foo=3\n"
 				+ "integer e\n"
 				+ "integer a=9\n"
+				+ "integer lorem_e\n"
 				+ "endglobals\n"
 				+ "function bar takes nothing returns nothing\n\n"
 				+ "endfunction";
