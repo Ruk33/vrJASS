@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import exception.ElementNoAccessException;
 import exception.IncorrectVariableTypeException;
 import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
@@ -230,6 +231,76 @@ public class GlobalVariableTest {
 		expectedEx.expect(NoScopeVisibilityException.class);
 		expectedEx.expectMessage(
 			"2:15 Element <foo> must be inside of an scope to declare visibility"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void publicAutoPrefixFromInsideOfScope() {
+		Compile compile = new Compile();
+		String code =
+				"library foo\n"
+				+ "globals\n"
+				+ "public integer nope\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "set nope=2\n"
+				+ "endfunction\n"
+				+ "endlibrary";
+		
+		String result =
+				"globals\n"
+				+ "integer foo_nope\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "set foo_nope=2\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void privateAutoPrefixFromInsideOfScope() {
+		Compile compile = new Compile();
+		String code =
+				"library foo\n"
+				+ "globals\n"
+				+ "private integer nope\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "set nope=2\n"
+				+ "endfunction\n"
+				+ "endlibrary";
+		
+		String result =
+				"globals\n"
+				+ "integer foo__nope\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "set foo__nope=2\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void privateUsingPrefix() {
+		Compile compile = new Compile();
+		String code =
+				"library foo\n"
+				+ "globals\n"
+				+ "private integer nope=2\n"
+				+ "endglobals\n"
+				+ "endlibrary\n"
+				
+				+ "function bar takes nothing returns nothing\n"
+				+ "local integer a=foo__nope\n"
+				+ "endfunction";
+		
+		expectedEx.expect(ElementNoAccessException.class);
+		expectedEx.expectMessage(
+			"7:16 No access to element <foo__nope>"
 		);
 		
 		compile.run(code);

@@ -143,15 +143,36 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		return true;
 	}
+	
+	public boolean hasAccessToVariable(
+			VariableSymbol variable,
+			String callingScope,
+			Stack<String> libraries) {
+		if (variable == null) {
+			return false;
+		}
+		
+		if (variable.getVisibility() == Visibility.PRIVATE) {
+			if (!variable.getScopeName().equals(callingScope)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
 		
 	@Override
 	public String visitVariable(VariableContext ctx) {
 		String name = ctx.varName.getText();
 		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
-		VariableSymbol variable = this.variableFinder.get(this.function, name);
+		VariableSymbol variable = this.variableFinder.get(this.function, name, this.scopeName);
 		
 		if (variable == null) {
 			throw new UndefinedVariableException(ctx.varName);
+		}
+		
+		if (!this.hasAccessToVariable(variable, this.scopeName, this.requiredLibraries)) {
+			throw new ElementNoAccessException(ctx.varName);
 		}
 		
 		if (ctx.index != null && !"integer".equals(indexType)) {
@@ -159,7 +180,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.expressionType = variable.getType();
-		return ctx.getText();
+		return variable.getName();
 	}
 		
 	@Override
@@ -460,24 +481,26 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String index = (ctx.index == null) ? "" : "[" + this.visit(ctx.index) + "]";
 		String indexType = this.expressionType;
 		String operator = ctx.operator.getText();
-		String result = "set " + variableName + index + "=";
 		VariableSymbol prevVar = this.variable;
+		String result;
+		
+		this.variable = this.variableFinder.get(this.function, variableName, this.scopeName);
+		
+		if (this.variable == null) {
+			throw new UndefinedVariableException(ctx.varName);
+		}
+		
+		result = "set " + this.variable.getName() + index + "=";
 		
 		switch (operator) {
 		case "/=":
 		case "*=":
 		case "-=":
 		case "+=":
-			result += variableName + index + operator.replace("=", "");
+			result += this.variable.getName() + index + operator.replace("=", "");
 		}
 		
 		result += this.visit(ctx.value);
-		
-		this.variable = this.variableFinder.get(this.function, variableName);
-		
-		if (this.variable == null) {
-			throw new UndefinedVariableException(ctx.varName);
-		}
 		
 		if (ctx.index != null && !this.variable.isArray()) {
 			throw new VariableIsNotArrayException(ctx.varName);

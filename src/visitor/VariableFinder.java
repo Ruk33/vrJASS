@@ -5,6 +5,7 @@ import java.util.HashMap;
 import exception.AlreadyDefinedVariableException;
 import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
+import symbol.Visibility;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.GlobalVariableStatementContext;
@@ -29,14 +30,23 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		this.localVariables = new HashMap<String, HashMap<String, VariableSymbol>>();
 	}
 	
-	public VariableSymbol get(String funcName, String variableName) {
+	public VariableSymbol get(String funcName, String variableName, String scopeName) {
 		VariableSymbol variable = null;
 		
-		if (funcName == null) {
-			variable = this.globalVariables.get(variableName);
-		} else {
+		if (funcName != null) {
 			if (this.localVariables.containsKey(funcName)) {
 				variable = this.localVariables.get(funcName).get(variableName);
+			}
+		}
+		
+		if (variable == null) {
+			String privateName = this.main.getPrefixedName(scopeName, variableName, false);
+			String publicName = this.main.getPrefixedName(scopeName, variableName, true);
+			
+			variable = this.globalVariables.get(privateName);
+			
+			if (variable == null) {
+				variable = this.globalVariables.get(publicName);
 			}
 			
 			if (variable == null) {
@@ -47,14 +57,14 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		return variable;
 	}
 	
-	public VariableSymbol get(FunctionSymbol function, String variableName) {
+	public VariableSymbol get(FunctionSymbol function, String variableName, String scopeName) {
 		String funcName = null;
 		
 		if (function != null) {
 			funcName = function.getName();
 		}
 		
-		return this.get(funcName, variableName);
+		return this.get(funcName, variableName, scopeName);
 	}
 	
 	protected VariableSymbol put(String funcName, VariableSymbol variable) {
@@ -85,13 +95,16 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		String variableName = prefix + ctx.varName.getText();
 		String variableType = ctx.variableType().getText();
 		boolean isArray = ctx.array != null;
+		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
 		VariableSymbol variable = new VariableSymbol(
 			variableName,
 			variableType,
 			isArray,
 			null,
-			ctx.varName
+			ctx.varName,
+			visibility,
+			this.scopeName
 		);
 		
 		this.put(null, variable);
@@ -110,7 +123,9 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 			variableType,
 			isArray,
 			null,
-			ctx.varName
+			ctx.varName,
+			Visibility.PRIVATE,
+			this.scopeName
 		);
 		
 		this.put(this.funcName, variable);
@@ -127,7 +142,9 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 			variableType,
 			false,
 			null,
-			ctx.ID().getSymbol()
+			ctx.ID().getSymbol(),
+			Visibility.PRIVATE,
+			this.scopeName
 		);
 		
 		this.put(this.funcName, variable);

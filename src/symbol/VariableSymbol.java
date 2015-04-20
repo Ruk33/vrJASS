@@ -9,14 +9,24 @@ public class VariableSymbol {
 	protected boolean array;
 	protected String value;
 	protected Token token;
+	protected Visibility visibility;
+	protected String scopeName;
 	
 	public VariableSymbol(
-			String name, String type, boolean array, String value, Token token) {
+			String name,
+			String type,
+			boolean array,
+			String value,
+			Token token,
+			Visibility visibility,
+			String scopeName) {
 		this.name = name;
 		this.type = type;
 		this.array = array;
 		this.value = value;
 		this.token = token;
+		this.visibility = visibility;
+		this.scopeName = scopeName;
 	}
 	
 	public String getName() {
@@ -41,6 +51,14 @@ public class VariableSymbol {
 	
 	public Token getToken() {
 		return this.token;
+	}
+
+	public Visibility getVisibility() {
+		return this.visibility;
+	}
+
+	public Object getScopeName() {
+		return this.scopeName;
 	}
 	
 }
