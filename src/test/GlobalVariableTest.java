@@ -283,7 +283,7 @@ public class GlobalVariableTest {
 		
 		assertEquals(result, compile.run(code));
 	}
-	
+		
 	@Test
 	public void privateUsingPrefix() {
 		Compile compile = new Compile();

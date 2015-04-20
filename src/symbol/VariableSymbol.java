@@ -6,6 +6,7 @@ public class VariableSymbol {
 
 	protected String name;
 	protected String type;
+	protected boolean global;
 	protected boolean array;
 	protected String value;
 	protected Token token;
@@ -15,6 +16,7 @@ public class VariableSymbol {
 	public VariableSymbol(
 			String name,
 			String type,
+			boolean global,
 			boolean array,
 			String value,
 			Token token,
@@ -22,6 +24,7 @@ public class VariableSymbol {
 			String scopeName) {
 		this.name = name;
 		this.type = type;
+		this.global = global;
 		this.array = array;
 		this.value = value;
 		this.token = token;
@@ -35,6 +38,10 @@ public class VariableSymbol {
 	
 	public String getType() {
 		return this.type;
+	}
+	
+	public boolean isGlobal() {
+		return this.global;
 	}
 	
 	public boolean isArray() {

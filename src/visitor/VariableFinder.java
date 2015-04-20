@@ -100,6 +100,7 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		VariableSymbol variable = new VariableSymbol(
 			variableName,
 			variableType,
+			true,
 			isArray,
 			null,
 			ctx.varName,
@@ -121,11 +122,12 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		VariableSymbol variable = new VariableSymbol(
 			variableName,
 			variableType,
+			false,
 			isArray,
 			null,
 			ctx.varName,
 			Visibility.PRIVATE,
-			this.scopeName
+			this.funcName
 		);
 		
 		this.put(this.funcName, variable);
@@ -141,10 +143,11 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 			variableName,
 			variableType,
 			false,
+			false,
 			null,
 			ctx.ID().getSymbol(),
 			Visibility.PRIVATE,
-			this.scopeName
+			this.funcName
 		);
 		
 		this.put(this.funcName, variable);

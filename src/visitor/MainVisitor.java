@@ -171,7 +171,19 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new UndefinedVariableException(ctx.varName);
 		}
 		
-		if (!this.hasAccessToVariable(variable, this.scopeName, this.requiredLibraries)) {
+		boolean access;
+		
+		if (variable.isGlobal()) {
+			access = this.hasAccessToVariable(
+				variable, this.scopeName, this.requiredLibraries
+			);
+		} else {
+			access = this.hasAccessToVariable(
+				variable, this.function.getName(), this.requiredLibraries
+			);
+		}
+		
+		if (!access) {
 			throw new ElementNoAccessException(ctx.varName);
 		}
 		
