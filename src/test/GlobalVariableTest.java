@@ -12,7 +12,6 @@ import exception.InvalidArrayVariableIndexException;
 import exception.NoScopeVisibilityException;
 import exception.VariableIsNotArrayException;
 import util.Compile;
-import util.ProjectPath;
 
 public class GlobalVariableTest {
 
@@ -22,7 +21,6 @@ public class GlobalVariableTest {
 	@Test
 	public void severalGlobalBlock() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "integer foo=3\n"
@@ -51,7 +49,6 @@ public class GlobalVariableTest {
 	@Test
 	public void declaration() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "\n\n"
@@ -69,7 +66,6 @@ public class GlobalVariableTest {
 	@Test
 	public void setArray() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "integer array bar\n"
@@ -84,7 +80,6 @@ public class GlobalVariableTest {
 	@Test
 	public void setting() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "\n\n"
@@ -108,7 +103,6 @@ public class GlobalVariableTest {
 	@Test
 	public void setNonArray() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "set bar[1]=2\n"
@@ -126,7 +120,6 @@ public class GlobalVariableTest {
 	@Test
 	public void setInvalidIndex() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "integer array bar\n"
@@ -144,7 +137,6 @@ public class GlobalVariableTest {
 	@Test
 	public void useInvalidIndex() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "integer array bar\n"
@@ -162,7 +154,6 @@ public class GlobalVariableTest {
 	@Test
 	public void initializeAtDeclaration() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "integer array bar=1\n"
@@ -177,7 +168,6 @@ public class GlobalVariableTest {
 	@Test
 	public void type() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "integer bar=\"nope\"\n"
@@ -194,7 +184,6 @@ public class GlobalVariableTest {
 	@Test
 	public void inScope() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "globals\n"
@@ -217,7 +206,6 @@ public class GlobalVariableTest {
 	@Test
 	public void privateOnNoScope() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "private integer foo\n"
@@ -234,7 +222,6 @@ public class GlobalVariableTest {
 	@Test
 	public void publicOnNoScope() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"globals\n"
 				+ "public integer foo\n"

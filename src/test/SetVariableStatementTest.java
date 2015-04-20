@@ -8,7 +8,6 @@ import org.junit.rules.ExpectedException;
 
 import exception.UndefinedVariableException;
 import util.Compile;
-import util.ProjectPath;
 
 public class SetVariableStatementTest {
 
@@ -18,7 +17,6 @@ public class SetVariableStatementTest {
 	@Test
 	public void setVariable() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes integer bar returns integer\n" +
 					"set bar=2\n" +
@@ -31,7 +29,6 @@ public class SetVariableStatementTest {
 	@Test
 	public void setUndefinedVariable() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"set bar=2\n" +

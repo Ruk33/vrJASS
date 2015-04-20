@@ -9,7 +9,6 @@ import org.junit.rules.ExpectedException;
 import exception.EqualNotEqualComparisonException;
 import exception.LessGreaterComparisonException;
 import util.Compile;
-import util.ProjectPath;
 
 public class ComparisonExpressionTest {
 
@@ -19,7 +18,6 @@ public class ComparisonExpressionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -37,7 +35,6 @@ public class ComparisonExpressionTest {
 	@Test
 	public void incorrectLessThan() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -55,7 +52,6 @@ public class ComparisonExpressionTest {
 	@Test
 	public void incorrectLessThanOrEqual() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -73,7 +69,6 @@ public class ComparisonExpressionTest {
 	@Test
 	public void incorrectGreaterThan() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -91,7 +86,6 @@ public class ComparisonExpressionTest {
 	@Test
 	public void incorrectGreaterThanOrEqual() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -109,7 +103,6 @@ public class ComparisonExpressionTest {
 	@Test
 	public void incorrectEqual() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -127,7 +120,6 @@ public class ComparisonExpressionTest {
 	@Test
 	public void incorrectNotEqual() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"

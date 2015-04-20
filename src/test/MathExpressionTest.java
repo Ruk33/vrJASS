@@ -8,7 +8,6 @@ import org.junit.rules.ExpectedException;
 
 import exception.MathematicalExpressionException;
 import util.Compile;
-import util.ProjectPath;
 
 public class MathExpressionTest {
 
@@ -18,7 +17,6 @@ public class MathExpressionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes integer a returns nothing\n" +
 					"set a=a*a*4\n" +
@@ -34,7 +32,6 @@ public class MathExpressionTest {
 	@Test
 	public void wrongDiv() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes integer a returns nothing\n" +
 					"set a=a/\"nope\"\n" +
@@ -51,7 +48,6 @@ public class MathExpressionTest {
 	@Test
 	public void wrongMult() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes integer a returns nothing\n" +
 					"set a=a*\"nope\"\n" +
@@ -68,7 +64,6 @@ public class MathExpressionTest {
 	@Test
 	public void wrongMinus() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes integer a returns nothing\n" +
 					"set a=a-\"nope\"\n" +
@@ -85,7 +80,6 @@ public class MathExpressionTest {
 	@Test
 	public void wrongPlus() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes integer a returns nothing\n" +
 					"set a=a+\"nope\"\n" +
@@ -102,7 +96,6 @@ public class MathExpressionTest {
 	@Test
 	public void wrongUsingFunction() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes integer a returns nothing\n" +
 					"set a=a+bar()\n" +

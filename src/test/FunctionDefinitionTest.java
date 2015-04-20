@@ -8,7 +8,6 @@ import org.junit.rules.ExpectedException;
 
 import exception.NoScopeVisibilityException;
 import util.Compile;
-import util.ProjectPath;
 
 public class FunctionDefinitionTest {
 
@@ -18,7 +17,6 @@ public class FunctionDefinitionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n\n" +
 				"endfunction";
@@ -29,7 +27,6 @@ public class FunctionDefinitionTest {
 	@Test
 	public void privateOnNoScope() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"private function foo takes nothing returns nothing\n\n" +
 				"endfunction";
@@ -45,7 +42,6 @@ public class FunctionDefinitionTest {
 	@Test
 	public void publicOnNoScope() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"public function foo takes nothing returns nothing\n\n" +
 				"endfunction";

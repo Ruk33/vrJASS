@@ -8,7 +8,6 @@ import org.junit.rules.ExpectedException;
 
 import exception.LogicalException;
 import util.Compile;
-import util.ProjectPath;
 
 public class LogicalExpressionTest {
 
@@ -18,7 +17,6 @@ public class LogicalExpressionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -33,7 +31,6 @@ public class LogicalExpressionTest {
 	@Test
 	public void incorrectOr() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"
@@ -51,7 +48,6 @@ public class LogicalExpressionTest {
 	@Test
 	public void incorrectAnd() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n"
 				+ "local boolean bar\n"

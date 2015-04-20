@@ -8,7 +8,6 @@ import org.junit.rules.ExpectedException;
 
 import exception.ElementNoAccessException;
 import util.Compile;
-import util.ProjectPath;
 
 public class FunctionCallTest {
 
@@ -18,7 +17,6 @@ public class FunctionCallTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"call foo()\n" +
@@ -30,7 +28,6 @@ public class FunctionCallTest {
 	@Test
 	public void callPrivateUsingPrefix() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "private function nope takes nothing returns nothing\n"
@@ -52,7 +49,6 @@ public class FunctionCallTest {
 	@Test
 	public void callPublic() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "public function yep takes nothing returns nothing\n"
@@ -75,7 +71,6 @@ public class FunctionCallTest {
 	@Test
 	public void publicAutoPrefixFromInsideOfScope() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "public function bar takes nothing returns nothing\n"
@@ -100,7 +95,6 @@ public class FunctionCallTest {
 	@Test
 	public void privateAutoPrefixFromInsideOfScope() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "private function bar takes nothing returns nothing\n"

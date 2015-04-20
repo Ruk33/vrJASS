@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import util.Compile;
-import util.ProjectPath;
 
 public class LibraryTest {
 
@@ -17,7 +16,6 @@ public class LibraryTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "function bar takes nothing returns nothing\n"
@@ -42,7 +40,6 @@ public class LibraryTest {
 	@Test
 	public void noCollisionPublic() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "public function yep takes nothing returns nothing\n"
@@ -65,7 +62,6 @@ public class LibraryTest {
 	@Test
 	public void noCollisionPrivate() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo\n"
 				+ "private function yep takes nothing returns nothing\n"
@@ -88,7 +84,6 @@ public class LibraryTest {
 	@Test
 	public void requires() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"library foo requires bar, other\n"
 				+ "endlibrary\n"

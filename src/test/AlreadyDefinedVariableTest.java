@@ -30,7 +30,6 @@ public class AlreadyDefinedVariableTest {
 	@Test
 	public void locals() throws CompileException, IOException {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"local integer bar\n" +

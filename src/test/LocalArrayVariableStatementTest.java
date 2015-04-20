@@ -10,7 +10,6 @@ import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
 import exception.VariableIsNotArrayException;
 import util.Compile;
-import util.ProjectPath;
 
 public class LocalArrayVariableStatementTest {
 
@@ -20,7 +19,6 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void defineArray() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"local integer array bar\n" +
@@ -32,7 +30,6 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void setArray() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"local integer array bar\n" +
@@ -45,7 +42,6 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void setNonArrayVariable() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"local integer bar\n" +
@@ -61,7 +57,6 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void setInvalidIndex() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"local integer array bar\n" +
@@ -77,7 +72,6 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void useInvalidIndex() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"local integer array bar\n" +
@@ -93,7 +87,6 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void initializeAtDeclaration() {
 		Compile compile = new Compile();
-		String testPath = ProjectPath.getTest();
 		String code =
 				"function foo takes nothing returns nothing\n" +
 					"local integer array bar = 2\n" +
