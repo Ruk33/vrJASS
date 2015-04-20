@@ -49,8 +49,9 @@ expression
 	|left=expression '/' right=expression #Div
 	|left=expression '*' right=expression #Mult
 	|left=expression '-' right=expression #Minus
-	|left=expression '+' right=expression #Plus
+	|left=expression '+' right=expression #Plus	
 	|left=expression operator=('==' | '!=' | '>' | '>=' | '<' | '<=') right=expression #Comparison
+	|left=expression operator=('or'|'and') right=expression #Logical
 	|functionExpression #Function
 	|INT #Integer
 	|STR #String

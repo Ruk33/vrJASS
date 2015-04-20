@@ -7,6 +7,7 @@ import exception.IncorrectReturnTypeFunctionException;
 import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
 import exception.LessGreaterComparisonException;
+import exception.LogicalException;
 import exception.MathematicalExpressionException;
 import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
@@ -35,6 +36,7 @@ import antlr4.vrjassParser.GlobalsContext;
 import antlr4.vrjassParser.InitContext;
 import antlr4.vrjassParser.IntegerContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
+import antlr4.vrjassParser.LogicalContext;
 import antlr4.vrjassParser.MinusContext;
 import antlr4.vrjassParser.MultContext;
 import antlr4.vrjassParser.ParameterContext;
@@ -253,6 +255,28 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.expressionType = "boolean";
 		return left + operator + right;
+	}
+	
+	@Override
+	public String visitLogical(LogicalContext ctx) {
+		String left = this.visit(ctx.left);
+		String leftType = this.expressionType;
+		boolean leftIsBoolean = "boolean".equals(leftType);
+		
+		String right = this.visit(ctx.right);
+		String rightType = this.expressionType;
+		boolean rightIsBoolean = "boolean".equals(rightType);
+		
+		if (!leftIsBoolean) {
+			throw new LogicalException(ctx.left.getStart());
+		}
+		
+		if (!rightIsBoolean) {
+			throw new LogicalException(ctx.right.getStart());
+		}
+		
+		this.expressionType = "boolean";
+		return left + " " + ctx.operator.getText() + " " + right;
 	}
 	
 	@Override
