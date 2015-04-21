@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.Token;
 public class FunctionSymbol {
 	protected String scopeName;
 	protected String name;
-	protected Stack<String> params;
+	protected Stack<VariableSymbol> params;
 	protected String returnType;
 	protected Token token;
 	protected Visibility visibility;
@@ -15,14 +15,14 @@ public class FunctionSymbol {
 	public FunctionSymbol(String scopeName, String name, String returnType, Visibility visibility, Token token) {
 		this.scopeName = scopeName;
 		this.name = name;
-		this.params = new Stack<String>();
+		this.params = new Stack<VariableSymbol>();
 		this.returnType = returnType;
 		this.visibility = visibility;
 		this.token = token;
 	}
 	
-	public FunctionSymbol addParamType(String paramType) {
-		this.params.push(paramType);
+	public FunctionSymbol addParam(VariableSymbol param) {
+		this.params.push(param);
 		return this;
 	}
 	
@@ -34,7 +34,7 @@ public class FunctionSymbol {
 		return this.name;
 	}
 	
-	public Stack<String> getParams() {
+	public Stack<VariableSymbol> getParams() {
 		return this.params;
 	}
 	

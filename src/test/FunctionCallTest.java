@@ -146,22 +146,31 @@ public class FunctionCallTest {
 	public void functionAlternativeSort() {
 		Compile compile = new Compile();
 		String code =
-				"function foo takes nothing returns nothing\n"
-				+ "call bar()\n"
+				"function foo takes integer i returns integer\n"
+				+ "return bar(i)\n"
 				+ "endfunction\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "call foo()\n"
+				+ "function bar takes integer i returns integer\n"
+				+ "return foo(i)\n"
 				+ "endfunction";
 		
 		String result =
-				"function vrjass_c_foo takes nothing returns nothing\n"
-				+ "call ExecuteFunc(\"foo\")\n"
+				"globals\n"
+				+ "integer vrjass_c_foo_i\n"
+				+ "integer vrjass_c_foo_return\n"
+				+ "endglobals\n"
+				+ "function vrjass_c_foo takes integer i returns integer\n"
+				+ "set vrjass_c_foo_i=i\n"
+				+ "call ExecuteFunc(\"vrjass_c_noargs_foo\")\n"
+				+ "return vrjass_c_foo_return\n"
 				+ "endfunction\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "call vrjass_c_foo()\n"
+				+ "function bar takes integer i returns integer\n"
+				+ "return vrjass_c_foo(i)\n"
 				+ "endfunction\n"
-				+ "function foo takes nothing returns nothing\n"
-				+ "call bar()\n"
+				+ "function foo takes integer i returns integer\n"
+				+ "return bar(i)\n"
+				+ "endfunction\n"
+				+ "function vrjass_c_noargs_foo takes nothing returns nothing\n"
+				+ "set vrjass_c_foo_return=foo(vrjass_c_foo_i)\n"
 				+ "endfunction";
 		
 		assertEquals(result, compile.run(code));

@@ -389,7 +389,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitArguments(ArgumentsContext ctx) {
-		Stack<String> params = this.function.getParams();
+		Stack<VariableSymbol> params = this.function.getParams();
 		Stack<String> args = new Stack<String>();
 		String prevExprType = this.expressionType;
 		int i = 0;
@@ -397,10 +397,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		for (ArgumentContext arg : ctx.argument()) {
 			args.push(this.visit(arg));
 			
-			if (!params.get(i).equals(this.expressionType)) {
+			if (!params.get(i).getType().equals(this.expressionType)) {
 				throw new IncorrectArgumentTypeFunctionCallException(
 					arg.getStart(),
-					params.get(i),
+					params.get(i).getType(),
 					this.expressionType
 				);
 			}
@@ -465,9 +465,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.function = func;
 		
 		String finalName = func.getName();
+		String prevFuncName = prevFunction.getName();
 		
-		if (!this.functionSorter.functionBeingCalled(
-				func.getName(), prevFunction.getName())) {
+		if (!this.functionSorter.functionBeingCalled(func, prevFuncName)) {
 			finalName = this.functionSorter.getDummyPrefix() + finalName;
 		}
 		
@@ -722,13 +722,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitInit(InitContext ctx) {
 		Stack<String> result = new Stack<String>();
+		Stack<String> dummyGlobals = this.functionSorter.getDummyGlobals();
 		
 		for (AltInitContext alt : ctx.altInit()) {
 			this.visit(alt);
 		}
 		
-		if (this.globalsBlock.size() != 0) {
+		if (this.globalsBlock.size() != 0 || dummyGlobals.size() != 0) {
 			result.push("globals");
+			result.addAll(dummyGlobals);
 			result.addAll(this.globalsBlock);
 			result.push("endglobals");
 		}

@@ -1,8 +1,10 @@
 package visitor;
 
 import java.util.HashMap;
+
 import exception.AlreadyDefinedFunctionException;
 import symbol.FunctionSymbol;
+import symbol.VariableSymbol;
 import symbol.Visibility;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser.FunctionDefinitionContext;
@@ -42,8 +44,21 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 	
 	@Override
 	public Void visitParameters(ParametersContext ctx) {
+		VariableSymbol variable;
+		
 		for (ParameterContext param : ctx.parameter()) {
-			this.lastFunction.addParamType(this.main.visit(param.variableType()));
+			variable = new VariableSymbol(
+				param.ID().getText(),
+				param.variableType().getText(),
+				false,
+				false,
+				null,
+				param.ID().getSymbol(),
+				Visibility.PRIVATE,
+				this.lastFunction.getName()
+			);
+			
+			this.lastFunction.addParam(variable);
 		}
 		
 		return null;
