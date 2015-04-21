@@ -25,6 +25,7 @@ import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
+import util.FunctionSorter;
 import util.Prefix;
 import util.VariableTypeDetector;
 import antlr4.vrjassBaseVisitor;
@@ -62,6 +63,8 @@ import antlr4.vrjassParser.VariableTypeContext;
 
 public class MainVisitor extends vrjassBaseVisitor<String> {
 
+	protected FunctionSorter functionSorter;
+	
 	protected Prefix prefixer;
 	
 	protected FunctionFinder functionFinder;
@@ -81,16 +84,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected String expressionType;
 	
 	protected Stack<String> globalsBlock;
-	protected Stack<String> functions;
 	
 	protected String output;
 	
 	public MainVisitor(vrjassParser parser) {
+		this.functionSorter = new FunctionSorter();
 		this.prefixer = new Prefix();
 		this.requiredLibraries = new Stack<String>();
 		
 		this.globalsBlock = new Stack<String>();
-		this.functions = new Stack<String>();
 		
 		this.functionFinder = new FunctionFinder(this);
 		this.variableFinder = new VariableFinder(this);
@@ -465,6 +467,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String result = func.getName() + "(" + this.visit(ctx.arguments()) + ")";
 		this.expressionType = this.function.getReturnType();
 		
+		this.functionSorter.functionBeingCalled(func.getName(), prevFunction.getName());
+		
 		this.function = prevFunction;
 		
 		return result;
@@ -622,10 +626,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			}
 		}
 		
+		this.functionSorter.functionBeingDefined(this.function.getName(), result);
+		
 		this.hasReturn = prevHasReturn;
 		this.function = prevFunc;
-		
-		this.functions.push(result);
 		
 		return result;
 	}
@@ -722,7 +726,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			result.push("endglobals");
 		}
 		
-		result.addAll(this.functions);
+		result.addAll(this.functionSorter.getFunctions());
 		
 		return String.join(System.lineSeparator(), result);
 	}

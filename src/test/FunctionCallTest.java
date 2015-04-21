@@ -115,5 +115,31 @@ public class FunctionCallTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void functionSort() {
+		Compile compile = new Compile();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "call bar()\n"
+				+ "endfunction\n"
+				+ "function lorem takes nothing returns nothing\n"
+				+ "call foo()\n"
+				+ "endfunction\n"
+				+ "function bar takes nothing returns nothing\n\n"
+				+ "endfunction";
+		
+		String result =
+				"function bar takes nothing returns nothing\n\n"
+				+ "endfunction\n"
+				+ "function foo takes nothing returns nothing\n"
+				+ "call bar()\n"
+				+ "endfunction\n"
+				+ "function lorem takes nothing returns nothing\n"
+				+ "call foo()\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

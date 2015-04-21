@@ -94,5 +94,29 @@ public class LibraryTest {
 				
 		assertEquals("", compile.run(code));
 	}
+	
+	@Test
+	public void functionSort() {
+		Compile compile = new Compile();
+		String code =
+				"library lorem requires foo\n"
+				+ "public function ipsum takes nothing returns nothing\n"
+				+ "call foo_bar()\n"
+				+ "endfunction\n"
+				+ "endlibrary\n"
+				+ "library foo\n"
+				+ "public function bar takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary";
+		
+		String result =
+				"function foo_bar takes nothing returns nothing\n\n"
+				+ "endfunction\n"
+				+ "function lorem_ipsum takes nothing returns nothing\n"
+				+ "call foo_bar()\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }
