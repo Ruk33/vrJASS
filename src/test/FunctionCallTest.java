@@ -141,5 +141,27 @@ public class FunctionCallTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void functionAlternativeSort() {
+		Compile compile = new Compile();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "call bar()\n"
+				+ "endfunction\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "call foo()\n"
+				+ "endfunction";
+		
+		String result =
+				"function bar takes nothing returns nothing\n"
+				+ "call ExecuteFunc(\"foo\")\n"
+				+ "endfunction\n"
+				+ "function foo takes nothing returns nothing\n"
+				+ "call bar()\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

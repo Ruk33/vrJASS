@@ -26,18 +26,29 @@ public class FunctionSorter {
 		}
 	}
 	
-	public void functionBeingCalled(String whichFunction, String by) {
+	/**
+	 * 
+	 * @param whichFunction
+	 * @param by
+	 * @return true if it could be sorted, false otherwise
+	 */
+	public boolean functionBeingCalled(String whichFunction, String by) {
 		int order = this.functionOrder.getOrDefault(by, 0);
-		
+		boolean ok = true;
+
 		if (this.functionOrder.containsKey(whichFunction)) {
 			int whichFunctionOrder = this.functionOrder.get(whichFunction);
 			
-			if (order > whichFunctionOrder) {
+			if (order == whichFunctionOrder) {
+				ok = false;
+			} else if (order > whichFunctionOrder) {
 				order = whichFunctionOrder;
 			}
 		}
 		
 		this.functionOrder.put(whichFunction, order);
+		
+		return ok;
 	}
 	
 	public Stack<String> getFunctions() {
