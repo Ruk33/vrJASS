@@ -27,14 +27,14 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 	public FunctionSymbol get(String name, String scopeName) {
 		String privateName = this.main.getPrefixedName(scopeName, name, false);
 		String publicName = this.main.getPrefixedName(scopeName, name, true);
-		FunctionSymbol result = this.functions.get(privateName);
+		FunctionSymbol result = this.functions.get(name);
 		
 		if (result == null) {
-			result = this.functions.get(publicName);
+			result = this.functions.get(privateName);
 		}
 		
 		if (result == null) {
-			result = this.functions.get(name);
+			result = this.functions.get(publicName);
 		}
 		
 		return result;
