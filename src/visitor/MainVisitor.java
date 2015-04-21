@@ -464,11 +464,16 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.function = func;
 		
-		String result = func.getName() + "(" + this.visit(ctx.arguments()) + ")";
+		String finalName = func.getName();
+		
+		if (!this.functionSorter.functionBeingCalled(
+				func.getName(), prevFunction.getName())) {
+			finalName = this.functionSorter.getDummyPrefix() + finalName;
+		}
+		
+		String result = finalName + "(" + this.visit(ctx.arguments()) + ")";
 		this.expressionType = this.function.getReturnType();
-		
-		this.functionSorter.functionBeingCalled(func.getName(), prevFunction.getName());
-		
+				
 		this.function = prevFunction;
 		
 		return result;
@@ -613,6 +618,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.function = this.functionFinder.get(name, this.scopeName);
 		this.hasReturn = false;
 		
+		this.functionSorter.functionBeingDefined(this.function.getName());
+		
 		String result =
 				"function " + name +
 				" takes " + params +
@@ -626,7 +633,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			}
 		}
 		
-		this.functionSorter.functionBeingDefined(this.function.getName(), result);
+		this.functionSorter.setFunctionBody(this.function.getName(), result);
 		
 		this.hasReturn = prevHasReturn;
 		this.function = prevFunc;

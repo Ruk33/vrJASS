@@ -154,8 +154,11 @@ public class FunctionCallTest {
 				+ "endfunction";
 		
 		String result =
-				"function bar takes nothing returns nothing\n"
+				"function vrjass_c_foo takes nothing returns nothing\n"
 				+ "call ExecuteFunc(\"foo\")\n"
+				+ "endfunction\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "call vrjass_c_foo()\n"
 				+ "endfunction\n"
 				+ "function foo takes nothing returns nothing\n"
 				+ "call bar()\n"
