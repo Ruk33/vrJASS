@@ -25,6 +25,7 @@ import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
+import util.ClassDefaultAllocator;
 import util.FunctionSorter;
 import util.Prefix;
 import util.VariableTypeDetector;
@@ -33,6 +34,8 @@ import antlr4.vrjassParser;
 import antlr4.vrjassParser.AltInitContext;
 import antlr4.vrjassParser.ArgumentContext;
 import antlr4.vrjassParser.ArgumentsContext;
+import antlr4.vrjassParser.ClassDefinitionContext;
+import antlr4.vrjassParser.ClassStatementsContext;
 import antlr4.vrjassParser.ComparisonContext;
 import antlr4.vrjassParser.DivContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
@@ -62,7 +65,9 @@ import antlr4.vrjassParser.VariableContext;
 import antlr4.vrjassParser.VariableTypeContext;
 
 public class MainVisitor extends vrjassBaseVisitor<String> {
-
+	
+	protected Stack<String> classGlobals;
+	
 	protected FunctionSorter functionSorter;
 	
 	protected Prefix prefixer;
@@ -88,6 +93,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected String output;
 	
 	public MainVisitor(vrjassParser parser) {
+		this.classGlobals = new Stack<String>();
 		this.functionSorter = new FunctionSorter();
 		this.prefixer = new Prefix();
 		this.requiredLibraries = new Stack<String>();
@@ -642,6 +648,36 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 	
 	@Override
+	public String visitClassDefinition(ClassDefinitionContext ctx) {
+		Stack<String> result = new Stack<String>();
+		String visited;
+		
+		String className = ctx.className.getText();
+		ClassDefaultAllocator cda = new ClassDefaultAllocator(className);
+		
+		result.push(cda.getAllocator());
+		result.push(cda.getDeallocator());
+		
+		for (ClassStatementsContext classStat : ctx.classStatements()) {
+			visited = this.visit(classStat);
+			
+			if (visited != null) {
+				result.push(visited);
+			}
+		}
+		
+		this.functionSorter.functionBeingDefined(cda.getAllocatorName());
+		this.functionSorter.setFunctionBody(cda.getAllocatorName(), cda.getAllocator());
+		
+		this.functionSorter.functionBeingDefined(cda.getDeallocatorName());
+		this.functionSorter.setFunctionBody(cda.getDeallocatorName(), cda.getDeallocator());
+		
+		this.classGlobals.addAll(cda.getGlobals());
+		
+		return String.join(System.lineSeparator(), result);
+	}
+	
+	@Override
 	public String visitGlobalVariableStatement(
 			GlobalVariableStatementContext ctx) {
 		String prefix = this.getPrefix(ctx.visibility, this.scopeName);
@@ -728,9 +764,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			this.visit(alt);
 		}
 		
-		if (this.globalsBlock.size() != 0 || dummyGlobals.size() != 0) {
+		this.globalsBlock.addAll(dummyGlobals);
+		this.globalsBlock.addAll(this.classGlobals);
+		
+		if (this.globalsBlock.size() != 0) {
 			result.push("globals");
-			result.addAll(dummyGlobals);
 			result.addAll(this.globalsBlock);
 			result.push("endglobals");
 		}

@@ -8,6 +8,7 @@ altInit
 	:functionDefinition
 	|globalDefinition
 	|libraryDefinition
+	|classDefinition
 	|EOL
 	;
 
@@ -42,6 +43,7 @@ globalDefinition:
 libraryStatements
 	:globalDefinition
 	|functionDefinition
+	|classDefinition
 	|EOL
 	;
 	
@@ -51,6 +53,26 @@ libraryDefinition:
 	'library' libraryName=ID requirements? EOL
 		libraryStatements*
 	'endlibrary'
+	;
+
+methodDefinition:
+	'method' methodName=ID 'takes' parameters 'returns' returnType EOL
+	 	statements
+	 'endmethod'
+	 ;
+	 
+propertyStatement: variableType propertyName=ID ('=' value=expression)?;
+
+classStatements
+	:methodDefinition
+	|propertyStatement
+	|EOL
+	;
+
+classDefinition:
+	'struct' className=ID EOL
+		classStatements*
+	'endstruct'
 	;
 
 functionDefinition:
