@@ -2,14 +2,20 @@ package visitor;
 
 import java.util.HashMap;
 
+import org.antlr.v4.runtime.Token;
+
 import exception.AlreadyDefinedFunctionException;
 import symbol.FunctionSymbol;
+import symbol.MethodSymbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
 import antlr4.vrjassBaseVisitor;
+import antlr4.vrjassParser.ClassDefinitionContext;
+import antlr4.vrjassParser.ClassStatementsContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.LibraryDefinitionContext;
 import antlr4.vrjassParser.LibraryStatementsContext;
+import antlr4.vrjassParser.MethodDefinitionContext;
 import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.ParametersContext;
 
@@ -17,6 +23,7 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 
 	protected MainVisitor main;
 	protected String scopeName;
+	protected String className;
 	protected HashMap<String, FunctionSymbol> functions;
 	protected FunctionSymbol lastFunction;
 	
@@ -26,20 +33,8 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 		this.lastFunction = null;
 	}
 	
-	public FunctionSymbol get(String name, String scopeName) {
-		String privateName = this.main.getPrefixedName(scopeName, name, false);
-		String publicName = this.main.getPrefixedName(scopeName, name, true);
-		FunctionSymbol result = this.functions.get(name);
-		
-		if (result == null) {
-			result = this.functions.get(privateName);
-		}
-		
-		if (result == null) {
-			result = this.functions.get(publicName);
-		}
-		
-		return result;
+	public FunctionSymbol get(String name) {
+		return this.functions.get(name);
 	}
 	
 	@Override
@@ -64,25 +59,83 @@ public class FunctionFinder extends vrjassBaseVisitor<Void> {
 		return null;
 	}
 	
-	@Override
-	public Void visitFunctionDefinition(FunctionDefinitionContext ctx) {
-		String prefix = this.main.getPrefix(ctx.visibility, this.scopeName);
-		String name = prefix + ctx.functionName.getText();
-		String returnType = this.main.visit(ctx.returnType());
-		Visibility visibility = this.main.getVisibility(ctx.visibility);
-		FunctionSymbol func = this.functions.get(name);
+	protected FunctionSymbol defineFunction(
+			Token funcName,
+			String prefix,
+			String name,
+			String returnType,
+			Visibility visibility,
+			boolean method
+			) {
+		FunctionSymbol func = this.functions.get(prefix + name);
 		
 		if (func != null) {
-			throw new AlreadyDefinedFunctionException(ctx.functionName, func);
+			throw new AlreadyDefinedFunctionException(funcName, func);
 		}
 		
-		this.lastFunction = new FunctionSymbol(
-			this.scopeName, name, returnType, visibility, ctx.functionName
+		if (method) {
+			func = new MethodSymbol(
+				this.scopeName, prefix + name, returnType, visibility, funcName
+			);
+		} else {
+			func = new FunctionSymbol(
+				this.scopeName, prefix + name, returnType, visibility, funcName
+			);
+		}
+		
+		return func;
+	}
+	
+	@Override
+	public Void visitFunctionDefinition(FunctionDefinitionContext ctx) {
+		String prefix = this.main.getPrefixer().getForScope(ctx.visibility, this.scopeName);
+		String name = ctx.functionName.getText();
+		String returnType = this.main.visit(ctx.returnType());
+		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		
+		this.lastFunction = this.defineFunction(
+			ctx.functionName, prefix, name, returnType, visibility, false
 		);
 		
-		this.functions.put(name, this.lastFunction);
+		this.functions.put(this.lastFunction.getName(), this.lastFunction);
 		this.visit(ctx.parameters());
+		
 		this.lastFunction = null;
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitMethodDefinition(MethodDefinitionContext ctx) {
+		String prefix = this.main.getPrefixer().getForClass(ctx.visibility, this.scopeName, this.className);
+		String name = ctx.methodName.getText();
+		String returnType = this.main.visit(ctx.returnType());
+		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		
+		this.lastFunction = this.defineFunction(
+			ctx.methodName, prefix, name, returnType, visibility, true
+		);
+		
+		this.functions.put(this.lastFunction.getName(), this.lastFunction);
+		
+		this.visit(ctx.parameters());
+		
+		this.lastFunction = null;
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitClassDefinition(ClassDefinitionContext ctx) {
+		String prevClassName = this.className;
+		
+		this.className = ctx.className.getText();
+		
+		for (ClassStatementsContext classStat : ctx.classStatements()) {
+			this.visit(classStat);
+		}
+		
+		this.className = prevClassName;
 		
 		return null;
 	}

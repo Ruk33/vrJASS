@@ -9,7 +9,7 @@ import util.Compile;
 public class ClassTest {
 
 	@Test
-	public void correct() {
+	public void defaultAllocation() {
 		Compile compile = new Compile();
 		String code =
 				"struct Foo\n"
@@ -44,6 +44,34 @@ public class ClassTest {
 				+ "endstruct";
 		
 		assertEquals("", compile.run(code));
+	}
+	
+	@Test
+	public void visibilityNoScope() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "method bar takes nothing returns nothing\n"
+				+ "endmethod\n"
+				+ "private method nope takes nothing returns nothing\n"
+				+ "call this.bar()\n"
+				+ "endmethod\n"
+				+ "public method yep takes nothing returns nothing\n"
+				+ "call this.nope()\n"
+				+ "endmethod\n"
+				+ "endstruct";
+		
+		String result =
+				"function struct_Foo_bar takes integer this returns nothing\n\n"
+				+ "endfunction\n"
+				+ "function struct_Foo__nope takes integer this returns nothing\n"
+				+ "call struct_Foo_bar(this)\n"
+				+ "endfunction\n"
+				+ "function struct_Foo_yep takes integer this returns nothing\n"
+				+ "call struct_Foo__nope(this)\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
 	}
 
 }

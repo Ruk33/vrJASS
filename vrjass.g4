@@ -56,7 +56,7 @@ libraryDefinition:
 	;
 
 methodDefinition:
-	'method' methodName=ID 'takes' parameters 'returns' returnType EOL
+	(visibility=('private'|'public'))? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
 	 	statements
 	 'endmethod'
 	 ;
@@ -82,17 +82,19 @@ functionDefinition:
 	 ;
 
 expression
-	:'(' expression ')' #Parenthesis
-	|left=expression '/' right=expression #Div
+	:left=expression '/' right=expression #Div
 	|left=expression '*' right=expression #Mult
 	|left=expression '-' right=expression #Minus
 	|left=expression '+' right=expression #Plus	
 	|left=expression operator=('==' | '!=' | '>' | '>=' | '<' | '<=') right=expression #Comparison
 	|left=expression operator=('or'|'and') right=expression #Logical
-	|functionExpression #Function
 	|INT #Integer
 	|STR #String
+	|'this' #This
+	|functionExpression #Function
 	|varName=ID ('[' index=expression ']')? #Variable
+	|expression '.' expression #Member
+	|'(' expression ')' #Parenthesis
 	;
 	
 argument: expression;
@@ -102,7 +104,7 @@ arguments
 	|
 	; 
 
-functionStatement: 'call' functionExpression;
+functionStatement: 'call' expression;
 
 functionExpression: functionName=ID '(' arguments ')';
 

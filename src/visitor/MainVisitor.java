@@ -23,6 +23,7 @@ import exception.UndefinedFunctionException;
 import exception.UndefinedVariableException;
 import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
+import symbol.MethodSymbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
 import util.ClassDefaultAllocator;
@@ -49,6 +50,7 @@ import antlr4.vrjassParser.LibraryDefinitionContext;
 import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.LogicalContext;
+import antlr4.vrjassParser.MethodDefinitionContext;
 import antlr4.vrjassParser.MinusContext;
 import antlr4.vrjassParser.MultContext;
 import antlr4.vrjassParser.ParameterContext;
@@ -77,6 +79,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected VariableFinder variableFinder;
 	
 	protected String scopeName;
+	
+	protected String className;
 	
 	protected Stack<String> requiredLibraries;
 	
@@ -112,20 +116,40 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.output = this.visit(parser.init());
 	}
 	
-	protected String getPrefixedName(String scopeName, String element, boolean _public) {
-		if (scopeName != null) {
-			if (_public) {
-				return scopeName + "_" + element;
-			} else {
-				return scopeName + "__" + element;
-			}
-		}
-		
-		return element;
+	public Prefix getPrefixer() {
+		return this.prefixer;
 	}
 	
-	public String getPrefix(Token visibility, String scopeName) {
-		return this.prefixer.get(visibility, scopeName);
+	public FunctionSymbol getFunction(String scopeName, String name) {
+		String prefix = this.prefixer.getForScope(false, scopeName);
+		FunctionSymbol result = this.functionFinder.get(prefix + name);
+		
+		if (result == null) {
+			prefix = this.prefixer.getForScope(true, scopeName);
+			result = this.functionFinder.get(prefix + name);
+		}
+		
+		if (result == null) {
+			result = this.functionFinder.get(name);
+		}
+		
+		return result;
+	}
+	
+	public FunctionSymbol getMethod(String scopeName, String className, String name) {
+		String prefix = this.prefixer.getForClass(false, scopeName, className);
+		FunctionSymbol result = this.functionFinder.get(prefix + name);
+		
+		if (result == null) {
+			prefix = this.prefixer.getForClass(true, scopeName, className);
+			result = this.functionFinder.get(prefix + name);
+		}
+		
+		if (result == null) {
+			result = this.functionFinder.get(name);
+		}
+		
+		return result;
 	}
 	
 	public Visibility getVisibility(Token visibility) {
@@ -149,8 +173,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		if (function.getVisibility() == Visibility.PRIVATE) {
-			if (!function.getScopeName().equals(callingScope)) {
-				return false;
+			if (callingScope == null) {
+				if (this.className == null) {
+					return false;
+				}
+			} else {
+				if (!function.getScopeName().equals(callingScope)) {
+					return false;
+				}
 			}
 		}
 		
@@ -447,13 +477,22 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitFunctionExpression(FunctionExpressionContext ctx) {
 		String name = ctx.functionName.getText();
-		FunctionSymbol func = this.functionFinder.get(name, this.scopeName);
+		FunctionSymbol func = null;
+		
+		if (this.className != null) {
+			func = this.getMethod(this.scopeName, this.className, name);
+		}
+		
+		if (func == null) {
+			func = this.getFunction(this.scopeName, name);
+		}
 		
 		if (func == null) {
 			throw new UndefinedFunctionException(ctx.functionName);
 		}
 		
 		int argumentsCount = ctx.arguments().argument().size();
+		
 		FunctionSymbol prevFunction = this.function;
 		
 		if (!this.hasAccess(func, this.scopeName, this.requiredLibraries)) {
@@ -477,7 +516,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			finalName = this.functionSorter.getDummyPrefix() + finalName;
 		}
 		
-		String result = finalName + "(" + this.visit(ctx.arguments()) + ")";
+		String args = this.visit(ctx.arguments());
+		
+		if (this.function instanceof MethodSymbol) {
+			if (args.equals("")) {
+				args = "this";
+			} else {
+				args = "this," + args;
+			}
+		}
+		
+		String result = finalName + "(" + args + ")";
 		this.expressionType = this.function.getReturnType();
 				
 		this.function = prevFunction;
@@ -487,7 +536,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitFunctionStatement(FunctionStatementContext ctx) {
-		return "call " + this.visit(ctx.functionExpression());
+		return "call " + this.visit(ctx.expression());
 	}
 	
 	@Override
@@ -610,8 +659,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitFunctionDefinition(FunctionDefinitionContext ctx) {
-		String prefix = this.getPrefix(ctx.visibility, this.scopeName);
-		String name = prefix + ctx.functionName.getText();
+		String name = ctx.functionName.getText();
 		String params = this.visit(ctx.parameters());
 		String type = this.visit(ctx.returnType());
 		FunctionSymbol prevFunc = this.function;
@@ -621,13 +669,13 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new NoScopeVisibilityException(ctx.functionName);
 		}
 		
-		this.function = this.functionFinder.get(name, this.scopeName);
+		this.function = this.getFunction(this.scopeName, name);
 		this.hasReturn = false;
 		
 		this.functionSorter.functionBeingDefined(this.function.getName());
 		
 		String result =
-				"function " + name +
+				"function " + this.function.getName() +
 				" takes " + params +
 				" returns " + type + System.lineSeparator() +
 				this.visit(ctx.statements()) + System.lineSeparator() +
@@ -648,13 +696,44 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 	
 	@Override
+	public String visitMethodDefinition(MethodDefinitionContext ctx) {
+		String name = ctx.methodName.getText();
+		FunctionSymbol prevFunc = this.function;
+		String params = this.visit(ctx.parameters());
+		
+		this.function = this.getMethod(this.scopeName, this.className, name);
+		
+		if (params.equals("nothing")) {
+			params = "integer this";
+		} else {
+			params = "integer this," + params;
+		}
+		
+		this.functionSorter.functionBeingDefined(this.function.getName());
+		
+		String result =
+			"function " + this.function.getName() +
+			" takes " + params +
+			" returns " + this.visit(ctx.returnType()) + System.lineSeparator() +
+			this.visit(ctx.statements()) + System.lineSeparator() +
+			"endfunction";
+		
+		this.functionSorter.setFunctionBody(this.function.getName(), result);
+		
+		this.function = prevFunc;
+		
+		return result;
+	}
+	
+	@Override
 	public String visitClassDefinition(ClassDefinitionContext ctx) {
+		String prevClassName = this.className;
 		Stack<String> result = new Stack<String>();
 		boolean extendsArray = false;
 		String visited;
 		
-		String className = ctx.className.getText();
-		ClassDefaultAllocator cda = new ClassDefaultAllocator(className);
+		String name = ctx.className.getText();
+		ClassDefaultAllocator cda = new ClassDefaultAllocator(name);
 		
 		if (ctx.extendName != null) {
 			extendsArray = ctx.extendName.getText().equals("array");
@@ -677,6 +756,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			this.classGlobals.addAll(cda.getGlobals());
 		}
 		
+		this.className = name;
+		
 		for (ClassStatementsContext classStat : ctx.classStatements()) {
 			visited = this.visit(classStat);
 			
@@ -685,13 +766,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			}
 		}
 		
+		this.className = prevClassName;
+		
 		return String.join(System.lineSeparator(), result);
 	}
 	
 	@Override
 	public String visitGlobalVariableStatement(
 			GlobalVariableStatementContext ctx) {
-		String prefix = this.getPrefix(ctx.visibility, this.scopeName);
+		String prefix = this.prefixer.getForScope(ctx.visibility, this.scopeName);
 		String variableType = this.visit(ctx.variableType());
 		String array = (ctx.array != null) ? " array" : "";
 		String variableName = prefix + ctx.varName.getText();

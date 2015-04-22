@@ -12,7 +12,12 @@ public class FunctionSymbol {
 	protected Token token;
 	protected Visibility visibility;
 	
-	public FunctionSymbol(String scopeName, String name, String returnType, Visibility visibility, Token token) {
+	public FunctionSymbol(
+			String scopeName,
+			String name,
+			String returnType,
+			Visibility visibility,
+			Token token) {
 		this.scopeName = scopeName;
 		this.name = name;
 		this.params = new Stack<VariableSymbol>();

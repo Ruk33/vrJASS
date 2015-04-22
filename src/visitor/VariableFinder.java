@@ -40,17 +40,18 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		}
 		
 		if (variable == null) {
-			String privateName = this.main.getPrefixedName(scopeName, variableName, false);
-			String publicName = this.main.getPrefixedName(scopeName, variableName, true);
+			String privateName = this.main.getPrefixer().getForScope(false, scopeName);
+			String publicName = this.main.getPrefixer().getForScope(true, scopeName);
+			String noVisibilityPrefix = this.main.getPrefixer().getForScope(null, scopeName);
 			
-			variable = this.globalVariables.get(privateName);
+			variable = this.globalVariables.get(noVisibilityPrefix + variableName);
 			
 			if (variable == null) {
-				variable = this.globalVariables.get(publicName);
+				variable = this.globalVariables.get(privateName + variableName);
 			}
 			
 			if (variable == null) {
-				variable = this.globalVariables.get(variableName);
+				variable = this.globalVariables.get(publicName + variableName);
 			}
 		}
 		
@@ -91,7 +92,7 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 	
 	@Override
 	public Void visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
-		String prefix = this.main.getPrefix(ctx.visibility, this.scopeName);
+		String prefix = this.main.getPrefixer().getForScope(ctx.visibility, this.scopeName);
 		String variableName = prefix + ctx.varName.getText();
 		String variableType = ctx.variableType().getText();
 		boolean isArray = ctx.array != null;
