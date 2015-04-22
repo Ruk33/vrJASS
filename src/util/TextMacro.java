@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
+import exception.IncorrectArgumentsTextmacroException;
 import exception.UndefinedTextmacroException;
 
 public class TextMacro {
@@ -114,6 +115,11 @@ public class TextMacro {
 					}
 					
 					args = new PriorityQueue<String>(this.getArgumentsFromText(line));
+					
+					if (args.size() != macro.getParams().size()) {
+						throw new IncorrectArgumentsTextmacroException(macroName);
+					}
+					
 					line = macro.getBody();
 
 					for (String param : macro.getParams()) {

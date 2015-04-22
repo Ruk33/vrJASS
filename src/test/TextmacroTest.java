@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import exception.IncorrectArgumentsTextmacroException;
 import exception.UndefinedTextmacroException;
 import util.Compile;
 
@@ -41,6 +42,21 @@ public class TextmacroTest {
 		
 		expectedEx.expect(UndefinedTextmacroException.class);
 		expectedEx.expectMessage("Textmacro <foo> is not defined");
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void incorrectAmountOfArguments() {
+		Compile compile = new Compile();
+		String code = "//! runtextmacro foo(lorem,ipsum,dolor,sit,amet)\n"
+				+ "//! textmacro foo takes bar\n"
+				+ "//! endtextmacro";
+		
+		expectedEx.expect(IncorrectArgumentsTextmacroException.class);
+		expectedEx.expectMessage(
+			"Incorrect amount of arguments passed to textmacro <foo>"
+		);
 		
 		compile.run(code);
 	}
