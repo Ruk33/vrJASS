@@ -19,7 +19,11 @@ import antlr4.vrjassParser;
 public class Compile {
 	
 	public String run(String code) throws CompileException {
-		ANTLRInputStream is = new ANTLRInputStream(code.replace("\t", "    "));
+		TextMacro textMacro = new TextMacro(code);
+		code = textMacro.getOutput().replace("\t", "    ");
+		
+		ANTLRInputStream is = new ANTLRInputStream(code);
+		
 		vrjassLexer lexer = new vrjassLexer(is);
 		TokenStream token = new CommonTokenStream(lexer);
 		vrjassParser parser = new vrjassParser(token);
