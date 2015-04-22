@@ -650,13 +650,32 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitClassDefinition(ClassDefinitionContext ctx) {
 		Stack<String> result = new Stack<String>();
+		boolean extendsArray = false;
 		String visited;
 		
 		String className = ctx.className.getText();
 		ClassDefaultAllocator cda = new ClassDefaultAllocator(className);
 		
-		result.push(cda.getAllocator());
-		result.push(cda.getDeallocator());
+		if (ctx.extendName != null) {
+			extendsArray = ctx.extendName.getText().equals("array");
+		}
+
+		if (!extendsArray) {
+			result.push(cda.getAllocator());
+			result.push(cda.getDeallocator());
+			
+			this.functionSorter.functionBeingDefined(cda.getAllocatorName());
+			this.functionSorter.setFunctionBody(
+				cda.getAllocatorName(), cda.getAllocator()
+			);
+			
+			this.functionSorter.functionBeingDefined(cda.getDeallocatorName());
+			this.functionSorter.setFunctionBody(
+				cda.getDeallocatorName(), cda.getDeallocator()
+			);
+			
+			this.classGlobals.addAll(cda.getGlobals());
+		}
 		
 		for (ClassStatementsContext classStat : ctx.classStatements()) {
 			visited = this.visit(classStat);
@@ -665,14 +684,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				result.push(visited);
 			}
 		}
-		
-		this.functionSorter.functionBeingDefined(cda.getAllocatorName());
-		this.functionSorter.setFunctionBody(cda.getAllocatorName(), cda.getAllocator());
-		
-		this.functionSorter.functionBeingDefined(cda.getDeallocatorName());
-		this.functionSorter.setFunctionBody(cda.getDeallocatorName(), cda.getDeallocator());
-		
-		this.classGlobals.addAll(cda.getGlobals());
 		
 		return String.join(System.lineSeparator(), result);
 	}

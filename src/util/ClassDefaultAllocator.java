@@ -82,6 +82,7 @@ public class ClassDefaultAllocator {
 	public Stack<String> getGlobals() {
 		Stack<String> globals = new Stack<String>();
 		globals.push("integer array " + this.getGlobalVariableName());
+		
 		return globals;
 	}
 	

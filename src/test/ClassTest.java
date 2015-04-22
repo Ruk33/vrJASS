@@ -35,5 +35,15 @@ public class ClassTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void extendsArray() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "endstruct";
+		
+		assertEquals("", compile.run(code));
+	}
 
 }

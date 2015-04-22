@@ -70,7 +70,7 @@ classStatements
 	;
 
 classDefinition:
-	'struct' className=ID EOL
+	'struct' className=ID ('extends' extendName=(ID|'array'))? EOL
 		classStatements*
 	'endstruct'
 	;
