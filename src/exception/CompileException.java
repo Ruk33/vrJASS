@@ -8,8 +8,10 @@ public abstract class CompileException extends RuntimeException {
 	protected int charPos;
 	
 	public CompileException(Token token) {
-		this.line = token.getLine();
-		this.charPos = token.getCharPositionInLine();
+		if (token != null) {
+			this.line = token.getLine();
+			this.charPos = token.getCharPositionInLine();
+		}
 	}
 	
 	@Override

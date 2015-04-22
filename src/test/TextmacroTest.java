@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import exception.UndefinedTextmacroException;
 import util.Compile;
 
 public class TextmacroTest {
@@ -31,6 +32,17 @@ public class TextmacroTest {
 				+ "endfunction";
 		
 		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void undefined() {
+		Compile compile = new Compile();
+		String code = "//! runtextmacro foo(ipsum)";
+		
+		expectedEx.expect(UndefinedTextmacroException.class);
+		expectedEx.expectMessage("Textmacro <foo> is not defined");
+		
+		compile.run(code);
 	}
 
 }

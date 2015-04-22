@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
+import exception.UndefinedTextmacroException;
+
 public class TextMacro {
 	
 	private class Macro {
@@ -106,6 +108,11 @@ public class TextMacro {
 					);
 					
 					macro = this.macros.get(macroName);
+					
+					if (macro == null) {
+						throw new UndefinedTextmacroException(macroName);
+					}
+					
 					args = new PriorityQueue<String>(this.getArgumentsFromText(line));
 					line = macro.getBody();
 
