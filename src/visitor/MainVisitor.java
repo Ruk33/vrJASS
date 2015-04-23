@@ -3,6 +3,7 @@ package visitor;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import exception.ElementNoAccessException;
@@ -13,6 +14,7 @@ import exception.InvalidArrayVariableIndexException;
 import exception.LessGreaterComparisonException;
 import exception.LogicalException;
 import exception.MathematicalExpressionException;
+import exception.NoFunctionException;
 import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
 import exception.IncorrectVariableTypeException;
@@ -536,7 +538,19 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitFunctionStatement(FunctionStatementContext ctx) {
-		return "call " + this.visit(ctx.expression());
+		String exprType = ctx.func.getClass().getSimpleName();
+		
+		if (exprType.equals("MemberContext")) {
+			int exprCount = ctx.func.getChildCount();
+			ParseTree lastExpr = ctx.func.getChild(exprCount-1);
+			exprType = lastExpr.getClass().getSimpleName();
+		}
+
+		if (!exprType.equals("FunctionContext")) {
+			throw new NoFunctionException(ctx.func.getStart());
+		}
+		
+		return "call " + this.visit(ctx.func);
 	}
 	
 	@Override

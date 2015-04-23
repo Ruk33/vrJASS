@@ -104,7 +104,7 @@ arguments
 	|
 	; 
 
-functionStatement: 'call' expression;
+functionStatement: 'call' func=expression;
 
 functionExpression: functionName=ID '(' arguments ')';
 

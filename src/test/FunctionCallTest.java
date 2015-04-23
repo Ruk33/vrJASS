@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import exception.ElementNoAccessException;
+import exception.NoFunctionException;
 import util.Compile;
 
 public class FunctionCallTest {
@@ -174,6 +175,22 @@ public class FunctionCallTest {
 				+ "endfunction";
 		
 		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void callNoFunction() {
+		Compile compile = new Compile();
+		String code =
+				"function foo takes integer i returns nothing\n"
+				+ "call i\n"
+				+ "endfunction";
+		
+		expectedEx.expect(NoFunctionException.class);
+		expectedEx.expectMessage(
+			"2:5 Element <i> is not a function"
+		);
+		
+		compile.run(code);
 	}
 
 }
