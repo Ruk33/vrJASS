@@ -1,6 +1,7 @@
 package visitor;
 
 import symbol.ClassMemberSymbol;
+import symbol.ParameterSymbol;
 import symbol.PrimitiveType;
 import symbol.Symbol;
 import symbol.VariableSymbol;
@@ -29,14 +30,6 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		
 		this.globalScope = new Symbol(null, null, null, null, null);
 		this.scope = this.globalScope;
-	}
-	
-	public Symbol find(
-			Symbol from,
-			String name,
-			PrimitiveType primitiveType,
-			boolean backwards) {
-		return from.resolve(name, primitiveType, backwards);
 	}
 	
 	@Override
@@ -71,9 +64,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String name = ctx.ID().getText();
 		String type = ctx.variableType().getText();
 		
-		new VariableSymbol(
-			name, type, false, false, Visibility.PRIVATE, this.scope
-		);
+		new ParameterSymbol(name, type, this.scope);
 		
 		return null;
 	}

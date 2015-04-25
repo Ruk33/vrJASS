@@ -51,6 +51,10 @@ public class Symbol {
 		return this.name;
 	}
 	
+	public String getFullName() {
+		return this.getName();
+	}
+	
 	public String getType() {
 		return this.type;
 	}

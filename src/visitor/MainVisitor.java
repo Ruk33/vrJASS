@@ -26,6 +26,8 @@ import exception.UndefinedVariableException;
 import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
 import symbol.MethodSymbol;
+import symbol.PrimitiveType;
+import symbol.Symbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
 import util.ClassDefaultAllocator;
@@ -70,49 +72,39 @@ import antlr4.vrjassParser.VariableTypeContext;
 
 public class MainVisitor extends vrjassBaseVisitor<String> {
 	
+	protected Stack<String> globalsBlock;
+	
 	protected Stack<String> classGlobals;
+	
+	protected Stack<String> requiredLibraries;
 	
 	protected FunctionSorter functionSorter;
 	
 	protected Prefix prefixer;
 	
-	protected FunctionFinder functionFinder;
+	protected SymbolVisitor symbolVisitor;
 	
-	protected VariableFinder variableFinder;
+	protected Symbol scope;
 	
-	protected String scopeName;
-	
-	protected String className;
-	
-	protected Stack<String> requiredLibraries;
-	
-	protected FunctionSymbol function;
+	protected Symbol symbol;
 	
 	protected boolean hasReturn;
 	
-	protected VariableSymbol variable;
-	
 	protected String expressionType;
-	
-	protected Stack<String> globalsBlock;
 	
 	protected String output;
 	
 	public MainVisitor(vrjassParser parser) {
+		this.globalsBlock = new Stack<String>();
 		this.classGlobals = new Stack<String>();
 		this.functionSorter = new FunctionSorter();
-		this.prefixer = new Prefix();
 		this.requiredLibraries = new Stack<String>();
 		
-		this.globalsBlock = new Stack<String>();
+		this.prefixer = new Prefix();
 		
-		this.functionFinder = new FunctionFinder(this);
-		this.variableFinder = new VariableFinder(this);
+		this.symbolVisitor = new SymbolVisitor(this);
 		
-		this.functionFinder.visit(parser.init());
-		parser.reset();
-		
-		this.variableFinder.visit(parser.init());
+		this.symbolVisitor.visit(parser.init());
 		parser.reset();
 		
 		this.output = this.visit(parser.init());
@@ -120,65 +112,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	public Prefix getPrefixer() {
 		return this.prefixer;
-	}
-	
-	public VariableSymbol getLocalVariable(String scopeName, String name) {
-		String prefix = this.getPrefixer().getForScope(true, scopeName);
-		return this.variableFinder.getLocal(prefix + name);
-	}
-	
-	public VariableSymbol getGlobalVariable(String scopeName, String name) {
-		String prefix = this.getPrefixer().getForScope(true, scopeName);
-		VariableSymbol variable = this.variableFinder.getGlobal(prefix + name);
-		
-		if (variable == null) {
-			prefix = this.getPrefixer().getForScope(false, scopeName);
-			variable = this.variableFinder.getGlobal(prefix + name);
-		}
-		
-		return variable;
-	}
-	
-	public VariableSymbol getLocalOrGlobalVariable(String scopeName, String name) {
-		VariableSymbol variable = this.getLocalVariable(scopeName, name);
-		
-		if (variable == null) {
-			variable = this.getGlobalVariable(scopeName, name);
-		}
-		
-		return variable;
-	}
-	
-	public FunctionSymbol getFunction(String scopeName, String name) {
-		String prefix = this.prefixer.getForScope(false, scopeName);
-		FunctionSymbol result = this.functionFinder.get(prefix + name);
-		
-		if (result == null) {
-			prefix = this.prefixer.getForScope(true, scopeName);
-			result = this.functionFinder.get(prefix + name);
-		}
-		
-		if (result == null) {
-			result = this.functionFinder.get(name);
-		}
-		
-		return result;
-	}
-	
-	public FunctionSymbol getMethod(String scopeName, String className, String name) {
-		String prefix = this.prefixer.getForClass(false, scopeName, className);
-		FunctionSymbol result = this.functionFinder.get(prefix + name);
-		
-		if (result == null) {
-			prefix = this.prefixer.getForClass(true, scopeName, className);
-			result = this.functionFinder.get(prefix + name);
-		}
-		
-		if (result == null) {
-			result = this.functionFinder.get(name);
-		}
-		
-		return result;
 	}
 	
 	public Visibility getVisibility(Token visibility) {
@@ -192,81 +125,21 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		return Visibility.PUBLIC;
 	}
-	
-	public boolean hasAccess(
-			FunctionSymbol function,
-			String callingScope,
-			Stack<String> libraries) {
-		if (function == null) {
-			return false;
-		}
-		
-		if (function.getVisibility() == Visibility.PRIVATE) {
-			if (callingScope == null) {
-				if (this.className == null) {
-					return false;
-				}
-			} else {
-				if (!function.getScopeName().equals(callingScope)) {
-					return false;
-				}
-			}
-		}
-		
-		return true;
-	}
-	
-	public boolean hasAccessToVariable(
-			VariableSymbol variable,
-			String callingScope,
-			Stack<String> libraries) {
-		if (variable == null) {
-			return false;
-		}
-		
-		if (variable.getVisibility() == Visibility.PRIVATE) {
-			if (!variable.getScopeName().equals(callingScope)) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-		
+			
 	@Override
 	public String visitVariable(VariableContext ctx) {
 		String name = ctx.varName.getText();
 		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
 		
-		String scope = null;
-		
-		if (this.className != null) {
-			scope = this.className;
-		} else if (this.function != null) {
-			scope = this.function.getName();
-		} else {
-			scope = this.scopeName;
-		}
-		
-		VariableSymbol variable = this.getLocalOrGlobalVariable(scope, name);
+		VariableSymbol variable = (VariableSymbol) this.scope.resolve(
+			name, PrimitiveType.VARIABLE, true
+		);
 		
 		if (variable == null) {
 			throw new UndefinedVariableException(ctx.varName);
 		}
 		
-		boolean access;
-		
-		if (variable.isGlobal()) {
-			access = this.hasAccessToVariable(
-				variable, this.scopeName, this.requiredLibraries
-			);
-		} else {
-			access = this.hasAccessToVariable(
-				variable, this.function.getName(), this.requiredLibraries
-			);
-		}
-		
-		if (!access) {
+		if (!this.scope.hasAccess(variable)) {
 			throw new ElementNoAccessException(ctx.varName);
 		}
 		
@@ -275,7 +148,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.expressionType = variable.getType();
-		return variable.getName();
+		return variable.getFullName();
 	}
 		
 	@Override
