@@ -71,5 +71,29 @@ public class IfStatementTest {
 		
 		compile.run(code);
 	}
+	
+	@Test
+	public void integer() {
+		Compile compile = new Compile();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "if (0) then\n"
+				+ "elseif (1) then\n"
+				+ "elseif (1 or 1) then\n"
+				+ "elseif (1 and 1) then\n"
+				+ "endif\n"
+				+ "endfunction";
+		
+		String result =
+				"function foo takes nothing returns nothing\n"
+				+ "if (0!=0) then\n"
+				+ "elseif (1!=0) then\n"
+				+ "elseif (1!=0 or 1!=0) then\n"
+				+ "elseif (1!=0 and 1!=0) then\n"
+				+ "endif\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

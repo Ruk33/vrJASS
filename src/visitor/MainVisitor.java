@@ -157,6 +157,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		Stack<String> result = new Stack<String>();
 		String visited = this.visit(ctx.expression());
 		
+		if (this.expressionType.equals("integer")) {
+			visited += "!=0";
+			this.expressionType = "boolean";
+		}
+		
 		if (!this.expressionType.equals("boolean")) {
 			throw new InvalidBooleanException(
 				ctx.expression().getStart(),
@@ -165,7 +170,12 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		result.push("elseif (" + visited + ") then");
-		result.push(this.visit(ctx.statements()));
+		
+		visited = this.visit(ctx.statements());
+		
+		if (visited != null && !visited.isEmpty()) {
+			result.push(visited);
+		}
 		
 		return String.join(System.lineSeparator(), result);
 	}
@@ -174,6 +184,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitIfStatement(IfStatementContext ctx) {
 		Stack<String> result = new Stack<String>();
 		String visited = this.visit(ctx.expression());
+		
+		if (this.expressionType.equals("integer")) {
+			visited += "!=0";
+			this.expressionType = "boolean";
+		}
 		
 		if (!this.expressionType.equals("boolean")) {
 			throw new InvalidBooleanException(
@@ -441,10 +456,22 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitLogical(LogicalContext ctx) {
 		String left = this.visit(ctx.left);
 		String leftType = this.expressionType;
+		
+		if (leftType.equals("integer")) {
+			left += "!=0";
+			leftType = "boolean";
+		}
+		
 		boolean leftIsBoolean = "boolean".equals(leftType);
 		
 		String right = this.visit(ctx.right);
 		String rightType = this.expressionType;
+		
+		if (rightType.equals("integer")) {
+			right += "!=0";
+			rightType = "boolean";
+		}
+		
 		boolean rightIsBoolean = "boolean".equals(rightType);
 		
 		if (!leftIsBoolean) {
