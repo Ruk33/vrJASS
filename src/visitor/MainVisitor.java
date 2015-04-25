@@ -64,12 +64,14 @@ import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.ParametersContext;
 import antlr4.vrjassParser.ParenthesisContext;
 import antlr4.vrjassParser.PlusContext;
+import antlr4.vrjassParser.PropertyStatementContext;
 import antlr4.vrjassParser.ReturnStatementContext;
 import antlr4.vrjassParser.ReturnTypeContext;
 import antlr4.vrjassParser.SetVariableStatementContext;
 import antlr4.vrjassParser.StatementContext;
 import antlr4.vrjassParser.StatementsContext;
 import antlr4.vrjassParser.StringContext;
+import antlr4.vrjassParser.ThisContext;
 import antlr4.vrjassParser.VariableContext;
 import antlr4.vrjassParser.VariableTypeContext;
 
@@ -129,6 +131,12 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		return Visibility.PUBLIC;
+	}
+	
+	@Override
+	public String visitThis(ThisContext ctx) {
+		this.expressionType = this.scope.resolve("this", PrimitiveType.VARIABLE, false).getType();
+		return "this";
 	}
 	
 	@Override
@@ -579,8 +587,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String variableType = this.visit(ctx.variableType());
 		String array = (ctx.array != null) ? " array" : "";
 		String result = "local " + variableType + array + " " + variableName;
+		Symbol variable = this.scope.resolve(variableName, PrimitiveType.VARIABLE, false);
 		
-		this.symbol = this.scope.resolve(variableName, PrimitiveType.VARIABLE, false);
+		this.symbol = variable;
 		
 		if (ctx.value != null) {
 			if (ctx.array != null) {
@@ -589,10 +598,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			
 			result += "=" + this.visit(ctx.value);
 			
-			if (!this.symbol.getType().equals(this.expressionType)) {
+			if (!variable.getType().equals(this.expressionType)) {
 				throw new IncorrectVariableTypeException(
 					ctx.varName,
-					ctx.variableType().getText(),
+					variable.getType(),
 					this.expressionType
 				);
 			}
@@ -665,6 +674,18 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.hasReturn = prevHasReturn;
 		this.scope = prevScope;
+		
+		return result;
+	}
+	
+	@Override
+	public String visitPropertyStatement(PropertyStatementContext ctx) {
+		String name = ctx.propertyName.getText();
+		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE, false);
+		
+		String result = this.visit(ctx.variableType()) + " array " + variable.getFullName();
+		
+		this.classGlobals.push(result);
 		
 		return result;
 	}
