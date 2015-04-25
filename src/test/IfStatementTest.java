@@ -38,7 +38,7 @@ public class IfStatementTest {
 	}
 	
 	@Test
-	public void invalidExpression() {
+	public void invalidIfExpression() {
 		Compile compile = new Compile();
 		String code =
 				"function foo takes nothing returns nothing\n"
@@ -49,6 +49,24 @@ public class IfStatementTest {
 		expectedEx.expect(InvalidBooleanException.class);
 		expectedEx.expectMessage(
 			"2:4 Expression type must be <boolean>, but <nothing> type given"
+		);
+		
+		compile.run(code);
+	}
+	
+	@Test
+	public void invalidElseIfExpression() {
+		Compile compile = new Compile();
+		String code =
+				"function foo takes nothing returns nothing\n"
+				+ "if (true) then\n"
+				+ "elseif (foo()) then\n"
+				+ "endif\n"
+				+ "endfunction";
+		
+		expectedEx.expect(InvalidBooleanException.class);
+		expectedEx.expectMessage(
+			"3:8 Expression type must be <boolean>, but <nothing> type given"
 		);
 		
 		compile.run(code);

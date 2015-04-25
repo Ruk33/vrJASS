@@ -155,8 +155,16 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitElseIfStatement(ElseIfStatementContext ctx) {
 		Stack<String> result = new Stack<String>();
+		String visited = this.visit(ctx.expression());
 		
-		result.push("elseif (" + this.visit(ctx.expression()) + ") then");
+		if (!this.expressionType.equals("boolean")) {
+			throw new InvalidBooleanException(
+				ctx.expression().getStart(),
+				this.expressionType
+			);
+		}
+		
+		result.push("elseif (" + visited + ") then");
 		result.push(this.visit(ctx.statements()));
 		
 		return String.join(System.lineSeparator(), result);
