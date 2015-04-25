@@ -338,9 +338,13 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitArguments(ArgumentsContext ctx) {
-		Stack<VariableSymbol> params = this.function.getParams();
+		FunctionSymbol function = (FunctionSymbol) this.scope;
+		
+		Stack<Symbol> params = function.getParams();
 		Stack<String> args = new Stack<String>();
+		
 		String prevExprType = this.expressionType;
+		
 		int i = 0;
 		
 		for (ArgumentContext arg : ctx.argument()) {
@@ -353,6 +357,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 					this.expressionType
 				);
 			}
+			
+			i++;
 			
 			this.expressionType = null;
 		}
