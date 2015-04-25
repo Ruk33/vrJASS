@@ -417,7 +417,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitReturnType(ReturnTypeContext ctx) {
-		return ctx.getText();
+		if (ctx.variableType() == null) {
+			return "nothing";
+		}
+		
+		return this.visit(ctx.variableType());
 	}
 	
 	@Override

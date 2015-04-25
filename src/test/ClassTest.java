@@ -93,7 +93,10 @@ public class ClassTest {
 				+ "endstruct";
 		
 		String result =
-				"function struct_Foo_bar takes integer this returns integer\n"
+				"globals\n"
+				+ "integer array struct_Foo_i\n"
+				+ "endglobals\n"
+				+ "function struct_Foo_bar takes integer this returns integer\n"
 				+ "return struct_Foo_i[this]\n"
 				+ "endfunction";
 		
@@ -156,6 +159,40 @@ public class ClassTest {
 				+ "endfunction\n"
 				+ "function struct_Foo_bar takes integer this returns integer\n"
 				+ "local integer f=this\n"
+				+ "local integer a=struct_Foo_i[f]\n"
+				+ "call struct_Foo__nope(f)\n"
+				+ "return a\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void accessMemberThroughMethods() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "integer i\n"
+				+ "private method nope takes nothing returns Foo\n"
+				+ "return this\n"
+				+ "endmethod\n"
+				+ "method bar takes nothing returns integer\n"
+				+ "local Foo f=this.nope()\n"
+				+ "local integer a=f.i\n"
+				+ "call f.nope()\n"
+				+ "return a\n"
+				+ "endmethod\n"
+				+ "endstruct";
+		
+		String result =
+				"globals\n"
+				+ "integer array struct_Foo_i\n"
+				+ "endglobals\n"
+				+ "function struct_Foo__nope takes integer this returns integer\n"
+				+ "return this\n"
+				+ "endfunction\n"
+				+ "function struct_Foo_bar takes integer this returns integer\n"
+				+ "local integer f=struct_Foo__nope(this)\n"
 				+ "local integer a=struct_Foo_i[f]\n"
 				+ "call struct_Foo__nope(f)\n"
 				+ "return a\n"
