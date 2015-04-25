@@ -22,12 +22,13 @@ import exception.NoScopeVisibilityException;
 import exception.TooFewArgumentsFunctionCallException;
 import exception.TooManyArgumentsFunctionCallException;
 import exception.UndefinedFunctionException;
+import exception.UndefinedMethodException;
+import exception.UndefinedPropertyException;
 import exception.UndefinedVariableException;
 import exception.VariableIsNotArrayException;
 import symbol.FunctionSymbol;
 import symbol.MethodSymbol;
 import symbol.PrimitiveType;
-import symbol.PropertySymbol;
 import symbol.Symbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
@@ -55,6 +56,7 @@ import antlr4.vrjassParser.LibraryDefinitionContext;
 import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.LogicalContext;
+import antlr4.vrjassParser.MemberContext;
 import antlr4.vrjassParser.MethodDefinitionContext;
 import antlr4.vrjassParser.MinusContext;
 import antlr4.vrjassParser.MultContext;
@@ -86,6 +88,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected SymbolVisitor symbolVisitor;
 	
 	protected Symbol scope;
+	
+	protected Symbol _class;
 	
 	protected Symbol symbol;
 	
@@ -126,13 +130,45 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		return Visibility.PUBLIC;
 	}
+	
+	@Override
+	public String visitMember(MemberContext ctx) {
+		this.visit(ctx.left);
+		
+		String leftName = ctx.left.getText();
+		String leftType = this.expressionType;
+		Symbol member = null;
+		String result = "";
+		
+		if (leftName.equals("this")) {
+			this._class = this.scope.resolve("this", PrimitiveType.VARIABLE, false).getParent().getParent();
+		} else {
+			this._class = this.scope.resolve(leftType, PrimitiveType.CLASS, true);
+		}
+		
+		if (ctx.right.getClass().getSimpleName().equals("VariableContext")) {
+			member = this._class.resolve(ctx.right.getText(), PrimitiveType.VARIABLE, false);
 			
+			if (member == null || member.getParent() != this._class) {
+				throw new UndefinedPropertyException(ctx.right.getStart(), this._class);
+			}
+			
+			result = member.getFullName() + "[" + ctx.left.getText() + "]";
+		} else {
+			this.visit(ctx.right);
+			
+			member = this.symbol;
+			result = this.symbol.getFullName() + "(" + ctx.left.getText() + ")";
+		}
+		
+		this.expressionType = member.getType();
+		return result;
+	}
+	
 	@Override
 	public String visitVariable(VariableContext ctx) {
 		String name = ctx.varName.getText();
 		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
-		String result;
-		
 		VariableSymbol variable = (VariableSymbol) this.scope.resolve(
 			name, PrimitiveType.VARIABLE, true
 		);
@@ -149,17 +185,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new InvalidArrayVariableIndexException(ctx.index.getStart());
 		}
 		
-		result = variable.getFullName();
-		
-		if (variable instanceof PropertySymbol) {
-			ctx.removeLastChild();
-			result += "[" + ctx.getParent().getText();
-			result = result.substring(0, result.length()-1);
-			result += "]";
-		}
-		
+		this.symbol = variable;
 		this.expressionType = variable.getType();
-		return result;
+		
+		return variable.getFullName();
 	}
 		
 	@Override
@@ -414,21 +443,32 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		);
 		
 		if (function == null) {
-			throw new UndefinedFunctionException(ctx.functionName);
+			if (this._class != null) {
+				throw new UndefinedMethodException(ctx.functionName, this._class);
+			} else {
+				throw new UndefinedFunctionException(ctx.functionName);
+			}
 		}
 		
 		if (!this.scope.hasAccess(function.getParent())) {
 			throw new ElementNoAccessException(ctx.functionName);
 		}
 		
-		if (argumentsCount > function.getParams().size()) {
+		int funcParamCount = function.getParams().size();
+		
+		if (function instanceof MethodSymbol) {
+			funcParamCount--;
+		}
+		
+		if (argumentsCount > funcParamCount) {
 			throw new TooManyArgumentsFunctionCallException(ctx.functionName);
 		}
 		
-		if (argumentsCount < function.getParams().size()) {
+		if (argumentsCount < funcParamCount) {
 			throw new TooFewArgumentsFunctionCallException(ctx.functionName);
 		}
 		
+		this.symbol = function;
 		this.scope = function;
 		
 		String finalName = function.getFullName();
@@ -450,7 +490,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.expressionType = this.scope.getType();
 		this.scope = prevScope;
-		
+
 		return finalName + "(" + args + ")";
 	}
 	
@@ -494,7 +534,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String index = (ctx.index == null) ? "" : "[" + this.visit(ctx.index) + "]";
 		String indexType = this.expressionType;
 		String operator = ctx.operator.getText();
-		Symbol prevSymbol = this.symbol;
 		String result;
 		
 		this.symbol = this.scope.resolve(variableName, PrimitiveType.VARIABLE, true);
@@ -531,8 +570,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			);
 		}
 		
-		this.symbol = prevSymbol;
-		
 		return result;
 	}
 	
@@ -543,6 +580,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String array = (ctx.array != null) ? " array" : "";
 		String result = "local " + variableType + array + " " + variableName;
 		
+		this.symbol = this.scope.resolve(variableName, PrimitiveType.VARIABLE, false);
+		
 		if (ctx.value != null) {
 			if (ctx.array != null) {
 				throw new InitializeArrayVariableException(ctx.varName);
@@ -550,7 +589,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			
 			result += "=" + this.visit(ctx.value);
 			
-			if (!ctx.variableType().getText().equals(this.expressionType)) {
+			if (!this.symbol.getType().equals(this.expressionType)) {
 				throw new IncorrectVariableTypeException(
 					ctx.varName,
 					ctx.variableType().getText(),
@@ -718,6 +757,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		if (ctx.visibility != null && this.scope.getName() == null) {
 			throw new NoScopeVisibilityException(ctx.varName);
 		}
+		
+		this.symbol = variable;
 		
 		String result = variableType + array + " " + variable.getFullName();
 		

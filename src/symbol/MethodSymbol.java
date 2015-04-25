@@ -20,6 +20,10 @@ public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 		}
 
 		this._static = isStatic;
+		
+		if (!this.isStatic()) {
+			new ParameterSymbol("this", this.getParent().getType(), this, null);
+		}
 	}
 
 	@Override

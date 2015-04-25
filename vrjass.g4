@@ -91,9 +91,9 @@ expression
 	|INT #Integer
 	|STR #String
 	|'this' #This
+	|left=expression '.' right=expression #Member
 	|functionExpression #Function
 	|varName=ID ('[' index=expression ']')? #Variable
-	|expression '.' expression #Member
 	|'(' expression ')' #Parenthesis
 	;
 	

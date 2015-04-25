@@ -6,6 +6,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import exception.UndefinedMethodException;
+import exception.UndefinedPropertyException;
 import util.Compile;
 
 public class ClassTest {
@@ -98,7 +100,6 @@ public class ClassTest {
 		assertEquals(result, compile.run(code));
 	}
 	
-	/*
 	@Test
 	public void undefinedProperty() {
 		Compile compile = new Compile();
@@ -110,10 +111,25 @@ public class ClassTest {
 				+ "endstruct";
 		
 		expectedEx.expect(UndefinedPropertyException.class);
-		expectedEx.expectMessage("3:23 Property <i> is not defined");
+		expectedEx.expectMessage("3:23 Class <Foo> does not have a property called <i>");
 		
 		compile.run(code);
 	}
-	*/
+	
+	@Test
+	public void undefinedMethod() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "method bar takes nothing returns nothing\n"
+				+ "call this.nope()\n"
+				+ "endmethod\n"
+				+ "endstruct";
+		
+		expectedEx.expect(UndefinedMethodException.class);
+		expectedEx.expectMessage("3:10 Class <Foo> does not have a method called <nope>");
+		
+		compile.run(code);
+	}
 
 }

@@ -9,7 +9,7 @@ public class ClassSymbol extends Symbol {
 			Visibility visibility,
 			Symbol parent,
 			Token token) {
-		super(name, null, PrimitiveType.CLASS, visibility, parent, token);
+		super(name, name, PrimitiveType.CLASS, visibility, parent, token);
 	}
 	
 	@Override

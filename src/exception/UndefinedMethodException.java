@@ -4,23 +4,23 @@ import org.antlr.v4.runtime.Token;
 
 import symbol.Symbol;
 
-public class UndefinedPropertyException extends CompileException {
-
-	protected Symbol _class;
+public class UndefinedMethodException extends CompileException {
+	
 	protected String name;
 	
-	public UndefinedPropertyException(Token token, Symbol _class) {
+	protected Symbol _class;
+	
+	public UndefinedMethodException(Token token, Symbol _class) {
 		super(token);
 		
-		this._class = _class;
 		this.name = token.getText();
+		this._class = _class;
 	}
 	
 	@Override
 	public String getMessage() {
 		return super.getMessage() +
-				String.format(
-					" Class <%s> does not have a property called <%s>",
+				String.format(" Class <%s> does not have a method called <%s>",
 					this._class.getName(),
 					this.name
 				);
