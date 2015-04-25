@@ -200,5 +200,29 @@ public class ClassTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void staticMethod() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "private static method nope takes integer a returns nothing\n"
+				+ "endmethod\n"
+				+ "static method bar takes nothing returns nothing\n"
+				+ "call Foo.nope(1)\n"
+				+ "call Foo.bar()\n"
+				+ "endmethod\n"
+				+ "endstruct";
+		
+		String result =
+				"function struct_Foo__nope takes integer a returns nothing\n\n"
+				+ "endfunction\n"
+				+ "function struct_Foo_bar takes nothing returns nothing\n"
+				+ "call struct_Foo__nope(1)\n"
+				+ "call struct_Foo_bar()\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

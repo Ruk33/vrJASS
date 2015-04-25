@@ -57,7 +57,7 @@ libraryDefinition:
 	;
 
 methodDefinition:
-	(visibility=('private'|'public'))? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
+	(visibility=('private'|'public'))? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
 	 	statements
 	 'endmethod'
 	 ;
@@ -123,6 +123,8 @@ setVariableStatement: 'set' varName=ID ('[' index=expression ']')? operator=('='
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
 globalVariableStatement: (visibility=('private'|'public'))? variableType (array='array')? varName=ID ('=' value=expression)?;
+
+STATIC: 'static';
 
 ID: [a-zA-Z][a-zA-Z0-9_]*;
 INT: [0-9]+;

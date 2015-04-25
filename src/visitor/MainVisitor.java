@@ -258,10 +258,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			
 			result = member.getFullName() + "[" + ctx.left.getText() + "]";
 		} else {
-			this.visit(ctx.right);
+			String right = this.visit(ctx.right);
 			
 			member = this.symbol;
-			result = this.symbol.getFullName() + "(" + ctx.left.getText() + ")";
+			
+			if (((MethodSymbol) member).isStatic()) {
+				result = right;
+			} else {
+				result = this.symbol.getFullName() + "(" + ctx.left.getText() + ")";
+			}
 		}
 		
 		this.expressionType = member.getType();
@@ -272,9 +277,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitVariable(VariableContext ctx) {
 		String name = ctx.varName.getText();
 		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
-		VariableSymbol variable = (VariableSymbol) this.scope.resolve(
-			name, PrimitiveType.VARIABLE, true
-		);
+		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE, true);
+		
+		if (variable == null) {
+			variable = this.scope.resolve(name, PrimitiveType.CLASS, true);
+		}
 		
 		if (variable == null) {
 			throw new UndefinedVariableException(ctx.varName);
@@ -580,7 +587,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		int funcParamCount = function.getParams().size();
 		
 		if (function instanceof MethodSymbol) {
-			funcParamCount--;
+			if (!((MethodSymbol) function).isStatic()) {
+				funcParamCount--;
+			}
 		}
 		
 		// if argument is nothing, remove it
@@ -613,10 +622,12 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		if (this.scope instanceof MethodSymbol) {
-			if (args.equals("")) {
-				args = "this";
-			} else {
-				args = "this," + args;
+			if (!((MethodSymbol) this.scope).isStatic()) {
+				if (args.equals("")) {
+					args = "this";
+				} else {
+					args = "this," + args;
+				}
 			}
 		}
 		
@@ -823,10 +834,12 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.scope = this.scope.resolve(name, PrimitiveType.FUNCTION, true);
 		
-		if (params.equals("nothing")) {
-			params = "integer this";
-		} else {
-			params = "integer this," + params;
+		if (!((MethodSymbol) this.scope).isStatic()) {
+			if (params.equals("nothing")) {
+				params = "integer this";
+			} else {
+				params = "integer this," + params;
+			}
 		}
 		
 		this.functionSorter.functionBeingDefined(this.scope.getFullName());

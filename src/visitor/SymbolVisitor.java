@@ -110,10 +110,11 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitMethodDefinition(MethodDefinitionContext ctx) {
 		String name = ctx.methodName.getText();
 		String type = ctx.returnType().getText();
+		boolean isStatic = ctx.STATIC() != null;
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
 		this.scope = new MethodSymbol(
-			name, type, false, visibility, this.scope, ctx.methodName
+			name, type, isStatic, visibility, this.scope, ctx.methodName
 		);
 		
 		this.visit(ctx.parameters());
