@@ -1,5 +1,7 @@
 package symbol;
 
+import org.antlr.v4.runtime.Token;
+
 public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 
 	protected boolean _static;
@@ -9,8 +11,14 @@ public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 			String type,
 			boolean isStatic,
 			Visibility visibility,
-			Symbol parent) {
-		super(name, type, visibility, parent);
+			Symbol parent,
+			Token token) {
+		super(name, type, visibility, parent, token);
+		
+		if (this.visibility == null) {
+			this.visibility = Visibility.PUBLIC;
+		}
+
 		this._static = isStatic;
 	}
 

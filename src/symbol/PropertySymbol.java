@@ -1,5 +1,7 @@
 package symbol;
 
+import org.antlr.v4.runtime.Token;
+
 public class PropertySymbol extends VariableSymbol implements ClassMemberSymbol {
 
 	protected boolean _static;
@@ -10,10 +12,15 @@ public class PropertySymbol extends VariableSymbol implements ClassMemberSymbol 
 			boolean isStatic,
 			boolean isArray,
 			Visibility visibility,
-			Symbol parent) {
-		super(name, type, isArray, false, visibility, parent);
+			Symbol parent,
+			Token token) {
+		super(name, type, isArray, false, visibility, parent, token);
 		this._static = isStatic;
-		
+	}
+	
+	@Override
+	public String getFullName() {
+		return "struct_" + this.getParent().getName() + "_" + this.getName();
 	}
 
 	@Override

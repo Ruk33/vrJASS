@@ -1,5 +1,9 @@
 package visitor;
 
+import exception.AlreadyDefinedFunctionException;
+import exception.AlreadyDefinedVariableException;
+import symbol.ClassSymbol;
+import symbol.FunctionSymbol;
 import symbol.MethodSymbol;
 import symbol.ParameterSymbol;
 import symbol.PrimitiveType;
@@ -24,13 +28,18 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	protected MainVisitor main;
 	
 	protected Symbol globalScope;
+	
 	protected Symbol scope;
 	
 	public SymbolVisitor(MainVisitor main) {
 		this.main = main;
 		
-		this.globalScope = new Symbol(null, null, null, null, null);
+		this.globalScope = new Symbol(null, null, null, null, null, null);
 		this.scope = this.globalScope;
+	}
+	
+	public Symbol getGlobalScope() {
+		return this.globalScope;
 	}
 	
 	@Override
@@ -41,7 +50,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
 		new VariableSymbol(
-			name, type, isArray, true, visibility, this.scope
+			name, type, isArray, true, visibility, this.scope, ctx.varName
 		);
 		
 		return null;
@@ -52,9 +61,16 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String name = ctx.varName.getText();
 		String type = ctx.variableType().getText();
 		boolean isArray = ctx.array != null;
+		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE, false);
+		
+		if (variable != null) {
+			throw new AlreadyDefinedVariableException(
+				ctx.varName, (VariableSymbol) variable
+			);
+		}
 		
 		new VariableSymbol(
-			name, type, isArray, false, Visibility.PRIVATE, this.scope
+			name, type, isArray, false, Visibility.PRIVATE, this.scope, ctx.varName
 		);
 		
 		return null;
@@ -64,8 +80,15 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitParameter(ParameterContext ctx) {
 		String name = ctx.ID().getText();
 		String type = ctx.variableType().getText();
+		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE, false);
 		
-		new ParameterSymbol(name, type, this.scope);
+		if (variable != null) {
+			throw new AlreadyDefinedVariableException(
+				ctx.ID().getSymbol(), (VariableSymbol) variable
+			);
+		}
+		
+		new ParameterSymbol(name, type, this.scope, ctx.ID().getSymbol());
 		
 		return null;
 	}
@@ -77,7 +100,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
 		new PropertySymbol(
-			name, type, false, false, visibility, this.scope
+			name, type, false, false, visibility, this.scope, ctx.propertyName
 		);
 		
 		return null;
@@ -90,7 +113,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
 		this.scope = new MethodSymbol(
-			name, type, false, visibility, this.scope
+			name, type, false, visibility, this.scope, ctx.methodName
 		);
 		
 		this.visit(ctx.parameters());
@@ -106,9 +129,16 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String name = ctx.functionName.getText();
 		String type = ctx.returnType().getText();
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		Symbol function = this.scope.resolve(name, PrimitiveType.FUNCTION, false);
 		
-		this.scope = new Symbol(
-			name, type, PrimitiveType.FUNCTION, visibility, this.scope
+		if (function != null) {
+			throw new AlreadyDefinedFunctionException(
+				ctx.functionName, (FunctionSymbol) function
+			);
+		}
+		
+		this.scope = new FunctionSymbol(
+			name, type, visibility, this.scope, ctx.functionName
 		);
 		
 		this.visit(ctx.parameters());
@@ -123,8 +153,8 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitClassDefinition(ClassDefinitionContext ctx) {
 		String name = ctx.className.getText();
 		
-		this.scope = new Symbol(
-			name, null, PrimitiveType.CLASS, Visibility.PUBLIC, this.scope
+		this.scope = new ClassSymbol(
+			name, Visibility.PUBLIC, this.scope, ctx.className
 		);
 		
 		for (ClassStatementsContext statement : ctx.classStatements()) {
@@ -141,11 +171,11 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String name = ctx.libraryName.getText();
 		
 		this.scope = new Symbol(
-			name, null, PrimitiveType.LIBRARY, Visibility.PUBLIC, this.scope
+			name, null, PrimitiveType.LIBRARY, Visibility.PUBLIC, this.scope, ctx.libraryName
 		);
 		
-		for (LibraryStatementsContext library : ctx.libraryStatements()) {
-			this.visit(library);
+		for (LibraryStatementsContext statements : ctx.libraryStatements()) {
+			this.visit(statements);
 		}
 		
 		this.scope = this.scope.getParent();

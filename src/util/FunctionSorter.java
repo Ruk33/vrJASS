@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import symbol.FunctionSymbol;
-import symbol.VariableSymbol;
+import symbol.Symbol;
 
 public class FunctionSorter {
 
@@ -42,7 +42,7 @@ public class FunctionSorter {
 		if (function.getParams().size() == 0) {
 			result.append("nothing");
 		} else {
-			for (VariableSymbol param : function.getParams()) {
+			for (Symbol param : function.getParams()) {
 				result.append(param.getType());
 				result.append(" ");
 				result.append(param.getName());
@@ -54,11 +54,11 @@ public class FunctionSorter {
 		}
 		
 		result.append(" returns ");
-		result.append(function.getReturnType());
+		result.append(function.getType());
 		result.append("\n");
 		
 		if (function.getParams().size() > 0) {
-			for (VariableSymbol param : function.getParams()) {
+			for (Symbol param : function.getParams()) {
 				dummyVariable = this.getDummyPrefix() +
 								function.getName() +
 								"_" +
@@ -80,11 +80,11 @@ public class FunctionSorter {
 		result.append("\")");
 		result.append("\n");
 		
-		if (!function.getReturnType().equals("nothing")) {
+		if (!function.getType().equals("nothing")) {
 			dummyVariable =
 					this.getDummyPrefix() + function.getName() + "_return";
 			
-			this.dummyGlobals.push(function.getReturnType() + " " + dummyVariable);
+			this.dummyGlobals.push(function.getType() + " " + dummyVariable);
 			
 			result.append("return ");
 			result.append(dummyVariable);
@@ -105,7 +105,7 @@ public class FunctionSorter {
 		result.append(" takes nothing returns nothing");
 		result.append("\n");
 		
-		if (function.getReturnType().equals("nothing")) {
+		if (function.getType().equals("nothing")) {
 			result.append("call ");
 		} else {
 			result.append("set ");
@@ -118,7 +118,7 @@ public class FunctionSorter {
 		result.append("(");
 		
 		if (function.getParams().size() > 0) {
-			for (VariableSymbol param : function.getParams()) {
+			for (Symbol param : function.getParams()) {
 				result.append(this.getDummyPrefix());
 				result.append(function.getName());
 				result.append("_");
@@ -159,7 +159,7 @@ public class FunctionSorter {
 	 * @return false if the use of dummy was required
 	 */
 	public boolean functionBeingCalled(FunctionSymbol whichFunction, String by) {
-		String whichFunctionName = whichFunction.getName();
+		String whichFunctionName = whichFunction.getFullName();
 		
 		if (whichFunctionName.equals(by)) {
 			return true;

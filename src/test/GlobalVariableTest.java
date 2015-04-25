@@ -300,13 +300,13 @@ public class GlobalVariableTest {
 				+ "endglobals\n"
 				+ "endlibrary\n"
 				
-				+ "function bar takes nothing returns nothing\n"
-				+ "local integer a=foo__nope\n"
+				+ "function lorem takes nothing returns nothing\n"
+				+ "local integer ipsum=foo__nope\n"
 				+ "endfunction";
 		
 		expectedEx.expect(ElementNoAccessException.class);
 		expectedEx.expectMessage(
-			"7:16 No access to element <foo__nope>"
+			"7:20 No access to element <foo__nope>"
 		);
 		
 		compile.run(code);

@@ -19,7 +19,7 @@ public class NoReturnFunctionException extends CompileException {
 				String.format(
 					" Function <%s> must return <%s>",
 					this.function.getName(),
-					this.function.getReturnType()
+					this.function.getType()
 				);
 	}
 

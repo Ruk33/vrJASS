@@ -6,7 +6,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import exception.ElementNoAccessException;
 import exception.NoFunctionException;
 import util.Compile;
 
@@ -25,7 +24,7 @@ public class FunctionCallTest {
 		
 		assertEquals(code, compile.run(code));
 	}
-	
+	/*
 	@Test
 	public void callPrivateUsingPrefix() {
 		Compile compile = new Compile();
@@ -46,7 +45,7 @@ public class FunctionCallTest {
 		
 		compile.run(code);
 	}
-	
+	*/
 	@Test
 	public void callPublic() {
 		Compile compile = new Compile();

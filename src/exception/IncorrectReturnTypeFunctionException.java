@@ -23,7 +23,7 @@ public class IncorrectReturnTypeFunctionException extends CompileException {
 				String.format(
 					" Function <%s> must return <%s> but it is trying to return <%s>",
 					this.function.getName(),
-					this.function.getReturnType(),
+					this.function.getType(),
 					this.givenType
 				);
 	}

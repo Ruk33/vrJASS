@@ -2,12 +2,18 @@ package symbol;
 
 import java.util.HashMap;
 
+import org.antlr.v4.runtime.Token;
+
 public class Symbol {
+	
+	public static final String PRIVATE_SEPARATOR = "__";
+	
+	public static final String PUBLIC_SEPARATOR = "_";
 	
 	protected String name;
 	
 	/**
-	 * For variables, its simple the type (unit, real, integer, etc.)
+	 * For variables, its the type (unit, real, integer, etc.)
 	 * For functions, its the return type
 	 */
 	protected String type;
@@ -16,7 +22,7 @@ public class Symbol {
 	
 	protected Visibility visibility;
 	
-	protected HashMap<PrimitiveType, HashMap<String, Symbol>> childs;
+	protected HashMap<String, Symbol> childs;
 	
 	/**
 	 * Parent of the symbol (for example, a library may be the parent of a
@@ -29,18 +35,22 @@ public class Symbol {
 	 */
 	protected Symbol parent;
 	
+	protected Token token;
+	
 	public Symbol(
 			String name,
 			String type,
 			PrimitiveType primitiveType,
 			Visibility visibility,
-			Symbol parent) {
+			Symbol parent,
+			Token token) {
 		this.name = name;
 		this.type = type;
 		this.primitiveType = primitiveType;
 		this.visibility = visibility;
-		this.childs = new HashMap<PrimitiveType, HashMap<String, Symbol>>();
+		this.childs = new HashMap<String, Symbol>();
 		this.parent = parent;
+		this.token = token;
 		
 		if (this.parent != null) {
 			this.parent.addChild(this);
@@ -52,7 +62,19 @@ public class Symbol {
 	}
 	
 	public String getFullName() {
-		return this.getName();
+		String name = this.getName();
+		
+		if (this.parent != null) {
+			if (this.parent.getName() != null) {
+				if (this.getVisibility() == Visibility.PRIVATE) {
+					name = this.parent.getFullName() + PRIVATE_SEPARATOR + name;
+				} else if (this.getVisibility() == Visibility.PUBLIC) {
+					name = this.parent.getFullName() + PUBLIC_SEPARATOR + name;
+				}
+			}
+		}
+		
+		return name;
 	}
 	
 	public String getType() {
@@ -73,15 +95,23 @@ public class Symbol {
 	 * @return Itself
 	 */
 	public Symbol addChild(Symbol child) {
-		PrimitiveType childPrimitiveType = child.getPrimitiveType();
+		this.childs.put(child.getName(), child);
+		return this;
+	}
+	
+	protected String removeVisibilityPrefix(String name) {
+		return name.replaceFirst(".+_", "");
+	}
+	
+	protected Symbol resolveRemovingVisibilityPrefix(String name) {
+		Symbol result = this.childs.get(name);
 		
-		if (!this.childs.containsKey(childPrimitiveType)) {
-			this.childs.put(primitiveType, new HashMap<String, Symbol>());
+		if (result == null) {
+			name = this.removeVisibilityPrefix(name);
+			result = this.childs.get(name);
 		}
 		
-		this.childs.get(childPrimitiveType).put(child.getName(), child);
-		
-		return this;
+		return result;
 	}
 	
 	/**
@@ -96,20 +126,14 @@ public class Symbol {
 			String name,
 			PrimitiveType primitiveType,
 			boolean backwards) {
-		Symbol result = null;
+		Symbol result = this.resolveRemovingVisibilityPrefix(name);
 		
-		if (this.childs.containsKey(primitiveType)) {
-			result = this.childs.get(primitiveType).get(name);
-			
-			if (result == null) {
-				for (HashMap<String, Symbol> hm : this.childs.values()) {
-					for (Symbol child : hm.values()) {
-						result = child.resolve(name, primitiveType, false);
-						
-						if (result != null) {
-							break;
-						}
-					}
+		if (result == null) {
+			for (Symbol child : this.childs.values()) {
+				result = child.resolve(name, primitiveType, false);
+				
+				if (result != null) {
+					break;
 				}
 			}
 		}
@@ -125,6 +149,14 @@ public class Symbol {
 	
 	public Symbol getParent() {
 		return this.parent;
+	}
+	
+	public int getLine() {
+		return this.token.getLine();
+	}
+	
+	public int getCharPositionInLine() {
+		return this.token.getCharPositionInLine();
 	}
 	
 	public boolean hasAccess(Symbol symbol) {

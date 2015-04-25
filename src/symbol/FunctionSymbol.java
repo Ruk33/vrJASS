@@ -2,6 +2,8 @@ package symbol;
 
 import java.util.Stack;
 
+import org.antlr.v4.runtime.Token;
+
 public class FunctionSymbol extends Symbol {
 
 	protected Stack<Symbol> params;
@@ -10,8 +12,9 @@ public class FunctionSymbol extends Symbol {
 			String name,
 			String type,
 			Visibility visibility,
-			Symbol parent) {
-		super(name, type, PrimitiveType.FUNCTION, visibility, parent);
+			Symbol parent,
+			Token token) {
+		super(name, type, PrimitiveType.FUNCTION, visibility, parent, token);
 		this.params = new Stack<Symbol>();
 	}
 
