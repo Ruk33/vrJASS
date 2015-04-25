@@ -1,8 +1,9 @@
 package visitor;
 
-import symbol.ClassMemberSymbol;
+import symbol.MethodSymbol;
 import symbol.ParameterSymbol;
 import symbol.PrimitiveType;
+import symbol.PropertySymbol;
 import symbol.Symbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
@@ -75,8 +76,8 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String type = ctx.variableType().getText();
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
-		new ClassMemberSymbol(
-			name, type, false, PrimitiveType.VARIABLE, visibility, this.scope
+		new PropertySymbol(
+			name, type, false, false, visibility, this.scope
 		);
 		
 		return null;
@@ -88,8 +89,8 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String type = ctx.returnType().getText();
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
-		this.scope = new ClassMemberSymbol(
-			name, type, false, PrimitiveType.FUNCTION, visibility, this.scope
+		this.scope = new MethodSymbol(
+			name, type, false, visibility, this.scope
 		);
 		
 		this.visit(ctx.parameters());

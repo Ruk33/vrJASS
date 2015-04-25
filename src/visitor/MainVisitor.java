@@ -364,7 +364,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.expressionType = prevExprType;
-		
 		return String.join(",", args);
 	}
 	
@@ -396,48 +395,41 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitFunctionExpression(FunctionExpressionContext ctx) {
 		String name = ctx.functionName.getText();
-		FunctionSymbol func = null;
+		int argumentsCount = ctx.arguments().argument().size();
+		Symbol prevScope = this.scope;
 		
-		if (this.className != null) {
-			func = this.getMethod(this.scopeName, this.className, name);
-		}
+		FunctionSymbol function = (FunctionSymbol) this.scope.resolve(
+			name, PrimitiveType.FUNCTION, true
+		);
 		
-		if (func == null) {
-			func = this.getFunction(this.scopeName, name);
-		}
-		
-		if (func == null) {
+		if (function == null) {
 			throw new UndefinedFunctionException(ctx.functionName);
 		}
 		
-		int argumentsCount = ctx.arguments().argument().size();
-		
-		FunctionSymbol prevFunction = this.function;
-		
-		if (!this.hasAccess(func, this.scopeName, this.requiredLibraries)) {
+		if (!this.scope.hasAccess(function)) {
 			throw new ElementNoAccessException(ctx.functionName);
 		}
 		
-		if (argumentsCount > func.getParams().size()) {
+		if (argumentsCount > function.getParams().size()) {
 			throw new TooManyArgumentsFunctionCallException(ctx.functionName);
 		}
 		
-		if (argumentsCount < func.getParams().size()) {
+		if (argumentsCount < function.getParams().size()) {
 			throw new TooFewArgumentsFunctionCallException(ctx.functionName);
 		}
 		
-		this.function = func;
+		this.scope = function;
 		
-		String finalName = func.getName();
-		String prevFuncName = prevFunction.getName();
+		String finalName = function.getFullName();
+		String prevFuncName = prevScope.getFullName();
 		
-		if (!this.functionSorter.functionBeingCalled(func, prevFuncName)) {
+		if (!this.functionSorter.functionBeingCalled(function, prevFuncName)) {
 			finalName = this.functionSorter.getDummyPrefix() + finalName;
 		}
 		
 		String args = this.visit(ctx.arguments());
 		
-		if (this.function instanceof MethodSymbol) {
+		if (this.scope instanceof MethodSymbol) {
 			if (args.equals("")) {
 				args = "this";
 			} else {
@@ -445,12 +437,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			}
 		}
 		
-		String result = finalName + "(" + args + ")";
-		this.expressionType = this.function.getReturnType();
-				
-		this.function = prevFunction;
+		this.expressionType = this.scope.getType();
+		this.scope = prevScope;
 		
-		return result;
+		return finalName + "(" + args + ")";
 	}
 	
 	@Override
