@@ -97,10 +97,16 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitPropertyStatement(PropertyStatementContext ctx) {
 		String name = ctx.propertyName.getText();
 		String type = ctx.variableType().getText();
+		boolean isStatic = ctx.STATIC() != null;
+		boolean isArray = true;
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
+		if (isStatic) {
+			isArray = false;
+		}
+		
 		new PropertySymbol(
-			name, type, false, false, visibility, this.scope, ctx.propertyName
+			name, type, isStatic, isArray, visibility, this.scope, ctx.propertyName
 		);
 		
 		return null;

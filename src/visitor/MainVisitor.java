@@ -27,6 +27,7 @@ import exception.UndefinedMethodException;
 import exception.UndefinedPropertyException;
 import exception.UndefinedVariableException;
 import exception.VariableIsNotArrayException;
+import symbol.ClassMemberSymbol;
 import symbol.FunctionSymbol;
 import symbol.MethodSymbol;
 import symbol.PrimitiveType;
@@ -236,12 +237,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitMember(MemberContext ctx) {
-		this.visit(ctx.left);
-		
+		String left = this.visit(ctx.left);
 		String leftName = ctx.left.getText();
 		String leftType = this.expressionType;
 		Symbol member = null;
-		String result = "";
+		String result;
 		
 		if (leftName.equals("this")) {
 			this._class = this.scope.resolve("this", PrimitiveType.VARIABLE, false).getParent().getParent();
@@ -249,26 +249,24 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			this._class = this.scope.resolve(leftType, PrimitiveType.CLASS, true);
 		}
 		
-		if (ctx.right.getClass().getSimpleName().equals("VariableContext")) {
-			member = this._class.resolve(ctx.right.getText(), PrimitiveType.VARIABLE, false);
-			
-			if (member == null || member.getParent() != this._class) {
-				throw new UndefinedPropertyException(ctx.right.getStart(), this._class);
-			}
-			
-			result = member.getFullName() + "[" + ctx.left.getText() + "]";
-		} else {
-			String right = this.visit(ctx.right);
-			
-			member = this.symbol;
-			
-			if (((MethodSymbol) member).isStatic()) {
-				result = right;
+		String right = this.visit(ctx.right);
+		member = this.symbol;
+		
+		result = member.getFullName();
+		
+		if (member instanceof ClassMemberSymbol) {
+			if (!((ClassMemberSymbol) member).isStatic()) {
+				if (member instanceof MethodSymbol) {
+					result += "(" + left + ")";
+				} else {
+					result += "[" + left + "]";
+				}
 			} else {
-				result = this.symbol.getFullName() + "(" + ctx.left.getText() + ")";
+				result = right;
 			}
 		}
 		
+		this._class = null;
 		this.expressionType = member.getType();
 		return result;
 	}
@@ -277,14 +275,20 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitVariable(VariableContext ctx) {
 		String name = ctx.varName.getText();
 		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
-		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE, true);
+		Symbol variable = null;
 		
-		if (variable == null) {
-			variable = this.scope.resolve(name, PrimitiveType.CLASS, true);
-		}
-		
-		if (variable == null) {
-			throw new UndefinedVariableException(ctx.varName);
+		if (this._class != null) {
+			variable = this._class.resolve(name, PrimitiveType.VARIABLE, false);
+
+			if (variable == null || variable.getParent() != this._class) {
+				throw new UndefinedPropertyException(ctx.varName, this._class);
+			}
+		} else {
+			variable = this.scope.resolve(name, PrimitiveType.VARIABLE, true);
+			
+			if (variable == null) {
+				throw new UndefinedVariableException(ctx.varName);
+			}
 		}
 		
 		if (!this.scope.hasAccess(variable)) {
@@ -815,10 +819,36 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitPropertyStatement(PropertyStatementContext ctx) {
-		String name = ctx.propertyName.getText();
-		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE, false);
+		String variableName = ctx.propertyName.getText();
+		String variableType = this.visit(ctx.variableType());
+		Symbol variable = this.scope.resolve(variableName, PrimitiveType.VARIABLE, false);
+		String result = variableType;
 		
-		String result = this.visit(ctx.variableType()) + " array " + variable.getFullName();
+		if (((VariableSymbol) variable).isArray()) {
+			result += " array ";
+		} else {
+			result += " ";
+		}
+		
+		result += variable.getFullName();
+		
+		this.symbol = variable;
+		
+		if (ctx.value != null) {
+			if (((VariableSymbol) variable).isArray()) {
+				throw new InitializeArrayVariableException(ctx.propertyName);
+			}
+			
+			result += "=" + this.visit(ctx.value);
+			
+			if (!variable.getType().equals(this.expressionType)) {
+				throw new IncorrectVariableTypeException(
+					ctx.propertyName,
+					variable.getType(),
+					this.expressionType
+				);
+			}
+		}
 		
 		this.classGlobals.push(result);
 		

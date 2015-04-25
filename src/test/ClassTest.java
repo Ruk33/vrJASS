@@ -224,5 +224,27 @@ public class ClassTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void staticProperty() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "public static integer i = 3\n"
+				+ "endstruct\n"
+				+ "function bar takes nothing returns integer\n"
+				+ "return Foo.i\n"
+				+ "endfunction";
+		
+		String result =
+				"globals\n"
+				+ "integer struct_Foo_i=3\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns integer\n"
+				+ "return struct_Foo_i\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }
