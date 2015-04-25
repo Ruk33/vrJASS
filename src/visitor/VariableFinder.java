@@ -3,88 +3,65 @@ package visitor;
 import java.util.HashMap;
 
 import exception.AlreadyDefinedVariableException;
-import symbol.FunctionSymbol;
 import symbol.VariableSymbol;
 import symbol.Visibility;
 import antlr4.vrjassBaseVisitor;
+import antlr4.vrjassParser.ClassDefinitionContext;
+import antlr4.vrjassParser.ClassStatementsContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.GlobalVariableStatementContext;
 import antlr4.vrjassParser.LibraryDefinitionContext;
 import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.ParameterContext;
+import antlr4.vrjassParser.PropertyStatementContext;
 
 public class VariableFinder extends vrjassBaseVisitor<Void> {
 
+	protected HashMap<String, VariableSymbol> globals;
+	protected HashMap<String, VariableSymbol> locals;
+	
 	protected MainVisitor main;
 	
-	protected HashMap<String, VariableSymbol> globalVariables;
-	protected HashMap<String, HashMap<String, VariableSymbol>> localVariables;
-	
 	protected String scopeName;
+	
 	protected String funcName;
 	
+	protected String className;
+	
 	public VariableFinder(MainVisitor main) {
+		this.globals = new HashMap<String, VariableSymbol>();
+		this.locals = new HashMap<String, VariableSymbol>();
 		this.main = main;
-		this.globalVariables = new HashMap<String, VariableSymbol>();
-		this.localVariables = new HashMap<String, HashMap<String, VariableSymbol>>();
+	}
+
+	public VariableSymbol getGlobal(String name) {
+		return this.globals.get(name);
+	}
+
+	public VariableSymbol getLocal(String name) {
+		return this.locals.get(name);
 	}
 	
-	public VariableSymbol get(String funcName, String variableName, String scopeName) {
-		VariableSymbol variable = null;
-		
-		if (funcName != null) {
-			if (this.localVariables.containsKey(funcName)) {
-				variable = this.localVariables.get(funcName).get(variableName);
-			}
-		}
-		
-		if (variable == null) {
-			String privateName = this.main.getPrefixer().getForScope(false, scopeName);
-			String publicName = this.main.getPrefixer().getForScope(true, scopeName);
-			String noVisibilityPrefix = this.main.getPrefixer().getForScope(null, scopeName);
-			
-			variable = this.globalVariables.get(noVisibilityPrefix + variableName);
-			
-			if (variable == null) {
-				variable = this.globalVariables.get(privateName + variableName);
-			}
-			
-			if (variable == null) {
-				variable = this.globalVariables.get(publicName + variableName);
-			}
-		}
-		
-		return variable;
-	}
-	
-	public VariableSymbol get(FunctionSymbol function, String variableName, String scopeName) {
-		String funcName = null;
-		
-		if (function != null) {
-			funcName = function.getName();
-		}
-		
-		return this.get(funcName, variableName, scopeName);
-	}
-	
-	protected VariableSymbol put(String funcName, VariableSymbol variable) {
+	protected VariableSymbol put(VariableSymbol variable) {
 		VariableSymbol alreadyDefined = null;
 		
-		if (funcName == null) {
-			alreadyDefined = this.globalVariables.get(variable.getName());
+		if (variable.isGlobal()) {
+			alreadyDefined = this.globals.get(variable.getName());
 		} else {
-			alreadyDefined = this.localVariables.get(funcName).get(variable.getName());
+			alreadyDefined = this.locals.get(variable.getName());
 		}
 		
 		if (alreadyDefined != null) {
-			throw new AlreadyDefinedVariableException(variable.getToken(), alreadyDefined);
+			throw new AlreadyDefinedVariableException(
+				variable.getToken(), alreadyDefined
+			);
 		}
 		
-		if (funcName == null) {
-			this.globalVariables.put(variable.getName(), variable);
+		if (variable.isGlobal()) {
+			this.globals.put(variable.getName(), variable);
 		} else {
-			this.localVariables.get(funcName).put(variable.getName(), variable);
+			this.locals.put(variable.getName(), variable);
 		}
 		
 		return variable;
@@ -93,14 +70,14 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 	@Override
 	public Void visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
 		String prefix = this.main.getPrefixer().getForScope(ctx.visibility, this.scopeName);
-		String variableName = prefix + ctx.varName.getText();
-		String variableType = ctx.variableType().getText();
+		String name = prefix + ctx.varName.getText();
+		String type = ctx.variableType().getText();
 		boolean isArray = ctx.array != null;
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
 		VariableSymbol variable = new VariableSymbol(
-			variableName,
-			variableType,
+			prefix + name,
+			type,
 			true,
 			isArray,
 			null,
@@ -109,20 +86,58 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 			this.scopeName
 		);
 		
-		this.put(null, variable);
+		this.put(variable);
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitPropertyStatement(PropertyStatementContext ctx) {
+		String prefix = this.main.getPrefixer().getForClass(ctx.visibility, this.scopeName, this.className);
+		String name = ctx.propertyName.getText();
+		String type = ctx.variableType().getText();
+		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		VariableSymbol property = new VariableSymbol(
+			prefix + name,
+			type,
+			true,
+			true,
+			null,
+			ctx.propertyName,
+			visibility,
+			this.className
+		);
+		
+		this.put(property);
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitClassDefinition(ClassDefinitionContext ctx) {
+		String prevClassName = this.className;
+		
+		this.className = ctx.className.getText();
+		
+		for (ClassStatementsContext stat : ctx.classStatements()) {
+			this.visit(stat);
+		}
+		
+		this.className = prevClassName;
 		
 		return null;
 	}
 	
 	@Override
 	public Void visitLocalVariableStatement(LocalVariableStatementContext ctx) {
-		String variableName = ctx.varName.getText();
-		String variableType = ctx.variableType().getText();
+		String prefix = this.main.getPrefixer().getForScope(true, this.funcName);
+		String name = ctx.varName.getText();
+		String type = ctx.variableType().getText();
 		boolean isArray = ctx.array != null;
 		
 		VariableSymbol variable = new VariableSymbol(
-			variableName,
-			variableType,
+			prefix + name,
+			type,
 			false,
 			isArray,
 			null,
@@ -131,18 +146,19 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 			this.funcName
 		);
 		
-		this.put(this.funcName, variable);
+		this.put(variable);
 		
 		return null;
 	}
 	
 	@Override
 	public Void visitParameter(ParameterContext ctx) {
-		String variableName = ctx.ID().getText();
-		String variableType = ctx.variableType().getText();
+		String prefix = this.main.getPrefixer().getForScope(true, this.funcName);
+		String name = ctx.ID().getText();
+		String type = ctx.variableType().getText();
 		VariableSymbol variable = new VariableSymbol(
-			variableName,
-			variableType,
+			prefix + name,
+			type,
 			false,
 			false,
 			null,
@@ -151,7 +167,7 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 			this.funcName
 		);
 		
-		this.put(this.funcName, variable);
+		this.put(variable);
 		
 		return null;
 	}
@@ -161,13 +177,6 @@ public class VariableFinder extends vrjassBaseVisitor<Void> {
 		String prevFuncName = this.funcName;
 		
 		this.funcName = ctx.functionName.getText();
-		
-		if (!this.localVariables.containsKey(this.funcName)) {
-			this.localVariables.put(
-				this.funcName,
-				new HashMap<String, VariableSymbol>()
-			);
-		}
 		
 		this.visit(ctx.parameters());
 		this.visit(ctx.statements());

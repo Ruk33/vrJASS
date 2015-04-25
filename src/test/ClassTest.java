@@ -2,12 +2,17 @@ package test;
 
 import static org.junit.Assert.*;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import util.Compile;
 
 public class ClassTest {
 
+	@Rule
+	public ExpectedException expectedEx = ExpectedException.none();
+	
 	@Test
 	public void defaultAllocation() {
 		Compile compile = new Compile();
@@ -73,5 +78,42 @@ public class ClassTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void properties() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "integer i\n"
+				+ "method bar takes nothing returns integer\n"
+				+ "return this.i\n"
+				+ "endmethod\n"
+				+ "endstruct";
+		
+		String result =
+				"function struct_Foo_bar takes integer this returns integer\n"
+				+ "return struct_Foo_i[this]\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
+	
+	/*
+	@Test
+	public void undefinedProperty() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "method bar takes nothing returns nothing\n"
+				+ "local integer i = this.i\n"
+				+ "endmethod\n"
+				+ "endstruct";
+		
+		expectedEx.expect(UndefinedPropertyException.class);
+		expectedEx.expectMessage("3:23 Property <i> is not defined");
+		
+		compile.run(code);
+	}
+	*/
 
 }

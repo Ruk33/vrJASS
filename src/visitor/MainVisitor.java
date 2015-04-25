@@ -122,6 +122,33 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		return this.prefixer;
 	}
 	
+	public VariableSymbol getLocalVariable(String scopeName, String name) {
+		String prefix = this.getPrefixer().getForScope(true, scopeName);
+		return this.variableFinder.getLocal(prefix + name);
+	}
+	
+	public VariableSymbol getGlobalVariable(String scopeName, String name) {
+		String prefix = this.getPrefixer().getForScope(true, scopeName);
+		VariableSymbol variable = this.variableFinder.getGlobal(prefix + name);
+		
+		if (variable == null) {
+			prefix = this.getPrefixer().getForScope(false, scopeName);
+			variable = this.variableFinder.getGlobal(prefix + name);
+		}
+		
+		return variable;
+	}
+	
+	public VariableSymbol getLocalOrGlobalVariable(String scopeName, String name) {
+		VariableSymbol variable = this.getLocalVariable(scopeName, name);
+		
+		if (variable == null) {
+			variable = this.getGlobalVariable(scopeName, name);
+		}
+		
+		return variable;
+	}
+	
 	public FunctionSymbol getFunction(String scopeName, String name) {
 		String prefix = this.prefixer.getForScope(false, scopeName);
 		FunctionSymbol result = this.functionFinder.get(prefix + name);
@@ -210,7 +237,18 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitVariable(VariableContext ctx) {
 		String name = ctx.varName.getText();
 		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
-		VariableSymbol variable = this.variableFinder.get(this.function, name, this.scopeName);
+		
+		String scope = null;
+		
+		if (this.className != null) {
+			scope = this.className;
+		} else if (this.function != null) {
+			scope = this.function.getName();
+		} else {
+			scope = this.scopeName;
+		}
+		
+		VariableSymbol variable = this.getLocalOrGlobalVariable(scope, name);
 		
 		if (variable == null) {
 			throw new UndefinedVariableException(ctx.varName);
@@ -578,8 +616,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String operator = ctx.operator.getText();
 		VariableSymbol prevVar = this.variable;
 		String result;
+		String scope;
 		
-		this.variable = this.variableFinder.get(this.function, variableName, this.scopeName);
+		if (this.className != null) {
+			scope = this.className;
+		} else if (this.function != null) {
+			scope = this.function.getName();
+		} else {
+			scope = this.scopeName;
+		}
+		
+		this.variable = this.getLocalOrGlobalVariable(scope, variableName);
 		
 		if (this.variable == null) {
 			throw new UndefinedVariableException(ctx.varName);

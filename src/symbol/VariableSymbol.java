@@ -1,43 +1,22 @@
 package symbol;
 
-import org.antlr.v4.runtime.Token;
-
-public class VariableSymbol {
-
-	protected String name;
-	protected String type;
-	protected boolean global;
+public class VariableSymbol extends Symbol {
+	
 	protected boolean array;
-	protected String value;
-	protected Token token;
-	protected Visibility visibility;
-	protected String scopeName;
+	
+	protected boolean global;
 	
 	public VariableSymbol(
 			String name,
 			String type,
-			boolean global,
-			boolean array,
-			String value,
-			Token token,
+			boolean isArray,
+			boolean isGlobal,
 			Visibility visibility,
-			String scopeName) {
-		this.name = name;
-		this.type = type;
-		this.global = global;
-		this.array = array;
-		this.value = value;
-		this.token = token;
-		this.visibility = visibility;
-		this.scopeName = scopeName;
-	}
-	
-	public String getName() {
-		return this.name;
-	}
-	
-	public String getType() {
-		return this.type;
+			Symbol parent) {
+		super(name, type, PrimitiveType.VARIABLE, visibility, parent);
+		
+		this.array = isArray;
+		this.global = isGlobal;
 	}
 	
 	public boolean isGlobal() {
@@ -46,26 +25,6 @@ public class VariableSymbol {
 	
 	public boolean isArray() {
 		return this.array;
-	}
-	
-	public int getLine() {
-		return this.token.getLine();
-	}
-	
-	public int getCharPositionInLine() {
-		return this.token.getCharPositionInLine();
-	}
-	
-	public Token getToken() {
-		return this.token;
-	}
-
-	public Visibility getVisibility() {
-		return this.visibility;
-	}
-
-	public Object getScopeName() {
-		return this.scopeName;
 	}
 	
 }

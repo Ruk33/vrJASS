@@ -61,7 +61,7 @@ methodDefinition:
 	 'endmethod'
 	 ;
 	 
-propertyStatement: variableType propertyName=ID ('=' value=expression)?;
+propertyStatement: (visibility=('private'|'public'))? variableType propertyName=ID ('=' value=expression)?;
 
 classStatements
 	:methodDefinition
