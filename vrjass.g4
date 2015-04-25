@@ -26,6 +26,7 @@ statement
 	|returnStatement
 	|setVariableStatement
 	|localVariableStatement
+	|ifStatement
 	;
 	
 statements: (statement EOL)*;
@@ -90,6 +91,7 @@ expression
 	|left=expression operator=('or'|'and') right=expression #Logical
 	|INT #Integer
 	|STR #String
+	|('true' || 'false') #Boolean
 	|'this' #This
 	|left=expression '.' right=expression #Member
 	|functionExpression #Function
@@ -103,6 +105,12 @@ arguments
 	:argument (',' argument)*
 	|
 	; 
+
+elseIfStatement: 'elseif' '(' expression ')' 'then' EOL statements;
+
+elseStatement: 'else' EOL statements;
+
+ifStatement: 'if' '(' expression ')' 'then' EOL statements (elseIfStatement)* (elseStatement)? 'endif';
 
 functionStatement: 'call' func=expression;
 

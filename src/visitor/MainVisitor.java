@@ -11,6 +11,7 @@ import exception.EqualNotEqualComparisonException;
 import exception.IncorrectReturnTypeFunctionException;
 import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
+import exception.InvalidBooleanException;
 import exception.LessGreaterComparisonException;
 import exception.LogicalException;
 import exception.MathematicalExpressionException;
@@ -41,15 +42,19 @@ import antlr4.vrjassParser;
 import antlr4.vrjassParser.AltInitContext;
 import antlr4.vrjassParser.ArgumentContext;
 import antlr4.vrjassParser.ArgumentsContext;
+import antlr4.vrjassParser.BooleanContext;
 import antlr4.vrjassParser.ClassDefinitionContext;
 import antlr4.vrjassParser.ClassStatementsContext;
 import antlr4.vrjassParser.ComparisonContext;
 import antlr4.vrjassParser.DivContext;
+import antlr4.vrjassParser.ElseIfStatementContext;
+import antlr4.vrjassParser.ElseStatementContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.FunctionExpressionContext;
 import antlr4.vrjassParser.FunctionStatementContext;
 import antlr4.vrjassParser.GlobalVariableStatementContext;
 import antlr4.vrjassParser.GlobalsContext;
+import antlr4.vrjassParser.IfStatementContext;
 import antlr4.vrjassParser.InitContext;
 import antlr4.vrjassParser.IntegerContext;
 import antlr4.vrjassParser.LibraryDefinitionContext;
@@ -131,6 +136,73 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		return Visibility.PUBLIC;
+	}
+	
+	@Override
+	public String visitElseStatement(ElseStatementContext ctx) {
+		Stack<String> result = new Stack<String>();
+		String visited = this.visit(ctx.statements());
+		
+		result.push("else");
+		
+		if (visited != null && !visited.isEmpty()) {
+			result.push(visited);
+		}
+		
+		return String.join(System.lineSeparator(), result);
+	}
+	
+	@Override
+	public String visitElseIfStatement(ElseIfStatementContext ctx) {
+		Stack<String> result = new Stack<String>();
+		
+		result.push("elseif (" + this.visit(ctx.expression()) + ") then");
+		result.push(this.visit(ctx.statements()));
+		
+		return String.join(System.lineSeparator(), result);
+	}
+	
+	@Override
+	public String visitIfStatement(IfStatementContext ctx) {
+		Stack<String> result = new Stack<String>();
+		String visited = this.visit(ctx.expression());
+		
+		if (!this.expressionType.equals("boolean")) {
+			throw new InvalidBooleanException(
+				ctx.expression().getStart(),
+				this.expressionType
+			);
+		}
+		
+		result.push("if (" + visited + ") then");
+		
+		visited = this.visit(ctx.statements());
+		
+		if (!visited.isEmpty()) {
+			result.push(visited);
+		}
+		
+		for (ElseIfStatementContext elseIfStatement : ctx.elseIfStatement()) {
+			visited = this.visit(elseIfStatement);
+			
+			if (visited != null) {
+				result.push(visited);
+			}
+		}
+		
+		if (ctx.elseStatement() != null) {
+			result.push(this.visit(ctx.elseStatement()));
+		}
+		
+		result.push("endif");
+		
+		return String.join(System.lineSeparator(), result);
+	}
+	
+	@Override
+	public String visitBoolean(BooleanContext ctx) {
+		this.expressionType = "boolean";
+		return ctx.getText();
 	}
 	
 	@Override
@@ -395,6 +467,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		int i = 0;
 		
+		if (params.size() == 0) {
+			return "";
+		}
+		
 		for (ArgumentContext arg : ctx.argument()) {
 			args.push(this.visit(arg));
 			
@@ -472,6 +548,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			funcParamCount--;
 		}
 		
+		// if argument is nothing, remove it
+		if (ctx.arguments().argument(0).getText().isEmpty()) {
+			argumentsCount--;
+		}
+		
 		if (argumentsCount > funcParamCount) {
 			throw new TooManyArgumentsFunctionCallException(ctx.functionName);
 		}
@@ -490,7 +571,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			finalName = this.functionSorter.getDummyPrefix() + finalName;
 		}
 		
-		String args = this.visit(ctx.arguments());
+		String args = "";
+		
+		if (argumentsCount > 0) {
+			args = this.visit(ctx.arguments());
+		}
 		
 		if (this.scope instanceof MethodSymbol) {
 			if (args.equals("")) {
