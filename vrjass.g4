@@ -9,6 +9,7 @@ altInit
 	|globalDefinition
 	|libraryDefinition
 	|classDefinition
+	|nativeDefinition
 	|EOL
 	;
 
@@ -46,6 +47,7 @@ libraryStatements
 	:globalDefinition
 	|functionDefinition
 	|classDefinition
+	|nativeDefinition
 	|EOL
 	;
 	
@@ -82,6 +84,10 @@ functionDefinition:
 	 	statements
 	 'endfunction'
 	 ;
+
+nativeDefinition:
+	CONSTANT? 'native' functionName=ID 'takes' parameters 'returns' returnType
+	;
 
 expression
 	:left=expression '/' right=expression #Div

@@ -70,6 +70,7 @@ import antlr4.vrjassParser.MemberContext;
 import antlr4.vrjassParser.MethodDefinitionContext;
 import antlr4.vrjassParser.MinusContext;
 import antlr4.vrjassParser.MultContext;
+import antlr4.vrjassParser.NativeDefinitionContext;
 import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.ParametersContext;
 import antlr4.vrjassParser.ParenthesisContext;
@@ -90,6 +91,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected Stack<String> globalsBlock;
 	
 	protected Stack<String> classGlobals;
+	
+	protected Stack<String> natives;
 	
 	protected Stack<String> requiredLibraries;
 	
@@ -114,6 +117,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public MainVisitor(vrjassParser parser) {
 		this.globalsBlock = new Stack<String>();
 		this.classGlobals = new Stack<String>();
+		this.natives = new Stack<String>();
 		this.functionSorter = new FunctionSorter();
 		this.requiredLibraries = new Stack<String>();
 		
@@ -141,6 +145,22 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		return Visibility.PUBLIC;
+	}
+	
+	@Override
+	public String visitNativeDefinition(NativeDefinitionContext ctx) {
+		String name = ctx.functionName.getText();
+		String params = this.visit(ctx.parameters());
+		String type = ctx.returnType().getText();
+		
+		String result = "native " + name + " takes " + params + " returns " + type;
+		
+		if (ctx.CONSTANT() != null) {
+			result = "constant " + result;
+		}
+		
+		this.natives.push(result);
+		return result;
 	}
 	
 	@Override
@@ -1087,6 +1107,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			result.push("endglobals");
 		}
 		
+		result.addAll(this.natives);
 		result.addAll(this.functionSorter.getFunctions());
 		
 		return String.join(System.lineSeparator(), result);
