@@ -160,7 +160,11 @@ public class Symbol {
 	}
 	
 	public boolean hasAccess(Symbol symbol) {
-		if (!this.equals(symbol.getParent())) {
+		if (this == symbol.getParent()) {
+			return true;
+		}
+		
+		if (this.getParent() != symbol.getParent()) {
 			if (symbol.getVisibility() == Visibility.PRIVATE) {
 				return false;
 			}

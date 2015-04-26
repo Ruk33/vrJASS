@@ -246,5 +246,39 @@ public class ClassTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void creatingInstance() {
+		Compile compile = new Compile();
+		String code =
+				"struct Foo extends array\n"
+				+ "public static Foo instances\n"
+				+ "public integer i\n"
+				+ "public static method create takes nothing returns Foo\n"
+				+ "return Foo.instances\n"
+				+ "endmethod\n"
+				+ "endstruct\n"
+				+ "function bar takes nothing returns integer\n"
+				+ "local Foo instance = Foo.create()\n"
+				+ "set instance.i=3\n"
+				+ "return instance.i\n"
+				+ "endfunction";
+		
+		String result =
+				"globals\n"
+				+ "integer struct_Foo_instances\n"
+				+ "integer array struct_Foo_i\n"
+				+ "endglobals\n"
+				+ "function struct_Foo_create takes nothing returns integer\n"
+				+ "return struct_Foo_instances\n"
+				+ "endfunction\n"
+				+ "function bar takes nothing returns integer\n"
+				+ "local integer instance=struct_Foo_create()\n"
+				+ "set struct_Foo_i[instance]=3\n"
+				+ "return struct_Foo_i[instance]\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

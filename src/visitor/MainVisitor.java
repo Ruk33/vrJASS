@@ -274,7 +274,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitVariable(VariableContext ctx) {
 		String name = ctx.varName.getText();
-		String indexType = (ctx.index != null) ? this.visit(ctx.index) : null;
+		String index = "";
 		Symbol variable = null;
 		
 		if (this._class != null) {
@@ -295,14 +295,22 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new ElementNoAccessException(ctx.varName);
 		}
 		
-		if (ctx.index != null && !"integer".equals(indexType)) {
-			throw new InvalidArrayVariableIndexException(ctx.index.getStart());
+		if (ctx.index != null) {
+			index = "[" + this.visit(ctx.index) + "]";
+			
+			if (((VariableSymbol) variable).isArray()) {
+				if (!"integer".equals(this.expressionType)) {
+					throw new InvalidArrayVariableIndexException(ctx.index.getStart());
+				}
+			} else {
+				throw new VariableIsNotArrayException(ctx.varName);
+			}
 		}
 		
 		this.symbol = variable;
 		this.expressionType = variable.getType();
 		
-		return variable.getFullName();
+		return variable.getFullName() + index;
 	}
 		
 	@Override
@@ -677,42 +685,25 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
-		String variableName = ctx.varName.getText();
-		String index = (ctx.index == null) ? "" : "[" + this.visit(ctx.index) + "]";
-		String indexType = this.expressionType;
+		String nameExpression = this.visit(ctx.varName);
+		Symbol variable = this.symbol;
+		String result = "set " + nameExpression + "=";
 		String operator = ctx.operator.getText();
-		String result;
 		
-		this.symbol = this.scope.resolve(variableName, PrimitiveType.VARIABLE, true);
-		
-		if (this.symbol == null) {
-			throw new UndefinedVariableException(ctx.varName);
-		}
-		
-		result = "set " + this.symbol.getFullName() + index + "=";
-
 		switch (operator) {
 		case "/=":
 		case "*=":
 		case "-=":
 		case "+=":
-			result += this.symbol.getFullName() + index + operator.replace("=", "");
+			result += nameExpression + operator.replace("=", "");
 		}
 		
 		result += this.visit(ctx.value);
 		
-		if (ctx.index != null && !((VariableSymbol) this.symbol).isArray()) {
-			throw new VariableIsNotArrayException(ctx.varName);
-		}
-		
-		if (ctx.index != null && !"integer".equals(indexType)) {
-			throw new InvalidArrayVariableIndexException(ctx.index.getStart());
-		}
-		
-		if (!this.symbol.getType().equals(this.expressionType)) {
+		if (!variable.getType().equals(this.expressionType)) {
 			throw new IncorrectVariableTypeException(
-				ctx.varName,
-				this.symbol.getType(),
+				ctx.varName.getStart(),
+				variable.getType(),
 				this.expressionType
 			);
 		}

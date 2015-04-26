@@ -309,7 +309,7 @@ public class GlobalVariableTest {
 			"7:20 No access to element <foo__nope>"
 		);
 		
-		compile.run(code);
+		System.out.println(compile.run(code));
 	}
 
 }
