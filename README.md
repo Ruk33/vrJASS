@@ -1,8 +1,9 @@
 ![vrJASS Logo](http://i.imgur.com/UyuRc3b.jpg?1)
 
 #vrJASS
-####Because you deserve a better yet familiar flavor
-####Even better flavor than before
+/Because you deserve a better yet familiar flavor/
+
+/Even better flavor than before/
 
 ##What is vrJASS?
 A new and just-for-fun/learning-intended-to project which aims 
@@ -42,3 +43,13 @@ Pick the one you like the most:
 - Select util.vrjassc
 - Finish
 - Done!
+
+##How to use the compiled vrjass?
+It is very simple, just type:
+
+´´´bash
+java -jar path/to/vrjassc.jar file1 file2
+´´´
+
+The output will be writed to output.j file (which will be created to the path 
+where you execute the jar file).
