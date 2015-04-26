@@ -104,6 +104,7 @@ expression
 	|INT #Integer
 	|STR #String
 	|('true' || 'false') #Boolean
+	|'function' expression #Code
 	|left=expression '.' right=expression #Member
 	|'this' #This
 	|functionExpression #Function

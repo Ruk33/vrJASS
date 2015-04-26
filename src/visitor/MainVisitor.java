@@ -47,6 +47,7 @@ import antlr4.vrjassParser.ArgumentsContext;
 import antlr4.vrjassParser.BooleanContext;
 import antlr4.vrjassParser.ClassDefinitionContext;
 import antlr4.vrjassParser.ClassStatementsContext;
+import antlr4.vrjassParser.CodeContext;
 import antlr4.vrjassParser.ComparisonContext;
 import antlr4.vrjassParser.DivContext;
 import antlr4.vrjassParser.ElseIfStatementContext;
@@ -149,6 +150,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		return Visibility.PUBLIC;
+	}
+	
+	@Override
+	public String visitCode(CodeContext ctx) {
+		String result = "function " + this.visit(ctx.expression());
+		
+		this.expressionType = "code";
+		return result;
 	}
 	
 	@Override
@@ -593,7 +602,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitArguments(ArgumentsContext ctx) {
-		FunctionSymbol function = (FunctionSymbol) this.scope;
+		FunctionSymbol function = (FunctionSymbol) this.symbol;
 		
 		Stack<Symbol> params = function.getParams();
 		Stack<String> args = new Stack<String>();
@@ -699,7 +708,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.symbol = function;
-		this.scope = function;
+		//this.scope = function;
 		
 		String finalName = function.getFullName();
 		String prevFuncName = prevScope.getFullName();
@@ -714,8 +723,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			args = this.visit(ctx.arguments());
 		}
 		
-		if (this.scope instanceof MethodSymbol) {
-			if (!((MethodSymbol) this.scope).isStatic()) {
+		if (function instanceof MethodSymbol) {
+			if (!((MethodSymbol) function).isStatic()) {
 				if (args.equals("")) {
 					args = "this";
 				} else {
@@ -724,8 +733,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			}
 		}
 		
-		this.expressionType = this.scope.getType();
-		this.scope = prevScope;
+		this.expressionType = function.getType();
+		//this.scope = prevScope;
 
 		return finalName + "(" + args + ")";
 	}
