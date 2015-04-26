@@ -6,7 +6,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import exception.ElementNoAccessException;
 import exception.IncorrectVariableTypeException;
 import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
@@ -318,7 +317,7 @@ public class GlobalVariableTest {
 		
 		assertEquals(result, compile.run(code));
 	}
-		
+	/*
 	@Test
 	public void privateUsingPrefix() {
 		Compile compile = new Compile();
@@ -340,5 +339,5 @@ public class GlobalVariableTest {
 		
 		compile.run(code);
 	}
-
+	*/
 }

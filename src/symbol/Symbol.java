@@ -97,25 +97,13 @@ public class Symbol {
 	 * @return Itself
 	 */
 	public Symbol addChild(Symbol child) {
+		// prefix and with no prefix
+		this.childs.put(child.getFullName(), child);
 		this.childs.put(child.getName(), child);
+		
 		return this;
 	}
-	
-	protected String removeVisibilityPrefix(String name) {
-		return name.replaceFirst(".+_", "");
-	}
-	
-	protected Symbol resolveRemovingVisibilityPrefix(String name) {
-		Symbol result = this.childs.get(name);
 		
-		if (result == null) {
-			name = this.removeVisibilityPrefix(name);
-			result = this.childs.get(name);
-		}
-		
-		return result;
-	}
-	
 	/**
 	 * Find a symbol and get it
 	 * 
@@ -128,7 +116,7 @@ public class Symbol {
 			String name,
 			PrimitiveType primitiveType,
 			boolean backwards) {
-		Symbol result = this.resolveRemovingVisibilityPrefix(name);
+		Symbol result = this.childs.get(name);
 		
 		if (result == null) {
 			for (Symbol child : this.childs.values()) {
