@@ -155,4 +155,7 @@ INT: [0-9]+;
 STR: '"' .*? '"';
 
 EOL : [\r\n]+;
+
+LINECOMMENT : '//' .*? '\r'? '\n' -> skip;
+COMMENT : '/*' .*? '*/' -> skip;
 WS: [\t ]+ -> skip;
