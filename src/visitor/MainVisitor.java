@@ -20,6 +20,7 @@ import exception.NoReturnFunctionException;
 import exception.IncorrectArgumentTypeFunctionCallException;
 import exception.IncorrectVariableTypeException;
 import exception.NoScopeVisibilityException;
+import exception.SetConstantVariableException;
 import exception.TooFewArgumentsFunctionCallException;
 import exception.TooManyArgumentsFunctionCallException;
 import exception.UndefinedFunctionException;
@@ -696,6 +697,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
 		String nameExpression = this.visit(ctx.varName);
 		Symbol variable = this.symbol;
+		
+		if (((VariableSymbol) variable).isConstant()) {
+			throw new SetConstantVariableException(ctx.varName.getStart());
+		}
+		
 		String result = "set " + nameExpression + "=";
 		String operator = ctx.operator.getText();
 		
@@ -971,6 +977,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 					this.expressionType
 				);
 			}
+		}
+		
+		if (ctx.CONSTANT() != null) {
+			result = "constant " + result;
 		}
 		
 		return result;

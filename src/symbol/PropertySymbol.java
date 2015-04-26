@@ -14,7 +14,7 @@ public class PropertySymbol extends VariableSymbol implements ClassMemberSymbol 
 			Visibility visibility,
 			Symbol parent,
 			Token token) {
-		super(name, type, isArray, false, visibility, parent, token);
+		super(name, type, false, isArray, false, visibility, parent, token);
 		this._static = isStatic;
 	}
 	

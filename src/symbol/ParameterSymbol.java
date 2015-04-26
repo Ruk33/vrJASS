@@ -9,7 +9,7 @@ public class ParameterSymbol extends VariableSymbol {
 			String type,
 			Symbol parent,
 			Token token) {
-		super(name, type, false, false, Visibility.PRIVATE, parent, token);
+		super(name, type, false, false, false, Visibility.PRIVATE, parent, token);
 	}
 
 }

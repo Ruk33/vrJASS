@@ -4,6 +4,8 @@ import org.antlr.v4.runtime.Token;
 
 public class VariableSymbol extends Symbol {
 	
+	protected boolean constant;
+	
 	protected boolean array;
 	
 	protected boolean global;
@@ -11,6 +13,7 @@ public class VariableSymbol extends Symbol {
 	public VariableSymbol(
 			String name,
 			String type,
+			boolean isConstant,
 			boolean isArray,
 			boolean isGlobal,
 			Visibility visibility,
@@ -18,6 +21,7 @@ public class VariableSymbol extends Symbol {
 			Token token) {
 		super(name, type, PrimitiveType.VARIABLE, visibility, parent, token);
 		
+		this.constant = isConstant;
 		this.array = isArray;
 		this.global = isGlobal;
 	}
@@ -29,6 +33,10 @@ public class VariableSymbol extends Symbol {
 		}
 		
 		return super.getFullName();
+	}
+	
+	public boolean isConstant() {
+		return this.constant;
 	}
 	
 	public boolean isGlobal() {

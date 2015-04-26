@@ -11,6 +11,7 @@ import exception.IncorrectVariableTypeException;
 import exception.InitializeArrayVariableException;
 import exception.InvalidArrayVariableIndexException;
 import exception.NoScopeVisibilityException;
+import exception.SetConstantVariableException;
 import exception.VariableIsNotArrayException;
 import util.Compile;
 
@@ -82,6 +83,34 @@ public class GlobalVariableTest {
 				+ "endfunction";
 		
 		assertEquals(code, compile.run(code));
+	}
+	
+	@Test
+	public void constant() {
+		Compile compile = new Compile();
+		String code =
+				"globals\n"
+				+ "constant integer foo=2\n"
+				+ "endglobals";
+		
+		assertEquals(code, compile.run(code));
+	}
+	
+	@Test
+	public void settingConstant() {
+		Compile compile = new Compile();
+		String code =
+				"globals\n"
+				+ "constant integer foo=2\n"
+				+ "endglobals\n"
+				+ "function bar takes nothing returns nothing\n"
+				+ "set foo=1\n"
+				+ "endfunction";
+		
+		expectedEx.expect(SetConstantVariableException.class);
+		expectedEx.expectMessage("5:4 Variable <foo> is constant, its value can not change");
+		
+		compile.run(code);
 	}
 	
 	@Test

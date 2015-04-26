@@ -122,8 +122,9 @@ setVariableStatement: 'set' varName=expression operator=('=' | '/=' | '*=' | '-=
 
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
-globalVariableStatement: (visibility=('private'|'public'))? variableType (array='array')? varName=ID ('=' value=expression)?;
+globalVariableStatement: CONSTANT? (visibility=('private'|'public'))? variableType (array='array')? varName=ID ('=' value=expression)?;
 
+CONSTANT: 'constant';
 STATIC: 'static';
 
 ID: [a-zA-Z][a-zA-Z0-9_]*;

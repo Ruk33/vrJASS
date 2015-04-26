@@ -46,11 +46,12 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
 		String name = ctx.varName.getText();
 		String type = ctx.variableType().getText();
+		boolean isConstant = ctx.CONSTANT() != null;
 		boolean isArray = ctx.array != null;
 		Visibility visibility = this.main.getVisibility(ctx.visibility);
 		
 		new VariableSymbol(
-			name, type, isArray, true, visibility, this.scope, ctx.varName
+			name, type, isConstant, isArray, true, visibility, this.scope, ctx.varName
 		);
 		
 		return null;
@@ -70,7 +71,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		}
 		
 		new VariableSymbol(
-			name, type, isArray, false, Visibility.PRIVATE, this.scope, ctx.varName
+			name, type, false, isArray, false, Visibility.PRIVATE, this.scope, ctx.varName
 		);
 		
 		return null;
