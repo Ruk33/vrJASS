@@ -46,6 +46,7 @@ import antlr4.vrjassParser.AltInitContext;
 import antlr4.vrjassParser.ArgumentContext;
 import antlr4.vrjassParser.ArgumentsContext;
 import antlr4.vrjassParser.BooleanContext;
+import antlr4.vrjassParser.BooleanExpressionContext;
 import antlr4.vrjassParser.ClassDefinitionContext;
 import antlr4.vrjassParser.ClassStatementsContext;
 import antlr4.vrjassParser.CodeContext;
@@ -206,15 +207,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitExitwhenStatement(ExitwhenStatementContext ctx) {
-		String expression = this.visit(ctx.expression());
-		
-		if (!this.expressionType.equals("boolean")) {
-			throw new InvalidBooleanException(
-				ctx.expression().getStart(), this.expressionType
-			);
-		}
-		
-		return "exitwhen " + expression;
+		return "exitwhen " + this.visit(ctx.booleanExpression());
 	}
 	
 	@Override
@@ -243,12 +236,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 	
 	@Override
-	public String visitElseIfStatement(ElseIfStatementContext ctx) {
-		Stack<String> result = new Stack<String>();
-		String visited = this.visit(ctx.expression());
+	public String visitBooleanExpression(BooleanExpressionContext ctx) {
+		String result = this.visit(ctx.expression());
 		
 		if (this.expressionType.equals("integer")) {
-			visited += "!=0";
+			result += "!=0";
+			this.expressionType = "boolean";
+		}
+		
+		if (this.expressionType.equals("null") ||
+			VariableTypeDetector.isHandle(this.expressionType)) {
+			result += "!=null";
 			this.expressionType = "boolean";
 		}
 		
@@ -258,6 +256,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				this.expressionType
 			);
 		}
+		
+		return result;
+	}
+	
+	@Override
+	public String visitElseIfStatement(ElseIfStatementContext ctx) {
+		Stack<String> result = new Stack<String>();
+		String visited = this.visit(ctx.booleanExpression());
 		
 		result.push("elseif " + visited + " then");
 		
@@ -273,20 +279,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitIfStatement(IfStatementContext ctx) {
 		Stack<String> result = new Stack<String>();
-		String visited = this.visit(ctx.expression());
-		
-		if (this.expressionType.equals("integer")) {
-			visited += "!=0";
-			this.expressionType = "boolean";
-		}
-		
-		if (!this.expressionType.equals("boolean")) {
-			throw new InvalidBooleanException(
-				ctx.expression().getStart(),
-				this.expressionType
-			);
-		}
-		
+		String visited = this.visit(ctx.booleanExpression());
+				
 		result.push("if " + visited + " then");
 		
 		visited = this.visit(ctx.statements());

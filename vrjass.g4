@@ -99,6 +99,8 @@ nativeDefinition:
 	CONSTANT? 'native' functionName=ID 'takes' parameters 'returns' returnType
 	;
 
+booleanExpression: expression;
+
 expression
 	:left=expression '/' right=expression #Div
 	|left=expression '*' right=expression #Mult
@@ -125,15 +127,15 @@ argument: expression;
 
 arguments: argument (',' argument)*; 
 
-exitwhenStatement: 'exitwhen' expression;
+exitwhenStatement: 'exitwhen' booleanExpression;
 
 loopStatement: 'loop' EOL statements 'endloop';
 
-elseIfStatement: 'elseif' expression 'then' EOL statements;
+elseIfStatement: 'elseif' booleanExpression 'then' EOL statements;
 
 elseStatement: 'else' EOL statements;
 
-ifStatement: 'if' expression 'then' EOL statements (elseIfStatement)* (elseStatement)? 'endif';
+ifStatement: 'if' booleanExpression 'then' EOL statements (elseIfStatement)* (elseStatement)? 'endif';
 
 functionStatement: 'call' func=expression;
 

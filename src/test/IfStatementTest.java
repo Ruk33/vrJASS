@@ -95,5 +95,25 @@ public class IfStatementTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void handle() {
+		Compile compile = new Compile();
+		String code =
+				"function foo takes unit whichUnit returns nothing\n"
+				+ "if null then\n"
+				+ "elseif whichUnit then\n"
+				+ "endif\n"
+				+ "endfunction";
+		
+		String result =
+				"function foo takes unit whichUnit returns nothing\n"
+				+ "if null!=null then\n"
+				+ "elseif whichUnit!=null then\n"
+				+ "endif\n"
+				+ "endfunction";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }
