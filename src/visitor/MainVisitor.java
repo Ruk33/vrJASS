@@ -94,11 +94,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	protected Stack<String> types;
 	
+	protected Stack<String> natives;
+	
 	protected Stack<String> globalsBlock;
 	
 	protected Stack<String> classGlobals;
-	
-	protected Stack<String> natives;
 	
 	protected Stack<String> requiredLibraries;
 	
@@ -668,7 +668,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitFunctionExpression(FunctionExpressionContext ctx) {
 		String name = ctx.functionName.getText();
 		int argumentsCount = 0;
-		Symbol prevScope = this.scope;
 		
 		FunctionSymbol function = (FunctionSymbol) this.scope.resolve(
 			name, PrimitiveType.FUNCTION, true
@@ -709,9 +708,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.symbol = function;
 		
 		String finalName = function.getFullName();
-		String prevFuncName = prevScope.getFullName();
+		String functionCalling = this.scope.getFullName();
 		
-		if (!this.functionSorter.functionBeingCalled(function, prevFuncName)) {
+		if (!this.functionSorter.functionBeingCalled(function, functionCalling)) {
 			finalName = this.functionSorter.getDummyPrefix() + finalName;
 		}
 		
@@ -732,7 +731,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.expressionType = function.getType();
-		//this.scope = prevScope;
 
 		return finalName + "(" + args + ")";
 	}
@@ -1116,6 +1114,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		result.addAll(this.types);
+		result.addAll(this.natives);
 		
 		this.globalsBlock.addAll(dummyGlobals);
 		this.globalsBlock.addAll(this.classGlobals);
@@ -1125,8 +1124,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			result.addAll(this.globalsBlock);
 			result.push("endglobals");
 		}
-		
-		result.addAll(this.natives);
+
 		result.addAll(this.functionSorter.getFunctions());
 		
 		return String.join(System.lineSeparator(), result);

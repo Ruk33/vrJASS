@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import symbol.FunctionSymbol;
+import symbol.NativeFunctionSymbol;
 import symbol.Symbol;
 
 public class FunctionSorter {
@@ -165,9 +166,13 @@ public class FunctionSorter {
 			return true;
 		}
 		
+		if (whichFunction instanceof NativeFunctionSymbol) {
+			return true;
+		}
+		
 		boolean nicelySorted = true;
 		
-		int order = this.functionOrder.getOrDefault(by, -1);
+		int order = this.functionOrder.get(by);
 
 		if (this.functionOrder.containsKey(whichFunctionName)) {
 			int whichFunctionOrder = this.functionOrder.get(whichFunctionName);
