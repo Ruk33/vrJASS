@@ -134,7 +134,7 @@ elseIfStatement: 'elseif' '(' expression ')' 'then' EOL statements;
 
 elseStatement: 'else' EOL statements;
 
-ifStatement: 'if' '(' expression ')' 'then' EOL statements (elseIfStatement)* (elseStatement)? 'endif';
+ifStatement: 'if' expression 'then' EOL statements (elseIfStatement)* (elseStatement)? 'endif';
 
 functionStatement: 'call' func=expression;
 

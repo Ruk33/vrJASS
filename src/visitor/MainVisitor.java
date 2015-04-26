@@ -279,7 +279,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			);
 		}
 		
-		result.push("if (" + visited + ") then");
+		result.push("if " + visited + " then");
 		
 		visited = this.visit(ctx.statements());
 		

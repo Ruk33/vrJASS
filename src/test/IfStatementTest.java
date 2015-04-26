@@ -27,9 +27,9 @@ public class IfStatementTest {
 				+ "else\n"
 				+ "call foo()\n"
 				+ "endif\n"
-				+ "if (true) then\n"
+				+ "if true then\n"
 				+ "endif\n"
-				+ "if (false) then\n"
+				+ "if false then\n"
 				+ "else\n"
 				+ "endif\n"
 				+ "endfunction";
@@ -48,7 +48,7 @@ public class IfStatementTest {
 		
 		expectedEx.expect(InvalidBooleanException.class);
 		expectedEx.expectMessage(
-			"2:4 Expression type must be <boolean>, but <nothing> type given"
+			"2:3 Expression type must be <boolean>, but <nothing> type given"
 		);
 		
 		compile.run(code);
@@ -86,7 +86,7 @@ public class IfStatementTest {
 		
 		String result =
 				"function foo takes nothing returns nothing\n"
-				+ "if (0!=0) then\n"
+				+ "if (0)!=0 then\n"
 				+ "elseif (1!=0) then\n"
 				+ "elseif (1!=0 or 1!=0) then\n"
 				+ "elseif (1!=0 and 1!=0) then\n"
