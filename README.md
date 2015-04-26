@@ -47,9 +47,9 @@ Pick the one you like the most:
 ##How to use the compiled vrjass?
 It is very simple, just type:
 
-´´´bash
-java -jar path/to/vrjassc.jar file1 file2
-´´´
+```bash
+$ java -jar path/to/vrjassc.jar file1 file2
+```
 
 The output will be writed to output.j file (which will be created to the path 
 where you execute the jar file).
