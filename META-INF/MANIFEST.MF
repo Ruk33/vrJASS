@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Vendor: ANTLR
+Implementation-Title: ANTLR 4 Tool
+Implementation-Version: 4.5
+Implementation-Vendor-Id: org.antlr
+Build-Jdk: 1.6
+Built-By: parrt
+Created-By: http://www.bildtool.org
+Main-Class: org.antlr.v4.Tool
+
