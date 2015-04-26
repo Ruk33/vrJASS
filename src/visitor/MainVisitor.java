@@ -83,10 +83,13 @@ import antlr4.vrjassParser.StatementContext;
 import antlr4.vrjassParser.StatementsContext;
 import antlr4.vrjassParser.StringContext;
 import antlr4.vrjassParser.ThisContext;
+import antlr4.vrjassParser.TypeDefinitionContext;
 import antlr4.vrjassParser.VariableContext;
 import antlr4.vrjassParser.VariableTypeContext;
 
 public class MainVisitor extends vrjassBaseVisitor<String> {
+	
+	protected Stack<String> types;
 	
 	protected Stack<String> globalsBlock;
 	
@@ -115,6 +118,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	protected String output;
 	
 	public MainVisitor(vrjassParser parser) {
+		this.types = new Stack<String>();
 		this.globalsBlock = new Stack<String>();
 		this.classGlobals = new Stack<String>();
 		this.natives = new Stack<String>();
@@ -145,6 +149,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		return Visibility.PUBLIC;
+	}
+	
+	@Override
+	public String visitTypeDefinition(TypeDefinitionContext ctx) {
+		String name = ctx.typeName.getText();
+		String extendName = ctx.extendName.getText();
+		String result = "type " + name + " extends " + extendName;
+		
+		this.types.push(result);
+		
+		return result;
 	}
 	
 	@Override
@@ -1097,6 +1112,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		for (AltInitContext alt : ctx.altInit()) {
 			this.visit(alt);
 		}
+		
+		result.addAll(this.types);
 		
 		this.globalsBlock.addAll(dummyGlobals);
 		this.globalsBlock.addAll(this.classGlobals);

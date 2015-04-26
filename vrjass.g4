@@ -10,6 +10,7 @@ altInit
 	|libraryDefinition
 	|classDefinition
 	|nativeDefinition
+	|typeDefinition
 	|EOL
 	;
 
@@ -48,6 +49,7 @@ libraryStatements
 	|functionDefinition
 	|classDefinition
 	|nativeDefinition
+	|typeDefinition
 	|EOL
 	;
 	
@@ -84,6 +86,10 @@ functionDefinition:
 	 	statements
 	 'endfunction'
 	 ;
+
+typeDefinition:
+	'type' typeName=ID 'extends' extendName=ID
+	;
 
 nativeDefinition:
 	CONSTANT? 'native' functionName=ID 'takes' parameters 'returns' returnType
