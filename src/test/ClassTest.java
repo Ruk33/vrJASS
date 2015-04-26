@@ -280,5 +280,34 @@ public class ClassTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void classExtend() {
+		Compile compile = new Compile();
+		String code =
+				"struct Person extends array\n"
+				+ "private string name\n"
+				+ "public method getName takes nothing returns string\n"
+				+ "return this.name\n"
+				+ "endmethod\n"
+				+ "endstruct\n"
+				+ "struct Ruke extends Person\n"
+				+ "private string lastname\n"
+				+ "public method getLastName takes nothing returns string\n"
+				+ "return this.lastname\n"
+				+ "endmethod\n"
+				+ "public method getFullName takes nothing returns string\n"
+				+ "return this.getLastName() + \" \" + this.getName()\n"
+				+ "endmethod\n"
+				+ "endstruct";
+		
+		String result =
+				"globals\n"
+				+ "string array struct_Person__name\n"
+				+ "endglobals\n"
+				+ "";
+		
+		assertEquals(result, compile.run(code));
+	}
 
 }

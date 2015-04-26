@@ -411,21 +411,30 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitPlus(PlusContext ctx) {
 		String left = this.visit(ctx.left);
 		String leftType = this.expressionType;
-		boolean leftIsNumeric = "real".equals(leftType) || "integer".equals(leftType);
+		boolean leftIsNumeric =
+				"real".equals(leftType) ||
+				"integer".equals(leftType);
 		
 		String right = this.visit(ctx.right);
 		String rightType = this.expressionType;
-		boolean rightIsNumeric = "real".equals(rightType) || "integer".equals(rightType);
+		boolean rightIsNumeric =
+				"real".equals(rightType) ||
+				"integer".equals(rightType);
 		
-		if (!leftIsNumeric) {
-			throw new MathematicalExpressionException(ctx.left.getStart());
+		if (leftType.equals("string") && rightType.equals("string")) {
+			this.expressionType = "string";
+		} else {
+			if (!leftIsNumeric) {
+				throw new MathematicalExpressionException(ctx.left.getStart());
+			}
+			
+			if (!rightIsNumeric) {
+				throw new MathematicalExpressionException(ctx.right.getStart());
+			}
+			
+			this.expressionType = "integer";
 		}
 		
-		if (!rightIsNumeric) {
-			throw new MathematicalExpressionException(ctx.right.getStart());
-		}
-		
-		this.expressionType = "integer";
 		return left + '+' + right;
 	}
 	

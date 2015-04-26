@@ -85,18 +85,18 @@ functionDefinition:
 expression
 	:left=expression '/' right=expression #Div
 	|left=expression '*' right=expression #Mult
-	|left=expression '-' right=expression #Minus
-	|left=expression '+' right=expression #Plus	
+	|left=expression '-' right=expression #Minus	
 	|left=expression operator=('==' | '!=' | '>' | '>=' | '<' | '<=') right=expression #Comparison
 	|left=expression operator=('or'|'and') right=expression #Logical
 	|INT #Integer
 	|STR #String
 	|('true' || 'false') #Boolean
-	|'this' #This
 	|left=expression '.' right=expression #Member
+	|'this' #This
 	|functionExpression #Function
-	|varName=ID ('[' index=expression ']')? #Variable
+	|varName=ID ('[' index=expression ']')? #Variable	
 	|'(' expression ')' #Parenthesis
+	|left=expression '+' right=expression #Plus
 	;
 	
 argument: expression;
