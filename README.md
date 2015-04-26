@@ -1,9 +1,8 @@
 ![vrJASS Logo](http://i.imgur.com/UyuRc3b.jpg?1)
 
 #vrJASS
-/Because you deserve a better yet familiar flavor/
-
-/Even better flavor than before/
+_Because you deserve a better yet familiar flavor_
+_Even better flavor than before_
 
 ##What is vrJASS?
 A new and just-for-fun/learning-intended-to project which aims 
