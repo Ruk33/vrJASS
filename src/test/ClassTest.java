@@ -303,9 +303,18 @@ public class ClassTest {
 		
 		String result =
 				"globals\n"
-				+ "string array struct_Person__name\n"
+				+ "string array struct_Person_name\n"
+				+ "string array struct_Ruke_lastname\n"
 				+ "endglobals\n"
-				+ "";
+				+ "function struct_Person_getName takes integer this returns string\n"
+				+ "return struct_Person_name[this]\n"
+				+ "endfunction\n"
+				+ "function struct_Ruke_getLastName takes integer this returns string\n"
+				+ "return struct_Ruke_lastname[this]\n"
+				+ "endfunction\n"
+				+ "function struct_Ruke_getFullName takes integer this returns string\n"
+				+ "return struct_Ruke_getLastName(this)+\" \"+struct_Person_getName(this)\n"
+				+ "endfunction";
 		
 		assertEquals(result, compile.run(code));
 	}

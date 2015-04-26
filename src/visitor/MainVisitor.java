@@ -891,6 +891,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitClassDefinition(ClassDefinitionContext ctx) {
 		String name = ctx.className.getText();
+		String extendsFrom = "";
 		boolean extendsArray = false;
 		Stack<String> result = new Stack<String>();
 		String visited;
@@ -900,10 +901,12 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		ClassDefaultAllocator cda = new ClassDefaultAllocator(name);
 		
 		if (ctx.extendName != null) {
-			extendsArray = ctx.extendName.getText().equals("array");
+			extendsFrom = ctx.extendName.getText();
 		}
+		
+		extendsArray = extendsFrom.equals("array");
 
-		if (!extendsArray) {
+		if (!extendsArray && extendsFrom.isEmpty()) {
 			result.push(cda.getAllocator());
 			result.push(cda.getDeallocator());
 			
@@ -921,6 +924,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.scope = this.scope.resolve(name, PrimitiveType.CLASS, true);
+		
+		if (!extendsArray && !extendsFrom.isEmpty()) {
+			this.scope.addChild(this.scope.resolve(extendsFrom, PrimitiveType.CLASS, true));
+		}
 		
 		for (ClassStatementsContext classStat : ctx.classStatements()) {
 			visited = this.visit(classStat);
