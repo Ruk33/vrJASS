@@ -51,6 +51,7 @@ import antlr4.vrjassParser.ComparisonContext;
 import antlr4.vrjassParser.DivContext;
 import antlr4.vrjassParser.ElseIfStatementContext;
 import antlr4.vrjassParser.ElseStatementContext;
+import antlr4.vrjassParser.ExitwhenStatementContext;
 import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.FunctionExpressionContext;
 import antlr4.vrjassParser.FunctionStatementContext;
@@ -63,6 +64,8 @@ import antlr4.vrjassParser.LibraryDefinitionContext;
 import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.LogicalContext;
+import antlr4.vrjassParser.LoopStatementContext;
+import antlr4.vrjassParser.LoopStatementsContext;
 import antlr4.vrjassParser.MemberContext;
 import antlr4.vrjassParser.MethodDefinitionContext;
 import antlr4.vrjassParser.MinusContext;
@@ -138,6 +141,39 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		return Visibility.PUBLIC;
+	}
+	
+	@Override
+	public String visitExitwhenStatement(ExitwhenStatementContext ctx) {
+		String expression = this.visit(ctx.expression());
+		
+		if (!this.expressionType.equals("boolean")) {
+			throw new InvalidBooleanException(
+				ctx.expression().getStart(), this.expressionType
+			);
+		}
+		
+		return "exitwhen (" + expression + ")";
+	}
+	
+	@Override
+	public String visitLoopStatement(LoopStatementContext ctx) {
+		Stack<String> result = new Stack<String>();
+		String visited;
+		
+		result.push("loop");
+		
+		for (LoopStatementsContext statement : ctx.loopStatements()) {
+			visited = this.visit(statement);
+			
+			if (visited != null) {
+				result.push(visited);
+			}
+		}
+		
+		result.push("endloop");
+		
+		return String.join(System.lineSeparator(), result);
 	}
 	
 	@Override

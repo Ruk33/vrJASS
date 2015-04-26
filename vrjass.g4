@@ -27,6 +27,7 @@ statement
 	|setVariableStatement
 	|localVariableStatement
 	|ifStatement
+	|loopStatement
 	;
 	
 statements: (statement EOL)*;
@@ -105,6 +106,16 @@ arguments
 	:argument (',' argument)*
 	|
 	; 
+
+exitwhenStatement: 'exitwhen' '(' expression ')';
+
+loopStatements
+	:statement
+	|exitwhenStatement
+	|EOL
+	;
+
+loopStatement: 'loop' EOL loopStatements* 'endloop';
 
 elseIfStatement: 'elseif' '(' expression ')' 'then' EOL statements;
 
