@@ -118,7 +118,7 @@ functionExpression: functionName=ID '(' arguments ')';
 
 returnStatement: 'return' expression;
 
-setVariableStatement: 'set' varName=expression /*('[' index=expression ']')?*/ operator=('=' | '/=' | '*=' | '-=' | '+=') value=expression;
+setVariableStatement: 'set' varName=expression operator=('=' | '/=' | '*=' | '-=' | '+=') value=expression;
 
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
