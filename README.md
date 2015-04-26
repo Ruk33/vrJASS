@@ -10,7 +10,11 @@ A new and just-for-fun/learning-intended-to project which aims
 to improve and rebuild from scratch the old and loved vJASS.
 
 ##Its there a beta or something to try it?
-http://www.hiveworkshop.com/forums/lab-715/vrjass-264114/index3.html#post2678945
+Download the pre-compiled here:
+
+https://github.com/Ruk33/vrJASS/raw/master/vrjassc.jar
+
+And follow the instruction of **How to use the compiled vrjass?**
 
 ##How can I help you?
 If you know Java or Antlr4 you can check the repository and send 
