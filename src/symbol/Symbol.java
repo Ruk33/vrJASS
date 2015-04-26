@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.antlr.v4.runtime.Token;
 
+import util.TypeCompatibleChecker;
+
 public class Symbol {
 	
 	public static final String PRIVATE_SEPARATOR = "__";
@@ -171,5 +173,9 @@ public class Symbol {
 		}
 
 		return true;
+	}
+	
+	public boolean isTypeCompatible(String type) {
+		return TypeCompatibleChecker.isCompatible(this.getType(), type);
 	}
 }

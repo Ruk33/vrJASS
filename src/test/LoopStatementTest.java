@@ -48,7 +48,7 @@ public class LoopStatementTest {
 		
 		expectedEx.expect(InvalidBooleanException.class);
 		expectedEx.expectMessage(
-			"3:9 Expression type must be <boolean>, but <nothing> type given"
+			"3:8 Expression type must be <boolean>, but <nothing> type given"
 		);
 		
 		compile.run(code);

@@ -165,8 +165,9 @@ public class FunctionSorter {
 			return true;
 		}
 		
-		int order = this.functionOrder.get(by);
 		boolean nicelySorted = true;
+		
+		int order = this.functionOrder.getOrDefault(by, -1);
 
 		if (this.functionOrder.containsKey(whichFunctionName)) {
 			int whichFunctionOrder = this.functionOrder.get(whichFunctionName);

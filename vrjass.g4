@@ -30,17 +30,21 @@ statement
 	|localVariableStatement
 	|ifStatement
 	|loopStatement
+	|exitwhenStatement
+	|EOL
 	;
 	
-statements: (statement EOL)*;
+statements: statement*;
 
 returnType: variableType|'nothing';
 
-globals: (globalVariableStatement EOL)*;
+globals
+	:globalVariableStatement
+	|EOL;
 
 globalDefinition:
 	'globals' EOL
-		globals
+		globals*
 	'endglobals'
 	;
 
@@ -102,8 +106,12 @@ expression
 	|left=expression operator=('==' | '!=' | '>' | '>=' | '<' | '<=') right=expression #Comparison
 	|left=expression operator=('or'|'and') right=expression #Logical
 	|INT #Integer
+	|REAL #Real
 	|STR #String
-	|('true' || 'false') #Boolean
+	|'-' expression #Negative
+	|'not' expression #Not
+	|('true'|'false') #Boolean
+	|'null' #Null
 	|'function' expression #Code
 	|left=expression '.' right=expression #Member
 	|'this' #This
@@ -115,22 +123,13 @@ expression
 	
 argument: expression;
 
-arguments
-	:argument (',' argument)*
-	|
-	; 
+arguments: argument (',' argument)*; 
 
-exitwhenStatement: 'exitwhen' '(' expression ')';
+exitwhenStatement: 'exitwhen' expression;
 
-loopStatements
-	:statement
-	|exitwhenStatement
-	|EOL
-	;
+loopStatement: 'loop' EOL statements 'endloop';
 
-loopStatement: 'loop' EOL loopStatements* 'endloop';
-
-elseIfStatement: 'elseif' '(' expression ')' 'then' EOL statements;
+elseIfStatement: 'elseif' expression 'then' EOL statements;
 
 elseStatement: 'else' EOL statements;
 
@@ -138,25 +137,28 @@ ifStatement: 'if' expression 'then' EOL statements (elseIfStatement)* (elseState
 
 functionStatement: 'call' func=expression;
 
-functionExpression: functionName=ID '(' arguments ')';
+functionExpression: functionName=ID '(' arguments? ')';
 
-returnStatement: 'return' expression;
+returnStatement: 'return' expression?;
 
 setVariableStatement: 'set' varName=expression operator=('=' | '/=' | '*=' | '-=' | '+=') value=expression;
 
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
-globalVariableStatement: CONSTANT? (visibility=('private'|'public'))? variableType (array='array')? varName=ID ('=' value=expression)?;
+globalVariableStatement
+	:CONSTANT? (visibility=('private'|'public'))? variableType (array='array')? varName=ID ('=' value=expression)?
+	;
 
 CONSTANT: 'constant';
 STATIC: 'static';
 
 ID: [a-zA-Z][a-zA-Z0-9_]*;
-INT: [0-9]+;
+REAL: [0-9]+ '.' [0-9]* | '.'[0-9]+;
+INT: [0-9]+ | '0x' [0-9a-fA-F]+ | '\'' . . . . '\'' | '\'' . '\'';
 STR: '"' .*? '"';
 
-EOL : [\r\n]+;
+EOL: [\r\n]+;
 
-LINECOMMENT : '//' .*? '\r'? '\n' -> skip;
-COMMENT : '/*' .*? '*/' -> skip;
+//COMMENT : '/*' .*? '*/' -> skip;
 WS: [\t ]+ -> skip;
+LINE_COMMENT: '//' .*? [\r\n] -> skip;

@@ -31,5 +31,17 @@ public class NativeDeclarationTest {
 		
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void usingNative() {
+		Compile compile = new Compile();
+		String code =
+				"constant native IsUnitAlive takes nothing returns boolean\n"
+				+ "function foo takes nothing returns nothing\n"
+				+ "call IsUnitAlive()\n"
+				+ "endfunction";
+		
+		assertEquals(code, compile.run(code));
+	}
 
 }

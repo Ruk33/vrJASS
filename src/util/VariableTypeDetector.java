@@ -4,6 +4,10 @@ import java.util.Arrays;
 
 public class VariableTypeDetector {
 
+	protected static String[] nonHandle = new String[] {
+		"code", "integer", "real", "string", "boolean", "nothing"
+	};
+	
 	// thanks
 	// http://www.hiveworkshop.com/forums/263450-post1.html
 	// http://jass.sourceforge.net/doc/types.shtml
@@ -25,8 +29,12 @@ public class VariableTypeDetector {
 		"gamecache", "version", "itemtype", "texttag", "attacktype", "damagetype",
 		"weapontype", "soundtype", "lightning", "pathingtype", "image", "ubersplat",
 		"handle", "widget", "ability", "gamestate", "eventid", "code", "integer",
-		"real", "string", "boolean", "code", "nothing"
+		"real", "string", "boolean", "nothing"
 	};
+	
+	public static boolean isHandle(String type) {
+		return !Arrays.asList(VariableTypeDetector.nonHandle).contains(type);
+	}
 
 	public static boolean isJassType(String type) {
 		return Arrays.asList(VariableTypeDetector.jassTypes).contains(type);

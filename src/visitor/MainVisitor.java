@@ -38,6 +38,7 @@ import symbol.Visibility;
 import util.ClassDefaultAllocator;
 import util.FunctionSorter;
 import util.Prefix;
+import util.TypeCompatibleChecker;
 import util.VariableTypeDetector;
 import antlr4.vrjassBaseVisitor;
 import antlr4.vrjassParser;
@@ -57,7 +58,6 @@ import antlr4.vrjassParser.FunctionDefinitionContext;
 import antlr4.vrjassParser.FunctionExpressionContext;
 import antlr4.vrjassParser.FunctionStatementContext;
 import antlr4.vrjassParser.GlobalVariableStatementContext;
-import antlr4.vrjassParser.GlobalsContext;
 import antlr4.vrjassParser.IfStatementContext;
 import antlr4.vrjassParser.InitContext;
 import antlr4.vrjassParser.IntegerContext;
@@ -66,17 +66,18 @@ import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.LogicalContext;
 import antlr4.vrjassParser.LoopStatementContext;
-import antlr4.vrjassParser.LoopStatementsContext;
 import antlr4.vrjassParser.MemberContext;
 import antlr4.vrjassParser.MethodDefinitionContext;
 import antlr4.vrjassParser.MinusContext;
 import antlr4.vrjassParser.MultContext;
 import antlr4.vrjassParser.NativeDefinitionContext;
+import antlr4.vrjassParser.NullContext;
 import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.ParametersContext;
 import antlr4.vrjassParser.ParenthesisContext;
 import antlr4.vrjassParser.PlusContext;
 import antlr4.vrjassParser.PropertyStatementContext;
+import antlr4.vrjassParser.RealContext;
 import antlr4.vrjassParser.ReturnStatementContext;
 import antlr4.vrjassParser.ReturnTypeContext;
 import antlr4.vrjassParser.SetVariableStatementContext;
@@ -153,6 +154,18 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 	
 	@Override
+	public String visitNull(NullContext ctx) {
+		this.expressionType = "null";
+		return "null";
+	}
+	
+	@Override
+	public String visitReal(RealContext ctx) {
+		this.expressionType = "real";
+		return ctx.REAL().getText();
+	}
+	
+	@Override
 	public String visitCode(CodeContext ctx) {
 		String result = "function " + this.visit(ctx.expression());
 		
@@ -175,7 +188,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitNativeDefinition(NativeDefinitionContext ctx) {
 		String name = ctx.functionName.getText();
 		String params = this.visit(ctx.parameters());
-		String type = ctx.returnType().getText();
+		String type = "nothing";
+		
+		if (ctx.returnType() != null && ctx.returnType().variableType() != null){
+			type = ctx.returnType().variableType().getText();
+		}
 		
 		String result = "native " + name + " takes " + params + " returns " + type;
 		
@@ -197,24 +214,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			);
 		}
 		
-		return "exitwhen (" + expression + ")";
+		return "exitwhen " + expression;
 	}
 	
 	@Override
 	public String visitLoopStatement(LoopStatementContext ctx) {
 		Stack<String> result = new Stack<String>();
-		String visited;
 		
 		result.push("loop");
-		
-		for (LoopStatementsContext statement : ctx.loopStatements()) {
-			visited = this.visit(statement);
-			
-			if (visited != null) {
-				result.push(visited);
-			}
-		}
-		
+		result.push(this.visit(ctx.statements()));
 		result.push("endloop");
 		
 		return String.join(System.lineSeparator(), result);
@@ -251,7 +259,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			);
 		}
 		
-		result.push("elseif (" + visited + ") then");
+		result.push("elseif " + visited + " then");
 		
 		visited = this.visit(ctx.statements());
 		
@@ -440,7 +448,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new MathematicalExpressionException(ctx.right.getStart());
 		}
 		
-		this.expressionType = "integer";
+		this.expressionType = "real";
 		return left + '/' + right;
 	}
 	
@@ -534,10 +542,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		switch (operator) {
 		case "==":
 		case "!=":
-			if (!leftType.equals(rightType)) {
-				if (!leftIsNumeric || !rightIsNumeric) {
-					throw new EqualNotEqualComparisonException(ctx.getStart());
-				}
+			if (!TypeCompatibleChecker.isCompatible(leftType, rightType)) {
+				throw new EqualNotEqualComparisonException(ctx.getStart());
 			}
 			
 			break;
@@ -618,7 +624,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		for (ArgumentContext arg : ctx.argument()) {
 			args.push(this.visit(arg));
 			
-			if (!params.get(i).getType().equals(this.expressionType)) {
+			if (!params.get(i).isTypeCompatible(this.expressionType)) {
 				throw new IncorrectArgumentTypeFunctionCallException(
 					arg.getStart(),
 					params.get(i).getType(),
@@ -667,7 +673,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitFunctionExpression(FunctionExpressionContext ctx) {
 		String name = ctx.functionName.getText();
-		int argumentsCount = ctx.arguments().argument().size();
+		int argumentsCount = 0;
 		Symbol prevScope = this.scope;
 		
 		FunctionSymbol function = (FunctionSymbol) this.scope.resolve(
@@ -694,9 +700,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			}
 		}
 		
-		// if argument is nothing, remove it
-		if (ctx.arguments().argument(0).getText().isEmpty()) {
-			argumentsCount--;
+		if (ctx.arguments() != null) {
+			argumentsCount = ctx.arguments().argument().size();
 		}
 		
 		if (argumentsCount > funcParamCount) {
@@ -708,7 +713,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 		
 		this.symbol = function;
-		//this.scope = function;
 		
 		String finalName = function.getFullName();
 		String prevFuncName = prevScope.getFullName();
@@ -758,9 +762,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitReturnStatement(ReturnStatementContext ctx) {
-		String result = "return " + this.visit(ctx.expression());
+		String result = "return";
 		
-		if (!this.scope.getType().equals(this.expressionType)) {
+		if (ctx.expression() != null) {
+			result += " " + this.visit(ctx.expression());
+		} else {
+			this.expressionType = "nothing";
+		}
+		
+		if (!this.scope.isTypeCompatible(this.expressionType)) {
 			throw new IncorrectReturnTypeFunctionException(
 				ctx.getStart(),
 				(FunctionSymbol) this.scope,
@@ -795,7 +805,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		result += this.visit(ctx.value);
 		
-		if (!variable.getType().equals(this.expressionType)) {
+		if (!variable.isTypeCompatible(this.expressionType)) {
 			throw new IncorrectVariableTypeException(
 				ctx.varName.getStart(),
 				variable.getType(),
@@ -823,7 +833,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			
 			result += "=" + this.visit(ctx.value);
 			
-			if (!variable.getType().equals(this.expressionType)) {
+			if (!variable.isTypeCompatible(this.expressionType)) {
 				throw new IncorrectVariableTypeException(
 					ctx.varName,
 					variable.getType(),
@@ -1051,11 +1061,13 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			result += "=" + this.visit(ctx.value);
 			
 			if (!variable.getType().equals(this.expressionType)) {
-				throw new IncorrectVariableTypeException(
-					ctx.varName,
-					variable.getType(),
-					this.expressionType
-				);
+				if (!variable.isTypeCompatible(this.expressionType)) {
+					throw new IncorrectVariableTypeException(
+						ctx.varName,
+						variable.getType(),
+						this.expressionType
+					);
+				}
 			}
 		}
 		
@@ -1063,24 +1075,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			result = "constant " + result;
 		}
 		
+		this.globalsBlock.push(result);
+		
 		return result;
 	}
-	
-	@Override
-	public String visitGlobals(GlobalsContext ctx) {
-		String visited;
 		
-		for (GlobalVariableStatementContext global : ctx.globalVariableStatement()) {
-			visited = this.visit(global);
-			
-			if (visited != null) {
-				this.globalsBlock.push(visited);
-			}
-		}
-		
-		return null;
-	}
-	
 	@Override
 	public String visitLibraryDefinition(LibraryDefinitionContext ctx) {
 		String name = ctx.libraryName.getText();

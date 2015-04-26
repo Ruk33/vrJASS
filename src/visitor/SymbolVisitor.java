@@ -5,6 +5,7 @@ import exception.AlreadyDefinedVariableException;
 import symbol.ClassSymbol;
 import symbol.FunctionSymbol;
 import symbol.MethodSymbol;
+import symbol.NativeFunctionSymbol;
 import symbol.ParameterSymbol;
 import symbol.PrimitiveType;
 import symbol.PropertySymbol;
@@ -20,6 +21,7 @@ import antlr4.vrjassParser.LibraryDefinitionContext;
 import antlr4.vrjassParser.LibraryStatementsContext;
 import antlr4.vrjassParser.LocalVariableStatementContext;
 import antlr4.vrjassParser.MethodDefinitionContext;
+import antlr4.vrjassParser.NativeDefinitionContext;
 import antlr4.vrjassParser.ParameterContext;
 import antlr4.vrjassParser.PropertyStatementContext;
 
@@ -126,6 +128,26 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		
 		this.visit(ctx.parameters());
 		this.visit(ctx.statements());
+		
+		this.scope = this.scope.getParent();
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitNativeDefinition(NativeDefinitionContext ctx) {
+		String name = ctx.functionName.getText();
+		String type = "nothing";
+		
+		if (ctx.returnType() != null && ctx.returnType().variableType() != null) {
+			type = ctx.returnType().variableType().getText();
+		}
+		
+		this.scope = new NativeFunctionSymbol(
+			name, type, this.scope, ctx.functionName
+		);
+		
+		this.visit(ctx.parameters());
 		
 		this.scope = this.scope.getParent();
 		
