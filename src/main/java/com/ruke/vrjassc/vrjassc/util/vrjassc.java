@@ -32,7 +32,7 @@ public class vrjassc {
 			editor.extractFile("war3map.wct", code);
 			editor.extractFile("war3map.j", defaultCode);
 
-			writer.println(compile.runFromFile(code.getAbsolutePath()));
+			writer.println(compile.runFromFile(defaultCode.getAbsolutePath()));
 			writer.close();
 
 			editor.injectFile(output, "war3map.j");

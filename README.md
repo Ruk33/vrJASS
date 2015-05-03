@@ -9,13 +9,6 @@ _Even better flavor than before_
 A new and just-for-fun/learning-intended-to project which aims 
 to improve and rebuild from scratch the old and loved vJASS.
 
-##Its there a beta or something to try it?
-Download the pre-compiled here:
-
-https://github.com/Ruk33/vrJASS/raw/master/vrjassc.jar
-
-And follow the instruction of **How to use the compiled vrjass?**
-
 ##How can I help you?
 If you know Java or Antlr4 you can check the repository and send 
 me pull requests (don't worry if you don't know too much about them, 
@@ -31,35 +24,15 @@ Pick the one you like the most:
 
 ##How to compile it?
 ###Eclipse
-- Right click to the project
-- Import
-- Archive File
-- Browse
-- Select all .jar files in lib folder
-- Click ok
-- Click finish
-- Right click on vrjass.g4
-- Run as
-- External tool configurations...
-- Click on New launch configuration...
-- Paste this: -no-listener -visitor -encoding UTF-8 -o src/antlr4 -package antlr4
-- Click Run
-- Right click to the project
-- Export
-- JAR file
-- Click Next
-- Click Next
-- Click Browse... where it says Main class
-- Select util.vrjassc
-- Finish
-- Done!
+- Right click to pom.xml
+- Run as...
+- Maven install
+
 
 ##How to use the compiled vrjass?
-It is very simple, just type:
-
 ```bash
-$ java -jar path/to/vrjassc.jar file1 file2
+$ cd path/to/compiled/files
+$ java -cp '*' com.ruke.vrjassc.vrjassc.util.vrjassc path/to/map.w3x or w3m
 ```
 
-The output will be writed to output.j file (which will be created to the path 
-where you execute the jar file).
+This WILL change the source code of the map and will transform any vrJASS code to raw JASS.
