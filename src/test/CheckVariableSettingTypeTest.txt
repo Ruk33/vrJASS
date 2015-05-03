@@ -1,3 +1,0 @@
-function foo takes integer bar returns nothing
-	set bar = "nope"
-endfunction
