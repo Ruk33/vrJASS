@@ -1,8 +1,0 @@
-
-function add takes integer a, integer b returns integer
-	return a+b
-endfunction
-
-function foo takes nothing returns nothing
-	call add(1,2,3)
-endfunction
