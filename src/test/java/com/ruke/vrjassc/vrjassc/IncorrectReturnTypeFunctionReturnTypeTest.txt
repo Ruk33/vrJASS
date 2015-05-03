@@ -1,0 +1,4 @@
+function foo takes nothing returns integer
+	return 1
+	return "nope"
+endfunction

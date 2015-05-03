@@ -1,0 +1,3 @@
+function x takes integer a returns integer
+	call z()
+endfunction

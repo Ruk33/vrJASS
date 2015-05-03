@@ -1,0 +1,14 @@
+
+
+
+
+function x takes integer i returns integer
+
+
+	return 1
+
+endfunction
+
+
+
+

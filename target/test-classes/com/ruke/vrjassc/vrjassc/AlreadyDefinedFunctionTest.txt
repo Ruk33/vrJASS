@@ -1,0 +1,5 @@
+function add takes integer a returns integer
+endfunction
+
+function add takes integer b returns integer
+endfunction

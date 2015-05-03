@@ -35,9 +35,15 @@ Pick the one you like the most:
 - Import
 - Archive File
 - Browse
-- Find antlr version 4 jar file
+- Select all .jar files in lib folder
 - Click ok
 - Click finish
+- Right click on vrjass.g4
+- Run as
+- External tool configurations...
+- Click on New launch configuration...
+- Paste this: -no-listener -visitor -encoding UTF-8 -o src/antlr4 -package antlr4
+- Click Run
 - Right click to the project
 - Export
 - JAR file
