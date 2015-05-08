@@ -28,7 +28,7 @@ import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Visibility;
 
 public class SymbolVisitor extends vrjassBaseVisitor<Void> {
-
+	
 	protected Symbol globalScope;
 
 	protected Symbol scope;

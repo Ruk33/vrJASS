@@ -118,7 +118,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 	protected String output;
 
-	public MainVisitor(vrjassParser parser) {
+	public MainVisitor(vrjassParser parser, SymbolVisitor symbolVisitor) {
 		this.types = new Stack<String>();
 		this.globalsBlock = new Stack<String>();
 		this.classGlobals = new Stack<String>();
@@ -127,13 +127,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.requiredLibraries = new Stack<String>();
 
 		this.prefixer = new Prefix();
-		this.symbolVisitor = new SymbolVisitor();
+		this.symbolVisitor = symbolVisitor;
 		this.scope = this.symbolVisitor.getGlobalScope();
 
 		this.symbolVisitor.visit(parser.init());
 		parser.reset();
 
 		this.output = this.visit(parser.init());
+	}
+	
+	public MainVisitor(vrjassParser parser) {
+		this(parser, new SymbolVisitor());
 	}
 
 	public Prefix getPrefixer() {
@@ -1111,6 +1115,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 	public String getOutput() {
 		return this.output;
+	}
+
+	public SymbolVisitor getSymbolVisitor() {
+		return this.symbolVisitor;
 	}
 
 }

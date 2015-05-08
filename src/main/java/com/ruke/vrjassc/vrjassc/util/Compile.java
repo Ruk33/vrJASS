@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -17,33 +18,73 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassLexer;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import com.ruke.vrjassc.vrjassc.visitor.MainVisitor;
+import com.ruke.vrjassc.vrjassc.visitor.SymbolVisitor;
 
 public class Compile {
 	
-	protected boolean generateCommonBlizzard;
+	protected String commonPath;
+	protected String blizzardPath;
 	
-	public Compile includeCommonBlizzard(boolean include) {
-		this.generateCommonBlizzard = include;
+	public Compile setCommonPath(String path) {
+		this.commonPath = path;
+		return this;
+	}
+	
+	public Compile setBlizzardPath(String path) {
+		this.blizzardPath = path;
 		return this;
 	}
 
 	public String run(String code) throws CompileException {
 		TextMacro textMacro = new TextMacro(code);
-		code = textMacro.getOutput().replace("\t", "    ");
+		ANTLRInputStream is = null;
+		vrjassLexer lexer = null;
+		TokenStream token = null;
+		vrjassParser parser = null;
+		SymbolVisitor symbolVisitor = null;
+		MainVisitor mainVisitor = null;
 		
-		if (this.generateCommonBlizzard) {
-			File path = new File();
-			String commonBlizzard = Files.lines(path).replace("[", "").replace("]", "");
-			code = commonBlizzard + code;
+		code = textMacro.getOutput().replace("\t", "    ");
+
+		if (this.commonPath != null && this.blizzardPath != null) {
+			Path commonj = Paths.get(this.commonPath);
+			String commonjCode = null;
+			
+			try {
+				commonjCode = String.join("\n", Files.readAllLines(commonj));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			Path blizzardj = Paths.get(this.blizzardPath);
+			String blizzardjCode = null;
+			
+			try {
+				blizzardjCode = String.join("\n", Files.readAllLines(blizzardj));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			String commonBlizzardCode = commonjCode + "\n" + blizzardjCode;
+			
+			is = new ANTLRInputStream(commonBlizzardCode);
+			lexer = new vrjassLexer(is);
+			token = new CommonTokenStream(lexer);
+			parser = new vrjassParser(token);
+			mainVisitor = new MainVisitor(parser);
+			
+			symbolVisitor = mainVisitor.getSymbolVisitor();
+		} else {
+			symbolVisitor = new SymbolVisitor();
 		}
-
-		ANTLRInputStream is = new ANTLRInputStream(code);
-
-		vrjassLexer lexer = new vrjassLexer(is);
-		TokenStream token = new CommonTokenStream(lexer);
-		vrjassParser parser = new vrjassParser(token);
-
-		return new MainVisitor(parser).getOutput();
+		
+		is = new ANTLRInputStream(code);
+		lexer = new vrjassLexer(is);
+		token = new CommonTokenStream(lexer);
+		parser = new vrjassParser(token);
+		mainVisitor = new MainVisitor(parser, symbolVisitor);
+				
+		return mainVisitor.getOutput();
 	}
 
 	public String runFromFile(String pathname) throws CompileException,

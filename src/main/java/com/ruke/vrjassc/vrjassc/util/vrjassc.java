@@ -32,6 +32,9 @@ public class vrjassc {
 			editor.extractFile("war3map.wct", code);
 			editor.extractFile("war3map.j", defaultCode);
 
+			compile.setCommonPath("./common.j");
+			compile.setBlizzardPath("./blizzard.j");
+			
 			writer.println(compile.runFromFile(defaultCode.getAbsolutePath()));
 			writer.close();
 

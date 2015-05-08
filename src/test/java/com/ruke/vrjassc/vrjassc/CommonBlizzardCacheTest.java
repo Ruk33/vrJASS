@@ -2,6 +2,7 @@ package com.ruke.vrjassc.vrjassc;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class CommonBlizzardCacheTest {
@@ -14,6 +15,7 @@ public class CommonBlizzardCacheTest {
 	 * time the compiler is run
 	 */
 	@Test
+	@Ignore
 	public void test() {
 		fail("Not yet implemented");
 	}
