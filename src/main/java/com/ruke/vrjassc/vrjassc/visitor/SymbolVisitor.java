@@ -1,5 +1,7 @@
 package com.ruke.vrjassc.vrjassc.visitor;
 
+import org.antlr.v4.runtime.Token;
+
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ClassDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ClassStatementsContext;
@@ -27,21 +29,29 @@ import com.ruke.vrjassc.vrjassc.symbol.Visibility;
 
 public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 
-	protected MainVisitor main;
-
 	protected Symbol globalScope;
 
 	protected Symbol scope;
 
-	public SymbolVisitor(MainVisitor main) {
-		this.main = main;
-
+	public SymbolVisitor() {
 		this.globalScope = new Symbol(null, null, null, null, null, null);
 		this.scope = this.globalScope;
 	}
 
 	public Symbol getGlobalScope() {
 		return this.globalScope;
+	}
+	
+	public Visibility getVisibility(Token visibility) {
+		if (visibility == null) {
+			return null;
+		}
+
+		if (visibility.getText().equals("private")) {
+			return Visibility.PRIVATE;
+		}
+
+		return Visibility.PUBLIC;
 	}
 
 	@Override
@@ -50,7 +60,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String type = ctx.variableType().getText();
 		boolean isConstant = ctx.CONSTANT() != null;
 		boolean isArray = ctx.array != null;
-		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility);
 
 		new VariableSymbol(name, type, isConstant, isArray, true, visibility,
 				this.scope, ctx.varName);
@@ -100,7 +110,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String type = ctx.variableType().getText();
 		boolean isStatic = ctx.STATIC() != null;
 		boolean isArray = true;
-		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility);
 
 		if (isStatic) {
 			isArray = false;
@@ -117,7 +127,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String name = ctx.methodName.getText();
 		String type = ctx.returnType().getText();
 		boolean isStatic = ctx.STATIC() != null;
-		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility);
 
 		this.scope = new MethodSymbol(name, type, isStatic, visibility,
 				this.scope, ctx.methodName);
@@ -153,7 +163,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitFunctionDefinition(FunctionDefinitionContext ctx) {
 		String name = ctx.functionName.getText();
 		String type = ctx.returnType().getText();
-		Visibility visibility = this.main.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility);
 		Symbol function = this.scope.resolve(name, PrimitiveType.FUNCTION,
 				false);
 

@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -17,10 +19,23 @@ import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import com.ruke.vrjassc.vrjassc.visitor.MainVisitor;
 
 public class Compile {
+	
+	protected boolean generateCommonBlizzard;
+	
+	public Compile includeCommonBlizzard(boolean include) {
+		this.generateCommonBlizzard = include;
+		return this;
+	}
 
 	public String run(String code) throws CompileException {
 		TextMacro textMacro = new TextMacro(code);
 		code = textMacro.getOutput().replace("\t", "    ");
+		
+		if (this.generateCommonBlizzard) {
+			File path = new File();
+			String commonBlizzard = Files.lines(path).replace("[", "").replace("]", "");
+			code = commonBlizzard + code;
+		}
 
 		ANTLRInputStream is = new ANTLRInputStream(code);
 

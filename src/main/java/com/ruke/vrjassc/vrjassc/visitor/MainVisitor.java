@@ -2,7 +2,6 @@ package com.ruke.vrjassc.vrjassc.visitor;
 
 import java.util.Stack;
 
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -83,7 +82,6 @@ import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Visibility;
 import com.ruke.vrjassc.vrjassc.util.ClassDefaultAllocator;
 import com.ruke.vrjassc.vrjassc.util.FunctionSorter;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
@@ -129,7 +127,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.requiredLibraries = new Stack<String>();
 
 		this.prefixer = new Prefix();
-		this.symbolVisitor = new SymbolVisitor(this);
+		this.symbolVisitor = new SymbolVisitor();
 		this.scope = this.symbolVisitor.getGlobalScope();
 
 		this.symbolVisitor.visit(parser.init());
@@ -141,19 +139,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public Prefix getPrefixer() {
 		return this.prefixer;
 	}
-
-	public Visibility getVisibility(Token visibility) {
-		if (visibility == null) {
-			return null;
-		}
-
-		if (visibility.getText().equals("private")) {
-			return Visibility.PRIVATE;
-		}
-
-		return Visibility.PUBLIC;
-	}
-
+	
 	@Override
 	public String visitNull(NullContext ctx) {
 		this.expressionType = "null";
