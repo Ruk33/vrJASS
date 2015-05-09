@@ -5,9 +5,15 @@ import org.antlr.v4.runtime.Token;
 public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 
 	protected boolean _static;
-
-	public MethodSymbol(String name, String type, boolean isStatic,
-			Visibility visibility, Symbol parent, Token token) {
+	protected boolean _abstract;
+	
+	public MethodSymbol(String name,
+			String type,
+			boolean isStatic,
+			boolean isAbstract,
+			Visibility visibility,
+			Symbol parent,
+			Token token) {
 		super(name, type, visibility, parent, token);
 
 		if (this.visibility == null) {
@@ -15,6 +21,7 @@ public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 		}
 
 		this._static = isStatic;
+		this._abstract = isAbstract;
 
 		if (!this.isStatic()) {
 			new ParameterSymbol("this", this.getParent().getType(), this, null);
@@ -24,6 +31,11 @@ public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 	@Override
 	public boolean isStatic() {
 		return this._static;
+	}
+
+	@Override
+	public boolean isAbstract() {
+		return this._abstract;
 	}
 
 }

@@ -7,6 +7,9 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ClassDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ClassStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceMethodDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
@@ -18,6 +21,7 @@ import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedVariableException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.NativeFunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ParameterSymbol;
@@ -53,7 +57,49 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 
 		return Visibility.PUBLIC;
 	}
+	
+	@Override
+	public Void visitInterfaceMethodDefinition(
+			InterfaceMethodDefinitionContext ctx) {
+		String name = ctx.methodName.getText();
+		String type = ctx.returnType().getText();
+		boolean isStatic = ctx.STATIC() != null;
+		Visibility visibility = this.getVisibility(ctx.visibility);
+		
+		this.scope = new MethodSymbol(
+			name,
+			type,
+			isStatic,
+			true,
+			visibility,
+			this.scope,
+			ctx.methodName
+		);
+		
+		this.visit(ctx.parameters());
+		
+		this.scope = this.scope.getParent();
+		
+		return null;
+	}
 
+	@Override
+	public Void visitInterfaceDefinition(InterfaceDefinitionContext ctx) {
+		String name = ctx.interfaceName.getText();
+		Visibility visibility = this.getVisibility(ctx.visibility);
+		
+		this.scope = new InterfaceSymbol(name, visibility, this.scope, ctx.interfaceName);
+		
+		for (InterfaceStatementsContext statement : ctx.interfaceStatements()) {
+			this.visit(statement);
+		}
+		
+		this.scope = this.scope.getParent();
+		
+		
+		return null;
+	}
+	
 	@Override
 	public Void visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
 		String name = ctx.varName.getText();
@@ -129,7 +175,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		boolean isStatic = ctx.STATIC() != null;
 		Visibility visibility = this.getVisibility(ctx.visibility);
 
-		this.scope = new MethodSymbol(name, type, isStatic, visibility,
+		this.scope = new MethodSymbol(name, type, isStatic, false, visibility,
 				this.scope, ctx.methodName);
 
 		this.visit(ctx.parameters());
@@ -186,9 +232,15 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	@Override
 	public Void visitClassDefinition(ClassDefinitionContext ctx) {
 		String name = ctx.className.getText();
-
-		this.scope = new ClassSymbol(name, Visibility.PUBLIC, this.scope,
-				ctx.className);
+		boolean isAbstract = ctx.ABSTRACT() != null;
+		
+		this.scope = new ClassSymbol(
+			name,
+			isAbstract,
+			Visibility.PUBLIC,
+			this.scope,
+			ctx.className
+		);
 
 		for (ClassStatementsContext statement : ctx.classStatements()) {
 			this.visit(statement);

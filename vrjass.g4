@@ -6,6 +6,7 @@ init: altInit+ EOF;
 
 altInit
 	:functionDefinition
+	|interfaceDefinition
 	|globalDefinition
 	|libraryDefinition
 	|classDefinition
@@ -50,6 +51,7 @@ globalDefinition:
 
 libraryStatements
 	:globalDefinition
+	|interfaceDefinition
 	|functionDefinition
 	|classDefinition
 	|nativeDefinition
@@ -66,7 +68,7 @@ libraryDefinition:
 	;
 
 methodDefinition:
-	(visibility=('private'|'public'))? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
+	(visibility=('private'|'public'))? ABSTRACT? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
 	 	statements
 	 'endmethod'
 	 ;
@@ -76,6 +78,7 @@ propertyStatement: (visibility=('private'|'public'))? STATIC? variableType prope
 classStatements
 	:methodDefinition
 	|propertyStatement
+	|interfaceMethodDefinition
 	|EOL
 	;
 
@@ -85,9 +88,23 @@ extendList
 	;
 
 classDefinition:
-	'struct' className=ID ('extends' extendList)? EOL
+	ABSTRACT? 'struct' className=ID ('extends' extendList)? EOL
 		classStatements*
 	'endstruct'
+	;
+
+interfaceMethodDefinition
+	: (visibility='public')? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType;
+
+interfaceStatements
+	:interfaceMethodDefinition
+	|EOL
+	;
+	
+interfaceDefinition:
+	(visibility='public')? 'interface' interfaceName=ID EOL
+		interfaceStatements*
+	'endinterface'
 	;
 
 functionDefinition:
@@ -159,6 +176,7 @@ globalVariableStatement
 
 CONSTANT: 'constant';
 STATIC: 'static';
+ABSTRACT: 'stub';
 
 ID: [a-zA-Z][a-zA-Z0-9_]*;
 REAL: [0-9]+ '.' [0-9]* | '.'[0-9]+;

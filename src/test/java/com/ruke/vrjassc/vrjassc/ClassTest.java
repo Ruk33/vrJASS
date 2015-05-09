@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.ruke.vrjassc.vrjassc.exception.ImplementAbstractMethodClassException;
 import com.ruke.vrjassc.vrjassc.exception.TooManyExtendClassException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedMethodException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedPropertyException;
@@ -355,6 +356,21 @@ public class ClassTest {
 
 		expectedEx.expect(TooManyExtendClassException.class);
 		expectedEx.expectMessage("5:20 Classes can only extend from one class. <Nope> extends from 2");
+
+		compile.run(code);
+	}
+	
+	@Test
+	public void implementAllAbstractMethods() {
+		Compile compile = new Compile();
+		String code = "interface Person\n"
+				+ "public method getName takes nothing returns string\n"
+				+ "endinterface\n"
+				+ "struct Pirate extends Person\n"
+				+ "endstruct\n";
+
+		expectedEx.expect(ImplementAbstractMethodClassException.class);
+		expectedEx.expectMessage("4:7 Class <Pirate> must implements all abstract methods");
 
 		compile.run(code);
 	}

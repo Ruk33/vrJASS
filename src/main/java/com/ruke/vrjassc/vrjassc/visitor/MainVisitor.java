@@ -58,6 +58,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableTypeContext;
 import com.ruke.vrjassc.vrjassc.exception.ElementNoAccessException;
 import com.ruke.vrjassc.vrjassc.exception.EqualNotEqualComparisonException;
+import com.ruke.vrjassc.vrjassc.exception.ImplementAbstractMethodClassException;
 import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentTypeFunctionCallException;
 import com.ruke.vrjassc.vrjassc.exception.IncorrectReturnTypeFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.IncorrectVariableTypeException;
@@ -82,6 +83,7 @@ import com.ruke.vrjassc.vrjassc.exception.VariableIsNotArrayException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassMemberSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -991,7 +993,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 					true
 				);
 				
-				if (extendSymbol instanceof ClassSymbol) {
+				if (extendSymbol instanceof InterfaceSymbol) {
 					if (((ClassSymbol) this.scope).getSuper() != null) {
 						throw new TooManyExtendClassException(
 							ctx.getStart(),
@@ -999,9 +1001,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 							ctx.ID().size()
 						);
 					}
+					
+					this.scope.addChild(extendSymbol);
 				}
-				
-				this.scope.addChild(extendSymbol);
 			}
 		}
 		
@@ -1019,6 +1021,13 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		if (ctx.extendList() != null) {
 			this.visit(ctx.extendList());
+			
+			if (!((ClassSymbol) this.scope).hasDefinedAllAbstractMethods()) {
+				throw new ImplementAbstractMethodClassException(
+					ctx.className,
+					name
+				);
+			}
 		} else {
 			ClassDefaultAllocator cda = new ClassDefaultAllocator(name);
 			

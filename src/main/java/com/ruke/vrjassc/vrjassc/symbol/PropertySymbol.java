@@ -21,5 +21,10 @@ public class PropertySymbol extends VariableSymbol implements ClassMemberSymbol 
 	public boolean isStatic() {
 		return this._static;
 	}
+	
+	@Override
+	public boolean isAbstract() {
+		return false;
+	}
 
 }
