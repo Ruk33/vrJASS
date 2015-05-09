@@ -14,6 +14,14 @@ public abstract class CompileException extends RuntimeException {
 		}
 	}
 
+	public int getLine() {
+		return this.line;
+	}
+
+	public int getCharPos() {
+		return this.charPos;
+	}
+
 	@Override
 	public String getMessage() {
 		return String.format("%d:%d", this.line, this.charPos);

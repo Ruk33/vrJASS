@@ -3,8 +3,7 @@ package com.ruke.vrjassc.vrjassc.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import javax.swing.JOptionPane;
+import java.nio.file.Files;
 
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 
@@ -20,39 +19,51 @@ public class vrjassc {
 			return;
 		}
 
+		File war3jcode = null;
+		File code = null;
+
 		try {
 			Compile compile = new Compile();
 
 			File map = new File(args[2]);
 			JmpqEditor editor = new JmpqEditor(map);
 
-			File code = File.createTempFile("war3map", ".wct");
-			File defaultCode = File.createTempFile("war3map", ".j");
+			war3jcode = File.createTempFile("war3map", ".j");
+			code = File.createTempFile("war3map-wct", ".j");
+
 			File output = File.createTempFile("output", ".vrjass");
 			PrintWriter writer = new PrintWriter(output, "UTF-8");
 
+			editor.extractFile("war3map.j", war3jcode);
 			editor.extractFile("war3map.wct", code);
-			editor.extractFile("war3map.j", defaultCode);
 
 			compile.setCommonPath(args[0]);
 			compile.setBlizzardPath(args[1]);
 
-			writer.println(compile.runFromFile(defaultCode.getAbsolutePath()));
+			writer.println(compile.runFromFile(war3jcode.getAbsolutePath()));
 			writer.close();
 
 			editor.injectFile(output, "war3map.j");
 			editor.close();
 		} catch (CompileException ce) {
-			JOptionPane.showMessageDialog(null, ce.getMessage());
-			System.out.println(ce.getMessage());
-			System.exit(2);
+			try {
+				new ErrorWindow(
+					ce.getMessage(),
+					String.join(
+						System.lineSeparator(),
+						Files.readAllLines(war3jcode.toPath())
+					)
+				);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			//System.exit(2);
 		} catch (IOException io) {
-			JOptionPane.showMessageDialog(null, io.getMessage());
-			System.out.println(io.getMessage());
-			System.exit(1);
+			new ErrorWindow(io.getMessage(), "");
+			//System.exit(1);
 		}
 
-		System.exit(0);
+		//System.exit(0);
 	}
 
 }

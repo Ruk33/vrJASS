@@ -10,8 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Stack;
 
-import javax.swing.JOptionPane;
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
@@ -55,7 +53,7 @@ public class Compile {
 			try {
 				commonjCode = String.join(System.lineSeparator(), Files.readAllLines(commonj));
 			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, e.getMessage());
+				new ErrorWindow("common.j file was not found", "", 1, 1);
 				e.printStackTrace();
 			}
 
@@ -65,7 +63,7 @@ public class Compile {
 			try {
 				blizzardjCode = String.join(System.lineSeparator(), Files.readAllLines(blizzardj));
 			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, e.getMessage());
+				new ErrorWindow("blizzard.j file was not found", "", 1, 1);
 				e.printStackTrace();
 			}
 
