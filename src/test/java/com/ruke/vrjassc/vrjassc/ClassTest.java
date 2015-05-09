@@ -265,7 +265,7 @@ public class ClassTest {
 	}
 
 	@Test
-	public void classExtend() {
+	public void classExtendsArray() {
 		Compile compile = new Compile();
 		String code = "struct Person extends array\n"
 				+ "private string name\n"
@@ -295,6 +295,48 @@ public class ClassTest {
 				+ "endfunction" + System.lineSeparator()
 				+ "function struct_Ruke_getFullName takes integer this returns string" + System.lineSeparator()
 				+ "return struct_Ruke_getLastName(this)+\" \"+struct_Person_getName(this)" + System.lineSeparator()
+				+ "endfunction";
+
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void overritingAndUsingSuper() {
+		Compile compile = new Compile();
+		String code = "struct Person extends array\n"
+				+ "private string name\n"
+				+ "public method getName takes nothing returns string\n"
+				+ "return this.name\n"
+				+ "endmethod\n"
+				+ "endstruct\n"
+				+ "struct Pirate extends Person\n"
+				+ "private string lastname\n"
+				+ "public method getName takes nothing returns string\n"
+				+ "return \"yarrr \" + super.getName()\n"
+				+ "endmethod\n"
+				+ "public method getLastName takes nothing returns string\n"
+				+ "return this.lastname\n"
+				+ "endmethod\n"
+				+ "public method getFullName takes nothing returns string\n"
+				+ "return this.getLastName() + \" \" + this.getName()\n"
+				+ "endmethod\n"
+				+ "endstruct";
+
+		String result = "globals" + System.lineSeparator()
+				+ "string array struct_Person_name" + System.lineSeparator()
+				+ "string array struct_Pirate_lastname" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function struct_Person_getName takes integer this returns string" + System.lineSeparator()
+				+ "return struct_Person_name[this]" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function struct_Pirate_getName takes integer this returns string" + System.lineSeparator()
+				+ "return \"yarrr \"+struct_Person_getName(this)" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function struct_Pirate_getLastName takes integer this returns string" + System.lineSeparator()
+				+ "return struct_Pirate_lastname[this]" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function struct_Pirate_getFullName takes integer this returns string" + System.lineSeparator()
+				+ "return struct_Pirate_getLastName(this)+\" \"+struct_Pirate_getName(this)" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));

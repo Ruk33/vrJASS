@@ -50,6 +50,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SuperContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableContext;
@@ -77,6 +78,7 @@ import com.ruke.vrjassc.vrjassc.exception.UndefinedPropertyException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedVariableException;
 import com.ruke.vrjassc.vrjassc.exception.VariableIsNotArrayException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassMemberSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
@@ -143,7 +145,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public Prefix getPrefixer() {
 		return this.prefixer;
 	}
-
+	
 	@Override
 	public String visitNull(NullContext ctx) {
 		this.expressionType = "null";
@@ -309,25 +311,24 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 
 	@Override
+	public String visitSuper(SuperContext ctx) {
+		this.expressionType = ((ClassSymbol) this.scope.getParent()).getSuper().getType();
+		return "this";
+	}
+	
+	@Override
 	public String visitMember(MemberContext ctx) {
 		String left = this.visit(ctx.left);
-		String leftName = ctx.left.getText();
 		String leftType = this.expressionType;
+		String right = null;
 		Symbol member = null;
 		String result;
+		
+		Symbol prevClass = this._class;
+		this._class = this.scope.resolve(leftType, PrimitiveType.CLASS, true);
 
-		if (leftName.equals("this")) {
-			this._class = this.scope
-					.resolve("this", PrimitiveType.VARIABLE, false).getParent()
-					.getParent();
-		} else {
-			this._class = this.scope.resolve(leftType, PrimitiveType.CLASS,
-					true);
-		}
-
-		String right = this.visit(ctx.right);
+		right = this.visit(ctx.right);
 		member = this.symbol;
-
 		result = member.getFullName();
 
 		if (member instanceof ClassMemberSymbol) {
@@ -342,7 +343,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			}
 		}
 
-		this._class = null;
+		this._class = prevClass;
 		this.expressionType = member.getType();
 		return result;
 	}
@@ -665,15 +666,18 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitFunctionExpression(FunctionExpressionContext ctx) {
 		String name = ctx.functionName.getText();
+		FunctionSymbol function = null;
 		int argumentsCount = 0;
-
-		FunctionSymbol function = (FunctionSymbol) this.scope.resolve(name,
-				PrimitiveType.FUNCTION, true);
+		
+		if (this._class != null) {
+			function = (FunctionSymbol) this._class.resolve(name, PrimitiveType.FUNCTION, true);
+		} else {
+			function = (FunctionSymbol) this.scope.resolve(name, PrimitiveType.FUNCTION, true);
+		}
 
 		if (function == null) {
 			if (this._class != null) {
-				throw new UndefinedMethodException(ctx.functionName,
-						this._class);
+				throw new UndefinedMethodException(ctx.functionName, this._class);
 			} else {
 				if (name.startsWith("InitTrig_")) {
 					return "";
