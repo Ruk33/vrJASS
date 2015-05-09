@@ -19,8 +19,9 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void defineArray() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns nothing\n"
-				+ "local integer array bar\n" + "endfunction";
+		String code = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "local integer array bar" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}
@@ -28,8 +29,9 @@ public class LocalArrayVariableStatementTest {
 	@Test
 	public void setArray() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns nothing\n"
-				+ "local integer array bar\n" + "set bar[1+1]=2\n"
+		String code = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "local integer array bar" + System.lineSeparator()
+				+ "set bar[1+1]=2" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(code, compile.run(code));

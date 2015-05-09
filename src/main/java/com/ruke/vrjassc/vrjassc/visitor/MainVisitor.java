@@ -209,7 +209,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		result.push(this.visit(ctx.statements()));
 		result.push("endloop");
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	@Override
@@ -223,7 +223,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			result.push(visited);
 		}
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	@Override
@@ -262,7 +262,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			result.push(visited);
 		}
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	@Override
@@ -292,7 +292,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		result.push("endif");
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	@Override
@@ -851,7 +851,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		result.addAll(variables);
 		result.addAll(statements);
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	@Override
@@ -875,8 +875,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.functionSorter.functionBeingDefined(this.scope.getFullName());
 
 		String result = "function " + this.scope.getFullName() + " takes "
-				+ params + " returns " + type + "\n"
-				+ this.visit(ctx.statements()) + "\n"
+				+ params + " returns " + type + System.lineSeparator()
+				+ this.visit(ctx.statements()) + System.lineSeparator()
 				+ "endfunction";
 
 		if (!type.equals("nothing")) {
@@ -951,8 +951,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		String result = "function " + this.scope.getFullName() + " takes "
 				+ params + " returns " + this.visit(ctx.returnType())
-				+ "\n" + this.visit(ctx.statements())
-				+ "\n" + "endfunction";
+				+ System.lineSeparator() + this.visit(ctx.statements())
+				+ System.lineSeparator() + "endfunction";
 
 		this.functionSorter.setFunctionBody(this.scope.getFullName(), result);
 
@@ -1011,7 +1011,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		this.scope = prevScope;
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	@Override
@@ -1084,7 +1084,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.scope = prevScope;
 		this.requiredLibraries = prevRequiredLibraries;
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	@Override
@@ -1110,7 +1110,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		result.addAll(this.functionSorter.getFunctions());
 
-		return String.join("\n", result);
+		return String.join(System.lineSeparator(), result);
 	}
 
 	public String getOutput() {

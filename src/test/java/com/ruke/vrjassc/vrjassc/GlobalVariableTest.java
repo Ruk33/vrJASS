@@ -22,16 +22,32 @@ public class GlobalVariableTest {
 	@Test
 	public void severalGlobalBlock() {
 		Compile compile = new Compile();
-		String code = "globals\n" + "integer foo=3\n" + "endglobals\n"
+		String code = "globals\n"
+				+ "integer foo=3\n"
+				+ "endglobals\n"
 				+ "function bar takes nothing returns nothing\n"
-				+ "endfunction\n" + "globals\n" + "integer e\n"
-				+ "endglobals\n" + "globals\n" + "integer a=9\n"
-				+ "endglobals\n" + "library lorem\n" + "globals\n"
-				+ "public integer e\n" + "endglobals\n" + "endlibrary";
+				+ "endfunction\n"
+				+ "globals\n"
+				+ "integer e\n"
+				+ "endglobals\n"
+				+ "globals\n"
+				+ "integer a=9\n"
+				+ "endglobals\n"
+				+ "library lorem\n"
+				+ "globals\n"
+				+ "public integer e\n"
+				+ "endglobals\n"
+				+ "endlibrary";
 
-		String result = "globals\n" + "integer foo=3\n" + "integer e\n"
-				+ "integer a=9\n" + "integer lorem_e\n" + "endglobals\n"
-				+ "function bar takes nothing returns nothing\n\n"
+		String result = "globals" + System.lineSeparator()
+				+ "integer foo=3" + System.lineSeparator()
+				+ "integer e" + System.lineSeparator()
+				+ "integer a=9" + System.lineSeparator()
+				+ "integer lorem_e" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function bar takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
@@ -42,7 +58,9 @@ public class GlobalVariableTest {
 		Compile compile = new Compile();
 		String code = "globals\n" + "\n\n" + "integer foo=2\n" + "endglobals";
 
-		String result = "globals\n" + "integer foo=2\n" + "endglobals";
+		String result = "globals" + System.lineSeparator()
+				+ "integer foo=2" + System.lineSeparator()
+				+ "endglobals";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -50,9 +68,12 @@ public class GlobalVariableTest {
 	@Test
 	public void setArray() {
 		Compile compile = new Compile();
-		String code = "globals\n" + "integer array bar\n" + "endglobals\n"
-				+ "function foo takes nothing returns nothing\n"
-				+ "set bar[1]=2\n" + "endfunction";
+		String code = "globals" + System.lineSeparator()
+				+ "integer array bar" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "set bar[1]=2" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}
@@ -60,7 +81,9 @@ public class GlobalVariableTest {
 	@Test
 	public void constant() {
 		Compile compile = new Compile();
-		String code = "globals\n" + "constant integer foo=2\n" + "endglobals";
+		String code = "globals" + System.lineSeparator()
+				+ "constant integer foo=2" + System.lineSeparator()
+				+ "endglobals";
 
 		assertEquals(code, compile.run(code));
 	}
@@ -82,14 +105,20 @@ public class GlobalVariableTest {
 	@Test
 	public void setting() {
 		Compile compile = new Compile();
-		String code = "globals\n" + "\n\n" + "integer foo=2\n"
+		String code = "globals\n"
+				+ "\n\n"
+				+ "integer foo=2\n"
 				+ "endglobals\n\n\n"
 				+ "function bar takes nothing returns nothing\n"
-				+ "set foo=3\n" + "endfunction";
+				+ "set foo=3\n"
+				+ "endfunction";
 
-		String result = "globals\n" + "integer foo=2\n" + "endglobals\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "set foo=3\n" + "endfunction";
+		String result = "globals" + System.lineSeparator()
+				+ "integer foo=2" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function bar takes nothing returns nothing" + System.lineSeparator()
+				+ "set foo=3" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -160,12 +189,19 @@ public class GlobalVariableTest {
 	@Test
 	public void inScope() {
 		Compile compile = new Compile();
-		String code = "library foo\n" + "globals\n" + "integer bar\n"
-				+ "private integer nope\n" + "public integer yep\n"
-				+ "endglobals\n" + "endlibrary";
+		String code = "library foo\n"
+				+ "globals\n"
+				+ "integer bar\n"
+				+ "private integer nope\n"
+				+ "public integer yep\n"
+				+ "endglobals\n"
+				+ "endlibrary";
 
-		String result = "globals\n" + "integer bar\n" + "integer foo__nope\n"
-				+ "integer foo_yep\n" + "endglobals";
+		String result = "globals" + System.lineSeparator()
+				+ "integer bar" + System.lineSeparator()
+				+ "integer foo__nope" + System.lineSeparator()
+				+ "integer foo_yep" + System.lineSeparator()
+				+ "endglobals";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -197,14 +233,21 @@ public class GlobalVariableTest {
 	@Test
 	public void publicAutoPrefixFromInsideOfScope() {
 		Compile compile = new Compile();
-		String code = "library foo\n" + "globals\n" + "public integer nope\n"
+		String code = "library foo\n"
+				+ "globals\n"
+				+ "public integer nope\n"
 				+ "endglobals\n"
 				+ "function bar takes nothing returns nothing\n"
-				+ "set nope=2\n" + "endfunction\n" + "endlibrary";
+				+ "set nope=2\n"
+				+ "endfunction\n"
+				+ "endlibrary";
 
-		String result = "globals\n" + "integer foo_nope\n" + "endglobals\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "set foo_nope=2\n" + "endfunction";
+		String result = "globals" + System.lineSeparator()
+				+ "integer foo_nope" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function bar takes nothing returns nothing" + System.lineSeparator()
+				+ "set foo_nope=2" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -212,14 +255,21 @@ public class GlobalVariableTest {
 	@Test
 	public void privateAutoPrefixFromInsideOfScope() {
 		Compile compile = new Compile();
-		String code = "library foo\n" + "globals\n" + "private integer nope\n"
+		String code = "library foo\n"
+				+ "globals\n"
+				+ "private integer nope\n"
 				+ "endglobals\n"
 				+ "function bar takes nothing returns nothing\n"
-				+ "set nope=2\n" + "endfunction\n" + "endlibrary";
+				+ "set nope=2\n"
+				+ "endfunction\n"
+				+ "endlibrary";
 
-		String result = "globals\n" + "integer foo__nope\n" + "endglobals\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "set foo__nope=2\n" + "endfunction";
+		String result = "globals" + System.lineSeparator()
+				+ "integer foo__nope" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function bar takes nothing returns nothing" + System.lineSeparator()
+				+ "set foo__nope=2" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -227,13 +277,13 @@ public class GlobalVariableTest {
 	 * @Test public void privateUsingPrefix() { Compile compile = new Compile();
 	 * String code = "library foo\n" + "globals\n" + "private integer nope=2\n"
 	 * + "endglobals\n" + "endlibrary\n"
-	 * 
+	 *
 	 * + "function lorem takes nothing returns nothing\n" +
 	 * "local integer ipsum=foo__nope\n" + "endfunction";
-	 * 
+	 *
 	 * expectedEx.expect(ElementNoAccessException.class);
 	 * expectedEx.expectMessage( "7:20 No access to element <foo__nope>" );
-	 * 
+	 *
 	 * compile.run(code); }
 	 */
 }

@@ -17,9 +17,13 @@ public class MathExpressionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String code = "function foo takes integer a returns nothing\n"
-				+ "set a=a*a*4\n" + "set a=a/a/4\n" + "set a=a-a-4\n"
-				+ "set a=a+a+4\n" + "set a=a*5/4-2+4\n" + "endfunction";
+		String code = "function foo takes integer a returns nothing" + System.lineSeparator()
+				+ "set a=a*a*4" + System.lineSeparator()
+				+ "set a=a/a/4" + System.lineSeparator()
+				+ "set a=a-a-4" + System.lineSeparator()
+				+ "set a=a+a+4" + System.lineSeparator()
+				+ "set a=a*5/4-2+4" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}

@@ -18,12 +18,18 @@ public class LoopStatementTest {
 	public void correct() {
 		Compile compile = new Compile();
 		String code = "function foo takes nothing returns nothing\n"
-				+ "loop\n\n\n" + "call foo()\n" + "exitwhen(false)\n"
-				+ "endloop\n" + "endfunction";
+				+ "loop\n\n\n"
+				+ "call foo()\n"
+				+ "exitwhen(false)\n"
+				+ "endloop\n"
+				+ "endfunction";
 
-		String result = "function foo takes nothing returns nothing\n"
-				+ "loop\n" + "call foo()\n" + "exitwhen (false)\n"
-				+ "endloop\n" + "endfunction";
+		String result = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "loop" + System.lineSeparator()
+				+ "call foo()" + System.lineSeparator()
+				+ "exitwhen (false)" + System.lineSeparator()
+				+ "endloop" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}

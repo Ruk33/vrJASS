@@ -11,8 +11,9 @@ public class ParenthesisExpressionTest {
 	@Test
 	public void test() {
 		Compile compile = new Compile();
-		String code = "function foo takes integer i returns integer\n"
-				+ "return foo((4+i)+2)\n" + "endfunction";
+		String code = "function foo takes integer i returns integer" + System.lineSeparator()
+				+ "return foo((4+i)+2)" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}

@@ -56,7 +56,7 @@ public class FunctionSorter {
 
 		result.append(" returns ");
 		result.append(function.getType());
-		result.append("\n");
+		result.append(System.lineSeparator());
 
 		if (function.getParams().size() > 0) {
 			for (Symbol param : function.getParams()) {
@@ -69,7 +69,7 @@ public class FunctionSorter {
 				result.append(dummyVariable);
 				result.append("=");
 				result.append(param.getName());
-				result.append("\n");
+				result.append(System.lineSeparator());
 			}
 		}
 
@@ -77,7 +77,7 @@ public class FunctionSorter {
 		result.append(this.getDummyNoArgsPrefix());
 		result.append(function.getName());
 		result.append("\")");
-		result.append("\n");
+		result.append(System.lineSeparator());
 
 		if (!function.getType().equals("nothing")) {
 			dummyVariable = this.getDummyPrefix() + function.getName()
@@ -87,7 +87,7 @@ public class FunctionSorter {
 
 			result.append("return ");
 			result.append(dummyVariable);
-			result.append("\n");
+			result.append(System.lineSeparator());
 		}
 
 		result.append("endfunction");
@@ -102,7 +102,7 @@ public class FunctionSorter {
 		result.append(this.getDummyNoArgsPrefix());
 		result.append(function.getName());
 		result.append(" takes nothing returns nothing");
-		result.append("\n");
+		result.append(System.lineSeparator());
 
 		if (function.getType().equals("nothing")) {
 			result.append("call ");
@@ -129,7 +129,7 @@ public class FunctionSorter {
 		}
 
 		result.append(")");
-		result.append("\n");
+		result.append(System.lineSeparator());
 		result.append("endfunction");
 
 		return result.toString();
@@ -153,7 +153,7 @@ public class FunctionSorter {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param whichFunction
 	 * @param by
 	 * @return false if the use of dummy was required

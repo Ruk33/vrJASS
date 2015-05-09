@@ -17,10 +17,11 @@ public class LogicalExpressionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns nothing\n"
-				+ "local boolean bar\n" + "set bar=bar or bar\n"
-				+ "set bar=bar and bar\n"
-				+ "set bar=bar or (1==1 and 1<2) and 5<=2 or 1!=2\n"
+		String code = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "local boolean bar" + System.lineSeparator()
+				+ "set bar=bar or bar" + System.lineSeparator()
+				+ "set bar=bar and bar" + System.lineSeparator()
+				+ "set bar=bar or (1==1 and 1<2) and 5<=2 or 1!=2" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(code, compile.run(code));

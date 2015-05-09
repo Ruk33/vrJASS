@@ -11,8 +11,9 @@ public class ReturnStatementTest {
 	@Test
 	public void test() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns integer\n"
-				+ "return 2\n" + "endfunction";
+		String code = "function foo takes nothing returns integer" + System.lineSeparator()
+				+ "return 2" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}

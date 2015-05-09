@@ -17,8 +17,9 @@ public class FunctionCallTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns nothing\n"
-				+ "call foo()\n" + "endfunction";
+		String code = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "call foo()" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}
@@ -28,13 +29,13 @@ public class FunctionCallTest {
 	 * Compile(); String code = "library foo\n" +
 	 * "private function nope takes nothing returns nothing\n" + "endfunction\n"
 	 * + "endlibrary\n"
-	 * 
+	 *
 	 * + "function bar takes nothing returns nothing\n" + "call foo__nope()\n" +
 	 * "endfunction";
-	 * 
+	 *
 	 * expectedEx.expect(ElementNoAccessException.class);
 	 * expectedEx.expectMessage( "6:5 No access to element <foo__nope>" );
-	 * 
+	 *
 	 * compile.run(code); }
 	 */
 	@Test
@@ -46,10 +47,13 @@ public class FunctionCallTest {
 				+ "function bar takes nothing returns nothing\n"
 				+ "call foo_yep()\n" + "endfunction";
 
-		String result = "function foo_yep takes nothing returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "call foo_yep()\n" + "endfunction";
+		String result = "function foo_yep takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function bar takes nothing returns nothing" + System.lineSeparator()
+				+ "call foo_yep()" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -61,13 +65,19 @@ public class FunctionCallTest {
 				+ "public function bar takes nothing returns nothing\n"
 				+ "endfunction\n"
 				+ "public function yep takes nothing returns nothing\n"
-				+ "call bar()\n" + "call foo_bar()\n" + "endfunction\n"
+				+ "call bar()\n"
+				+ "call foo_bar()\n"
+				+ "endfunction\n"
 				+ "endlibrary\n";
 
-		String result = "function foo_bar takes nothing returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function foo_yep takes nothing returns nothing\n"
-				+ "call foo_bar()\n" + "call foo_bar()\n" + "endfunction";
+		String result = "function foo_bar takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function foo_yep takes nothing returns nothing" + System.lineSeparator()
+				+ "call foo_bar()" + System.lineSeparator()
+				+ "call foo_bar()" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -79,13 +89,19 @@ public class FunctionCallTest {
 				+ "private function bar takes nothing returns nothing\n"
 				+ "endfunction\n"
 				+ "public function yep takes nothing returns nothing\n"
-				+ "call bar()\n" + "call foo__bar()\n" + "endfunction\n"
+				+ "call bar()\n"
+				+ "call foo__bar()\n"
+				+ "endfunction\n"
 				+ "endlibrary\n";
 
-		String result = "function foo__bar takes nothing returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function foo_yep takes nothing returns nothing\n"
-				+ "call foo__bar()\n" + "call foo__bar()\n" + "endfunction";
+		String result = "function foo__bar takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function foo_yep takes nothing returns nothing" + System.lineSeparator()
+				+ "call foo__bar()" + System.lineSeparator()
+				+ "call foo__bar()" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -94,18 +110,24 @@ public class FunctionCallTest {
 	public void functionSort() {
 		Compile compile = new Compile();
 		String code = "function foo takes nothing returns nothing\n"
-				+ "call bar()\n" + "endfunction\n"
+				+ "call bar()\n"
+				+ "endfunction\n"
 				+ "function lorem takes nothing returns nothing\n"
-				+ "call foo()\n" + "endfunction\n"
+				+ "call foo()\n"
+				+ "endfunction\n"
 				+ "function bar takes nothing returns nothing\n\n"
 				+ "endfunction";
 
-		String result = "function bar takes nothing returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function foo takes nothing returns nothing\n"
-				+ "call bar()\n" + "endfunction\n"
-				+ "function lorem takes nothing returns nothing\n"
-				+ "call foo()\n" + "endfunction";
+		String result = "function bar takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "call bar()" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function lorem takes nothing returns nothing" + System.lineSeparator()
+				+ "call foo()" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -114,27 +136,29 @@ public class FunctionCallTest {
 	public void functionAlternativeSort() {
 		Compile compile = new Compile();
 		String code = "function foo takes integer i returns integer\n"
-				+ "return bar(i)\n" + "endfunction\n"
-				+ "function bar takes integer i returns integer\n"
-				+ "return foo(i)\n" + "endfunction";
-
-		String result = "globals\n"
-				+ "integer vrjass_c_foo_i\n"
-				+ "integer vrjass_c_foo_return\n"
-				+ "endglobals\n"
-				+ "function vrjass_c_foo takes integer i returns integer\n"
-				+ "set vrjass_c_foo_i=i\n"
-				+ "call ExecuteFunc(\"vrjass_c_noargs_foo\")\n"
-				+ "return vrjass_c_foo_return\n"
-				+ "endfunction\n"
-				+ "function bar takes integer i returns integer\n"
-				+ "return vrjass_c_foo(i)\n"
-				+ "endfunction\n"
-				+ "function foo takes integer i returns integer\n"
 				+ "return bar(i)\n"
 				+ "endfunction\n"
-				+ "function vrjass_c_noargs_foo takes nothing returns nothing\n"
-				+ "set vrjass_c_foo_return=foo(vrjass_c_foo_i)\n"
+				+ "function bar takes integer i returns integer\n"
+				+ "return foo(i)\n"
+				+ "endfunction";
+
+		String result = "globals" + System.lineSeparator()
+				+ "integer vrjass_c_foo_i" + System.lineSeparator()
+				+ "integer vrjass_c_foo_return" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function vrjass_c_foo takes integer i returns integer" + System.lineSeparator()
+				+ "set vrjass_c_foo_i=i" + System.lineSeparator()
+				+ "call ExecuteFunc(\"vrjass_c_noargs_foo\")" + System.lineSeparator()
+				+ "return vrjass_c_foo_return" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function bar takes integer i returns integer" + System.lineSeparator()
+				+ "return vrjass_c_foo(i)" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function foo takes integer i returns integer" + System.lineSeparator()
+				+ "return bar(i)" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function vrjass_c_noargs_foo takes nothing returns nothing" + System.lineSeparator()
+				+ "set vrjass_c_foo_return=foo(vrjass_c_foo_i)" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));

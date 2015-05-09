@@ -18,10 +18,15 @@ public class ComparisonExpressionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns nothing\n"
-				+ "local boolean bar\n" + "set bar=1==1\n" + "set bar=1!=1\n"
-				+ "set bar=1>1\n" + "set bar=1>=1\n" + "set bar=1<1\n"
-				+ "set bar=1<=1\n" + "endfunction";
+		String code = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "local boolean bar" + System.lineSeparator()
+				+ "set bar=1==1" + System.lineSeparator()
+				+ "set bar=1!=1" + System.lineSeparator()
+				+ "set bar=1>1" + System.lineSeparator()
+				+ "set bar=1>=1" + System.lineSeparator()
+				+ "set bar=1<1" + System.lineSeparator()
+				+ "set bar=1<=1" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}

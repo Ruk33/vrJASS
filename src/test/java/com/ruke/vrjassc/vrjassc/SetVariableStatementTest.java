@@ -17,8 +17,10 @@ public class SetVariableStatementTest {
 	@Test
 	public void setVariable() {
 		Compile compile = new Compile();
-		String code = "function foo takes integer bar returns integer\n"
-				+ "set bar=2\n" + "return 1\n" + "endfunction";
+		String code = "function foo takes integer bar returns integer" + System.lineSeparator()
+				+ "set bar=2" + System.lineSeparator()
+				+ "return 1" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}

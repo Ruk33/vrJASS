@@ -17,7 +17,9 @@ public class FunctionDefinitionTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns nothing\n\n"
+		String code = "function foo takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(code, compile.run(code));

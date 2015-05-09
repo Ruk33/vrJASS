@@ -11,10 +11,13 @@ public class CodeTypeTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String code = "function foo takes code func returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "local code f=function bar\n" + "call foo(f)\n"
+		String code = "function foo takes code func returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function bar takes nothing returns nothing" + System.lineSeparator()
+				+ "local code f=function bar" + System.lineSeparator()
+				+ "call foo(f)" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(code, compile.run(code));

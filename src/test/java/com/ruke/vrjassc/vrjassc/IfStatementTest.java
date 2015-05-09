@@ -17,12 +17,21 @@ public class IfStatementTest {
 	@Test
 	public void correct() {
 		Compile compile = new Compile();
-		String code = "function foo takes nothing returns nothing\n"
-				+ "if (true and false or (false and true)) then\n"
-				+ "call foo()\n" + "call foo()\n" + "elseif (true) then\n"
-				+ "call foo()\n" + "else\n" + "call foo()\n" + "endif\n"
-				+ "if true then\n" + "endif\n" + "if false then\n" + "else\n"
-				+ "endif\n" + "endfunction";
+		String code = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "if (true and false or (false and true)) then" + System.lineSeparator()
+				+ "call foo()" + System.lineSeparator()
+				+ "call foo()" + System.lineSeparator()
+				+ "elseif (true) then" + System.lineSeparator()
+				+ "call foo()" + System.lineSeparator()
+				+ "else" + System.lineSeparator()
+				+ "call foo()" + System.lineSeparator()
+				+ "endif" + System.lineSeparator()
+				+ "if true then" + System.lineSeparator()
+				+ "endif" + System.lineSeparator()
+				+ "if false then" + System.lineSeparator()
+				+ "else" + System.lineSeparator()
+				+ "endif" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(code, compile.run(code));
 	}
@@ -58,13 +67,20 @@ public class IfStatementTest {
 	public void integer() {
 		Compile compile = new Compile();
 		String code = "function foo takes nothing returns nothing\n"
-				+ "if 0 then\n" + "elseif 1 then\n" + "elseif 1 or 1 then\n"
-				+ "elseif 1 and 1 then\n" + "endif\n" + "endfunction";
+				+ "if 0 then\n"
+				+ "elseif 1 then\n"
+				+ "elseif 1 or 1 then\n"
+				+ "elseif 1 and 1 then\n"
+				+ "endif\n"
+				+ "endfunction";
 
-		String result = "function foo takes nothing returns nothing\n"
-				+ "if 0!=0 then\n" + "elseif 1!=0 then\n"
-				+ "elseif 1!=0 or 1!=0 then\n" + "elseif 1!=0 and 1!=0 then\n"
-				+ "endif\n" + "endfunction";
+		String result = "function foo takes nothing returns nothing" + System.lineSeparator()
+				+ "if 0!=0 then" + System.lineSeparator()
+				+ "elseif 1!=0 then" + System.lineSeparator()
+				+ "elseif 1!=0 or 1!=0 then" + System.lineSeparator()
+				+ "elseif 1!=0 and 1!=0 then" + System.lineSeparator()
+				+ "endif"+ System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}
@@ -73,12 +89,16 @@ public class IfStatementTest {
 	public void handle() {
 		Compile compile = new Compile();
 		String code = "function foo takes unit whichUnit returns nothing\n"
-				+ "if null then\n" + "elseif whichUnit then\n" + "endif\n"
+				+ "if null then\n"
+				+ "elseif whichUnit then\n"
+				+ "endif\n"
 				+ "endfunction";
 
-		String result = "function foo takes unit whichUnit returns nothing\n"
-				+ "if null!=null then\n" + "elseif whichUnit!=null then\n"
-				+ "endif\n" + "endfunction";
+		String result = "function foo takes unit whichUnit returns nothing" + System.lineSeparator()
+				+ "if null!=null then" + System.lineSeparator()
+				+ "elseif whichUnit!=null then" + System.lineSeparator()
+				+ "endif" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}

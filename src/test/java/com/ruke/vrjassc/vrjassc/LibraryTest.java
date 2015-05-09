@@ -22,13 +22,20 @@ public class LibraryTest {
 				+ "private function nope takes nothing returns nothing\n"
 				+ "endfunction\n"
 				+ "public function yep takes nothing returns nothing\n"
-				+ "endfunction\n" + "endlibrary";
+				+ "endfunction\n"
+				+ "endlibrary";
 
-		String result = "function bar takes nothing returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function foo__nope takes nothing returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function foo_yep takes nothing returns nothing\n\n"
+		String result = "function bar takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function foo__nope takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function foo_yep takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
@@ -39,13 +46,20 @@ public class LibraryTest {
 		Compile compile = new Compile();
 		String code = "library foo\n"
 				+ "public function yep takes nothing returns nothing\n"
-				+ "endfunction\n" + "endlibrary\n" + "library bar\n"
-				+ "public function yep takes nothing returns nothing\n"
-				+ "endfunction\n" + "endlibrary";
-
-		String result = "function foo_yep takes nothing returns nothing\n\n"
 				+ "endfunction\n"
-				+ "function bar_yep takes nothing returns nothing\n\n"
+				+ "endlibrary\n"
+				+ "library bar\n"
+				+ "public function yep takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary";
+
+		String result = "function foo_yep takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function bar_yep takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
@@ -56,13 +70,20 @@ public class LibraryTest {
 		Compile compile = new Compile();
 		String code = "library foo\n"
 				+ "private function yep takes nothing returns nothing\n"
-				+ "endfunction\n" + "endlibrary\n" + "library bar\n"
-				+ "private function yep takes nothing returns nothing\n"
-				+ "endfunction\n" + "endlibrary";
-
-		String result = "function foo__yep takes nothing returns nothing\n\n"
 				+ "endfunction\n"
-				+ "function bar__yep takes nothing returns nothing\n\n"
+				+ "endlibrary\n"
+				+ "library bar\n"
+				+ "private function yep takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary";
+
+		String result = "function foo__yep takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function bar__yep takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
@@ -83,15 +104,21 @@ public class LibraryTest {
 		Compile compile = new Compile();
 		String code = "library lorem requires foo\n"
 				+ "public function ipsum takes nothing returns nothing\n"
-				+ "call foo_bar()\n" + "endfunction\n" + "endlibrary\n"
+				+ "call foo_bar()\n"
+				+ "endfunction\n"
+				+ "endlibrary\n"
 				+ "library foo\n"
 				+ "public function bar takes nothing returns nothing\n"
-				+ "endfunction\n" + "endlibrary";
-
-		String result = "function foo_bar takes nothing returns nothing\n\n"
 				+ "endfunction\n"
-				+ "function lorem_ipsum takes nothing returns nothing\n"
-				+ "call foo_bar()\n" + "endfunction";
+				+ "endlibrary";
+
+		String result = "function foo_bar takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function lorem_ipsum takes nothing returns nothing" + System.lineSeparator()
+				+ "call foo_bar()" + System.lineSeparator()
+				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
 	}

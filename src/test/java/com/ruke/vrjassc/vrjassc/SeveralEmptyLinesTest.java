@@ -19,8 +19,12 @@ public class SeveralEmptyLinesTest {
 		String result = compile.runFromFile(testPath
 				+ "/SeveralEmptyLinesTest.txt");
 
-		assertEquals("function x takes integer i returns integer" + "\n"
-				+ "return 1" + "\n" + "endfunction", result);
+		assertEquals(
+				"function x takes integer i returns integer" + System.lineSeparator()
+				+ "return 1" + System.lineSeparator()
+				+ "endfunction",
+				result
+		);
 	}
 
 }

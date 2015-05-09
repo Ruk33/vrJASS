@@ -24,9 +24,13 @@ public class TextmacroTest {
 				+ "//! runtextmacro foo(ipsum)\n"
 				+ "//! runtextmacro foo(noname)";
 
-		String result = "function lorem_ipsum takes nothing returns nothing\n\n"
-				+ "endfunction\n"
-				+ "function lorem_noname takes nothing returns nothing\n\n"
+		String result = "function lorem_ipsum takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function lorem_noname takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
