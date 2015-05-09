@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Stack;
 
+import javax.swing.JOptionPane;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
@@ -21,15 +23,15 @@ import com.ruke.vrjassc.vrjassc.visitor.MainVisitor;
 import com.ruke.vrjassc.vrjassc.visitor.SymbolVisitor;
 
 public class Compile {
-	
+
 	protected String commonPath;
 	protected String blizzardPath;
-	
+
 	public Compile setCommonPath(String path) {
 		this.commonPath = path;
 		return this;
 	}
-	
+
 	public Compile setBlizzardPath(String path) {
 		this.blizzardPath = path;
 		return this;
@@ -43,47 +45,49 @@ public class Compile {
 		vrjassParser parser = null;
 		SymbolVisitor symbolVisitor = null;
 		MainVisitor mainVisitor = null;
-		
+
 		code = textMacro.getOutput().replace("\t", "    ");
 
 		if (this.commonPath != null && this.blizzardPath != null) {
 			Path commonj = Paths.get(this.commonPath);
 			String commonjCode = null;
-			
+
 			try {
-				commonjCode = String.join("\n", Files.readAllLines(commonj));
+				commonjCode = String.join(System.lineSeparator(), Files.readAllLines(commonj));
 			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, e.getMessage());
 				e.printStackTrace();
 			}
-			
+
 			Path blizzardj = Paths.get(this.blizzardPath);
 			String blizzardjCode = null;
-			
+
 			try {
-				blizzardjCode = String.join("\n", Files.readAllLines(blizzardj));
+				blizzardjCode = String.join(System.lineSeparator(), Files.readAllLines(blizzardj));
 			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, e.getMessage());
 				e.printStackTrace();
 			}
-			
-			String commonBlizzardCode = commonjCode + "\n" + blizzardjCode;
-			
+
+			String commonBlizzardCode = commonjCode + System.lineSeparator() + blizzardjCode;
+
 			is = new ANTLRInputStream(commonBlizzardCode);
 			lexer = new vrjassLexer(is);
 			token = new CommonTokenStream(lexer);
 			parser = new vrjassParser(token);
 			mainVisitor = new MainVisitor(parser);
-			
+
 			symbolVisitor = mainVisitor.getSymbolVisitor();
 		} else {
 			symbolVisitor = new SymbolVisitor();
 		}
-		
+
 		is = new ANTLRInputStream(code);
 		lexer = new vrjassLexer(is);
 		token = new CommonTokenStream(lexer);
 		parser = new vrjassParser(token);
 		mainVisitor = new MainVisitor(parser, symbolVisitor);
-				
+
 		return mainVisitor.getOutput();
 	}
 

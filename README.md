@@ -31,8 +31,8 @@ Pick the one you like the most:
 
 ##How to use the compiled vrjass?
 ```bash
-$ cd path/to/compiled/files
-$ java -cp '*' com.ruke.vrjassc.vrjassc.util.vrjassc path/to/map.w3x or w3m
+$ cd path/to/vrjassc-jar-with-dependencies.jar
+$ java -jar vrjassc-jar-with-dependencies.jar path/to/common.j path/to/blizzard.j path/to/map.w3x (or w3m)
 ```
 
 This WILL change the source code of the map and will transform any vrJASS code to raw JASS.
