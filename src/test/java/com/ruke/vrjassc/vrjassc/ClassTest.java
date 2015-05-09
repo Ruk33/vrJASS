@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.ruke.vrjassc.vrjassc.exception.TooManyExtendClassException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedMethodException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedPropertyException;
 import com.ruke.vrjassc.vrjassc.util.Compile;
@@ -340,6 +341,22 @@ public class ClassTest {
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void extendSeveralClasses() {
+		Compile compile = new Compile();
+		String code = "struct Foo extends array\n"
+				+ "endstruct\n"
+				+ "struct Bar extends array\n"
+				+ "endstruct\n"
+				+ "struct Nope extends Foo, Bar\n"
+				+ "endstruct";
+
+		expectedEx.expect(TooManyExtendClassException.class);
+		expectedEx.expectMessage("5:20 Classes can only extend from one class. <Nope> extends from 2");
+
+		compile.run(code);
 	}
 
 }

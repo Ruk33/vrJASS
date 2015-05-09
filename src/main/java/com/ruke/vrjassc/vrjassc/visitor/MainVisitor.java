@@ -20,6 +20,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitwhenStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExtendListContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
@@ -72,6 +73,7 @@ import com.ruke.vrjassc.vrjassc.exception.NoScopeVisibilityException;
 import com.ruke.vrjassc.vrjassc.exception.SetConstantVariableException;
 import com.ruke.vrjassc.vrjassc.exception.TooFewArgumentsFunctionCallException;
 import com.ruke.vrjassc.vrjassc.exception.TooManyArgumentsFunctionCallException;
+import com.ruke.vrjassc.vrjassc.exception.TooManyExtendClassException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedMethodException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedPropertyException;
@@ -974,45 +976,62 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		return result;
 	}
+	
+	@Override
+	public String visitExtendList(ExtendListContext ctx) {
+		String className = this.scope.getName();
+		
+		if (!ctx.getText().equals("array")) {
+			Symbol extendSymbol;
+			
+			for (TerminalNode _extend : ctx.ID()) {
+				extendSymbol = this.scope.resolve(
+					_extend.getText(),
+					PrimitiveType.CLASS,
+					true
+				);
+				
+				if (extendSymbol instanceof ClassSymbol) {
+					if (((ClassSymbol) this.scope).getSuper() != null) {
+						throw new TooManyExtendClassException(
+							ctx.getStart(),
+							className,
+							ctx.ID().size()
+						);
+					}
+				}
+				
+				this.scope.addChild(extendSymbol);
+			}
+		}
+		
+		return "";
+	}
 
 	@Override
 	public String visitClassDefinition(ClassDefinitionContext ctx) {
 		String name = ctx.className.getText();
-		String extendsFrom = "";
-		boolean extendsArray = false;
 		Stack<String> result = new Stack<String>();
 		String visited;
 
 		Symbol prevScope = this.scope;
-
-		ClassDefaultAllocator cda = new ClassDefaultAllocator(name);
-
-		if (ctx.extendName != null) {
-			extendsFrom = ctx.extendName.getText();
-		}
-
-		extendsArray = extendsFrom.equals("array");
-
-		if (!extendsArray && extendsFrom.isEmpty()) {
-			result.push(cda.getAllocator());
-			result.push(cda.getDeallocator());
-
+		this.scope = this.scope.resolve(name, PrimitiveType.CLASS, true);
+		
+		if (ctx.extendList() != null) {
+			this.visit(ctx.extendList());
+		} else {
+			ClassDefaultAllocator cda = new ClassDefaultAllocator(name);
+			
 			this.functionSorter.functionBeingDefined(cda.getAllocatorName());
-			this.functionSorter.setFunctionBody(cda.getAllocatorName(),
-					cda.getAllocator());
+			this.functionSorter.setFunctionBody(cda.getAllocatorName(), cda.getAllocator());
 
 			this.functionSorter.functionBeingDefined(cda.getDeallocatorName());
-			this.functionSorter.setFunctionBody(cda.getDeallocatorName(),
-					cda.getDeallocator());
+			this.functionSorter.setFunctionBody(cda.getDeallocatorName(), cda.getDeallocator());
 
 			this.classGlobals.addAll(cda.getGlobals());
-		}
-
-		this.scope = this.scope.resolve(name, PrimitiveType.CLASS, true);
-
-		if (!extendsArray && !extendsFrom.isEmpty()) {
-			this.scope.addChild(this.scope.resolve(extendsFrom,
-					PrimitiveType.CLASS, true));
+			
+			result.push(cda.getAllocator());
+			result.push(cda.getDeallocator());
 		}
 
 		for (ClassStatementsContext classStat : ctx.classStatements()) {

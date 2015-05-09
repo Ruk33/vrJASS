@@ -79,8 +79,13 @@ classStatements
 	|EOL
 	;
 
+extendList
+	:(ID (',' ID)*)
+	|'array'
+	;
+
 classDefinition:
-	'struct' className=ID ('extends' extendName=(ID|'array'))? EOL
+	'struct' className=ID ('extends' extendList)? EOL
 		classStatements*
 	'endstruct'
 	;
