@@ -675,6 +675,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				throw new UndefinedMethodException(ctx.functionName,
 						this._class);
 			} else {
+				if (name.startsWith("InitTrig_")) {
+					return "";
+				}
+
 				throw new UndefinedFunctionException(ctx.functionName);
 			}
 		}
@@ -747,7 +751,13 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new NoFunctionException(ctx.func.getStart());
 		}
 
-		return "call " + this.visit(ctx.func);
+		String visited = this.visit(ctx.func);
+
+		if (visited.isEmpty()) {
+			return "";
+		}
+
+		return "call " + visited;
 	}
 
 	@Override
