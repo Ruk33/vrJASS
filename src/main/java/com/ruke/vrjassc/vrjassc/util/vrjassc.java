@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 
 import de.peeeq.jmpq.JmpqEditor;
+import de.peeeq.jmpq.JmpqError;
 
 public class vrjassc {
 
@@ -20,7 +21,6 @@ public class vrjassc {
 		}
 
 		File war3jcode = null;
-		File code = null;
 
 		try {
 			Compile compile = new Compile();
@@ -28,14 +28,12 @@ public class vrjassc {
 			File map = new File(args[2]);
 			JmpqEditor editor = new JmpqEditor(map);
 
-			war3jcode = File.createTempFile("war3map", ".j");
-			code = File.createTempFile("war3map-wct", ".j");
+			war3jcode = File.createTempFile("war3map-j", null);
 
 			File output = File.createTempFile("output", ".vrjass");
 			PrintWriter writer = new PrintWriter(output, "UTF-8");
 
 			editor.extractFile("war3map.j", war3jcode);
-			editor.extractFile("war3map.wct", code);
 
 			compile.setCommonPath(args[0]);
 			compile.setBlizzardPath(args[1]);
@@ -44,7 +42,10 @@ public class vrjassc {
 			writer.close();
 
 			editor.injectFile(output, "war3map.j");
+
 			editor.close();
+		} catch (JmpqError je) {
+			new ErrorWindow(je.getMessage(), "", 0);
 		} catch (CompileException ce) {
 			try {
 				new ErrorWindow(
@@ -52,14 +53,15 @@ public class vrjassc {
 					String.join(
 						System.lineSeparator(),
 						Files.readAllLines(war3jcode.toPath())
-					)
+					),
+					ce.getLine()
 				);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			//System.exit(2);
 		} catch (IOException io) {
-			new ErrorWindow(io.getMessage(), "");
+			new ErrorWindow(io.getMessage(), "", 0);
 			//System.exit(1);
 		}
 

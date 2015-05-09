@@ -4,11 +4,13 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.text.BadLocationException;
 
 public class ErrorWindow extends JFrame implements Runnable {
 
 	private String message;
 	private String code;
+	private int line;
 
 	/**
 	 *
@@ -17,9 +19,10 @@ public class ErrorWindow extends JFrame implements Runnable {
 	/**
      * Creates new form NewJFrame
      */
-    public ErrorWindow(String message, String code) {
+    public ErrorWindow(String message, String code, int line) {
     	this.message = message;
     	this.code = code;
+    	this.line = line;
 
         try {
             javax.swing.UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -57,9 +60,9 @@ public class ErrorWindow extends JFrame implements Runnable {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("vrJASS");
         setAlwaysOnTop(true);
-        setPreferredSize(new java.awt.Dimension(500, 300));
+        setPreferredSize(new java.awt.Dimension(700, 350));
 
-        jButton1.setText("Ok");
+        jButton1.setText("Close");
         jButton1.setName(""); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -67,8 +70,6 @@ public class ErrorWindow extends JFrame implements Runnable {
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
         jTextArea1.setTabSize(4);
         jTextArea1.addCaretListener(new CaretListener() {
 			@Override
@@ -77,6 +78,20 @@ public class ErrorWindow extends JFrame implements Runnable {
 			}
 		});
         jTextArea1.setText(this.code);
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+
+		int line = Math.min(this.line, jTextArea1.getLineCount());
+		int startOfLineOffset = 0;
+
+		try {
+			startOfLineOffset = jTextArea1.getLineStartOffset(line)-1;
+		} catch (BadLocationException e1) {
+			e1.printStackTrace();
+		}
+
+		jTextArea1.setCaretPosition(startOfLineOffset);
+
         jScrollPane1.setViewportView(jTextArea1);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N

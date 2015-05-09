@@ -53,7 +53,7 @@ public class Compile {
 			try {
 				commonjCode = String.join(System.lineSeparator(), Files.readAllLines(commonj));
 			} catch (IOException e) {
-				new ErrorWindow("common.j file was not found", "", 1, 1);
+				new ErrorWindow("common.j file was not found", "", 0);
 				e.printStackTrace();
 			}
 
@@ -63,7 +63,7 @@ public class Compile {
 			try {
 				blizzardjCode = String.join(System.lineSeparator(), Files.readAllLines(blizzardj));
 			} catch (IOException e) {
-				new ErrorWindow("blizzard.j file was not found", "", 1, 1);
+				new ErrorWindow("blizzard.j file was not found", "", 0);
 				e.printStackTrace();
 			}
 
