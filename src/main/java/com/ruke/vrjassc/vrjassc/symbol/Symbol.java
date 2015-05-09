@@ -29,9 +29,9 @@ public class Symbol {
 	/**
 	 * Parent of the symbol (for example, a library may be the parent of a
 	 * function)
-	 * 
+	 *
 	 * Can be null
-	 * 
+	 *
 	 * If a parent is passed to the constructor, the parent will automatically
 	 * call to addChild
 	 */
@@ -87,7 +87,7 @@ public class Symbol {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param child
 	 * @return Itself
 	 */
@@ -101,7 +101,7 @@ public class Symbol {
 
 	/**
 	 * Find a symbol and get it
-	 * 
+	 *
 	 * @param name
 	 * @param primitiveType
 	 * @param backwards
@@ -121,10 +121,16 @@ public class Symbol {
 				}
 			}
 		}
-
+		
 		if (result == null && backwards) {
 			if (this.parent != null) {
 				result = this.parent.resolve(name, primitiveType, true);
+			}
+		}
+		
+		if (result != null && result.getVisibility() == Visibility.LOCAL) {
+			if (result.getParent() != this) {
+				result = null;
 			}
 		}
 

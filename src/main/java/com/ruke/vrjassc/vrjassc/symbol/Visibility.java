@@ -1,5 +1,5 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
 public enum Visibility {
-	PUBLIC, PROTECTED, PRIVATE
+	PUBLIC, PROTECTED, PRIVATE, LOCAL
 }

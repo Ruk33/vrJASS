@@ -82,7 +82,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		}
 
 		new VariableSymbol(name, type, false, isArray, false,
-				Visibility.PRIVATE, this.scope, ctx.varName);
+				Visibility.LOCAL, this.scope, ctx.varName);
 
 		return null;
 	}
