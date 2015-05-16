@@ -41,6 +41,7 @@ public class ErrorWindow extends JFrame implements Runnable {
 
     public void run() {
     	this.initComponents();
+    	this.setLocationRelativeTo(null);
     	this.setVisible(true);
     }
 
