@@ -2,16 +2,40 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.Stack;
 
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
+
 public class ClassDefaultAllocator {
 
+	protected Symbol symbol;
 	protected String name;
 
 	protected String getGlobalVariableName() {
 		return "struct_" + this.name + "_s__recycle";
 	}
+	
+	public String getSetPropertiesName() {
+		return "struct_" + this.name + "_setProperties";
+	}
 
 	public String getAllocatorName() {
 		return "struct_s_" + this.name + "_allocate";
+	}
+	
+	public String getSetProperties() {
+		String result = "function " + this.getSetPropertiesName() +
+				" takes integer this returns nothing" + System.lineSeparator();
+		
+		for (Symbol property : ((ClassSymbol) this.symbol).getProperties()) {
+			if (((VariableSymbol) property).getValue() != null) {
+				result += "set " + property.getFullName() + "[this]=" + ((VariableSymbol) property).getValue() + System.lineSeparator();
+			}
+		}
+		
+		result += "endfunction";
+		
+		return result;
 	}
 
 	public String getAllocator() {
@@ -42,6 +66,10 @@ public class ClassDefaultAllocator {
 		result.append("[instance]");
 		result.append(System.lineSeparator());
 		result.append("endif");
+		result.append(System.lineSeparator());
+		result.append("call ");
+		result.append(this.getSetPropertiesName());
+		result.append("(instance)");
 		result.append(System.lineSeparator());
 		result.append("return instance");
 		result.append(System.lineSeparator());
@@ -76,8 +104,9 @@ public class ClassDefaultAllocator {
 		return result.toString();
 	}
 
-	public ClassDefaultAllocator(String className) {
-		this.name = className;
+	public ClassDefaultAllocator(Symbol symbol) {
+		this.symbol = symbol;
+		this.name = symbol.getName();
 	}
 
 	public Stack<String> getGlobals() {

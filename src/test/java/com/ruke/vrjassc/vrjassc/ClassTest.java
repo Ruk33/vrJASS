@@ -25,6 +25,8 @@ public class ClassTest {
 		String result = "globals" + System.lineSeparator()
 				+ "integer array struct_Foo_s__recycle" + System.lineSeparator()
 				+ "endglobals" + System.lineSeparator()
+				+ "function struct_Foo_setProperties takes integer this returns nothing" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
 				+ "function struct_s_Foo_allocate takes nothing returns integer" + System.lineSeparator()
 				+ "local integer instance=struct_Foo_s__recycle[0]" + System.lineSeparator()
 				+ "if (struct_Foo_s__recycle[0]==0) then" + System.lineSeparator()
@@ -32,6 +34,7 @@ public class ClassTest {
 				+ "else" + System.lineSeparator()
 				+ "set struct_Foo_s__recycle[0]=struct_Foo_s__recycle[instance]" + System.lineSeparator()
 				+ "endif" + System.lineSeparator()
+				+ "call struct_Foo_setProperties(instance)" + System.lineSeparator()
 				+ "return instance" + System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
 				+ "function struct_Foo_deallocate takes integer this returns nothing" + System.lineSeparator()
@@ -390,6 +393,38 @@ public class ClassTest {
 		expectedEx.expectMessage("4:7 Class <Pirate> must implements all abstract methods");
 
 		compile.run(code);
+	}
+	
+	@Test
+	public void defaultPropertyValue() {
+		Compile compile = new Compile();
+		String code = "struct Person\n"
+				+ "integer age=5\n"
+				+ "endstruct";
+
+		String result = "globals" + System.lineSeparator()
+			+ "integer array struct_Person_age" + System.lineSeparator()
+			+ "integer array struct_Person_s__recycle" + System.lineSeparator()
+			+ "endglobals" + System.lineSeparator()
+			+ "function struct_Person_setProperties takes integer this returns nothing" + System.lineSeparator()
+			+ "set struct_Person_age[this]=5" + System.lineSeparator()
+			+ "endfunction" + System.lineSeparator()
+			+ "function struct_s_Person_allocate takes nothing returns integer" + System.lineSeparator()
+			+ "local integer instance=struct_Person_s__recycle[0]" + System.lineSeparator()
+			+ "if (struct_Person_s__recycle[0]==0) then" + System.lineSeparator()
+			+ "set struct_Person_s__recycle[0]=instance+1" + System.lineSeparator()
+			+ "else" + System.lineSeparator()
+			+ "set struct_Person_s__recycle[0]=struct_Person_s__recycle[instance]" + System.lineSeparator()
+			+ "endif" + System.lineSeparator()
+			+ "call struct_Person_setProperties(instance)" + System.lineSeparator()
+			+ "return instance" + System.lineSeparator()
+			+ "endfunction" + System.lineSeparator()
+			+ "function struct_Person_deallocate takes integer this returns nothing" + System.lineSeparator()
+			+ "set struct_Person_s__recycle[this]=struct_Person_s__recycle[0]" + System.lineSeparator()
+			+ "set struct_Person_s__recycle[0]=this" + System.lineSeparator()
+			+ "endfunction";
+
+		assertEquals(result, compile.run(code));
 	}
 
 }

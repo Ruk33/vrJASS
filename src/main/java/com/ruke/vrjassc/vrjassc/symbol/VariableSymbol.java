@@ -9,6 +9,8 @@ public class VariableSymbol extends Symbol {
 	protected boolean array;
 
 	protected boolean global;
+	
+	protected String value;
 
 	public VariableSymbol(String name, String type, boolean isConstant,
 			boolean isArray, boolean isGlobal, Visibility visibility,
@@ -18,6 +20,7 @@ public class VariableSymbol extends Symbol {
 		this.constant = isConstant;
 		this.array = isArray;
 		this.global = isGlobal;
+		this.value = null;
 	}
 
 	@Override
@@ -39,6 +42,15 @@ public class VariableSymbol extends Symbol {
 
 	public boolean isArray() {
 		return this.array;
+	}
+	
+	public String getValue() {
+		return this.value;
+	}
+	
+	public Symbol setValue(String value) {
+		this.value = value;
+		return this;
 	}
 
 }

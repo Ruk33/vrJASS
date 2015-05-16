@@ -1,5 +1,6 @@
 package com.ruke.vrjassc.vrjassc.visitor;
 
+import java.util.LinkedList;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -88,6 +89,7 @@ import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
+import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 import com.ruke.vrjassc.vrjassc.util.ClassDefaultAllocator;
@@ -319,7 +321,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 	@Override
 	public String visitSuper(SuperContext ctx) {
-		this.expressionType = ((ClassSymbol) this.scope.getParent()).getSuper().getType();
+		ClassSymbol _super = ((ClassSymbol) this.scope.getParent()).getSuper();
+		this.expressionType = _super.getType();
+		
 		return "this";
 	}
 	
@@ -929,8 +933,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitPropertyStatement(PropertyStatementContext ctx) {
 		String variableName = ctx.propertyName.getText();
 		String variableType = this.visit(ctx.variableType());
-		Symbol variable = this.scope.resolve(variableName,
-				PrimitiveType.VARIABLE, false);
+		Symbol variable = this.scope.resolve(variableName, PrimitiveType.VARIABLE, false);
 		String result = variableType;
 
 		if (((VariableSymbol) variable).isArray()) {
@@ -944,11 +947,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.symbol = variable;
 
 		if (ctx.value != null) {
+			((VariableSymbol) variable).setValue(this.visit(ctx.value));
+			
 			if (((VariableSymbol) variable).isArray()) {
-				throw new InitializeArrayVariableException(ctx.propertyName);
+				if (variable instanceof PropertySymbol == false) {
+					throw new InitializeArrayVariableException(ctx.propertyName);
+				}
+			} else {
+				result += "=" + ((VariableSymbol) variable).getValue();
 			}
-
-			result += "=" + this.visit(ctx.value);
 
 			if (!variable.getType().equals(this.expressionType)) {
 				throw new IncorrectVariableTypeException(ctx.propertyName,
@@ -1026,7 +1033,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	@Override
 	public String visitClassDefinition(ClassDefinitionContext ctx) {
 		String name = ctx.className.getText();
-		Stack<String> result = new Stack<String>();
+		LinkedList<String> result = new LinkedList<String>();
+		ClassDefaultAllocator cda = null;
 		String visited;
 
 		Symbol prevScope = this.scope;
@@ -1042,7 +1050,20 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				);
 			}
 		} else {
-			ClassDefaultAllocator cda = new ClassDefaultAllocator(name);
+			cda = new ClassDefaultAllocator(this.scope);
+		}
+		
+		for (ClassStatementsContext classStat : ctx.classStatements()) {
+			visited = this.visit(classStat);
+
+			if (visited != null) {
+				result.add(visited);
+			}
+		}
+		
+		if (cda != null) {
+			this.functionSorter.functionBeingDefined(cda.getSetPropertiesName());
+			this.functionSorter.setFunctionBody(cda.getSetPropertiesName(), cda.getSetProperties());
 			
 			this.functionSorter.functionBeingDefined(cda.getAllocatorName());
 			this.functionSorter.setFunctionBody(cda.getAllocatorName(), cda.getAllocator());
@@ -1052,16 +1073,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 			this.classGlobals.addAll(cda.getGlobals());
 			
-			result.push(cda.getAllocator());
-			result.push(cda.getDeallocator());
-		}
-
-		for (ClassStatementsContext classStat : ctx.classStatements()) {
-			visited = this.visit(classStat);
-
-			if (visited != null) {
-				result.push(visited);
-			}
+			result.addFirst(cda.getSetProperties());
+			result.addFirst(cda.getAllocator());
+			result.addFirst(cda.getDeallocator());
 		}
 
 		this.scope = prevScope;

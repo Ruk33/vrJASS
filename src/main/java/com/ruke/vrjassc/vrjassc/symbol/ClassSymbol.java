@@ -1,6 +1,7 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
@@ -11,6 +12,7 @@ public class ClassSymbol extends InterfaceSymbol {
 	protected Collection<Symbol> abstractMethods;
 	protected Collection<Symbol> unimplementedAbstractMethods;
 	protected ClassSymbol _super;
+	protected LinkedList<Symbol> properties;
 	
 	public ClassSymbol(String name, boolean isAbstract, Visibility visibility, Symbol parent, Token token) {
 		super(name, visibility, parent, token);
@@ -19,10 +21,15 @@ public class ClassSymbol extends InterfaceSymbol {
 		this.abstractMethods = new Stack<Symbol>();
 		this.unimplementedAbstractMethods = new Stack<Symbol>();
 		this.primitiveType = PrimitiveType.CLASS;
+		this.properties = new LinkedList<Symbol>();
 	}
 	
 	public ClassSymbol getSuper() {
 		return this._super;
+	}
+	
+	public LinkedList<Symbol> getProperties() {
+		return this.properties;
 	}
 		
 	@Override
@@ -103,6 +110,10 @@ public class ClassSymbol extends InterfaceSymbol {
 			if (((MethodSymbol) child).isAbstract()) {
 				this.abstractMethods.add(child);
 			}
+		}
+		
+		if (child instanceof PropertySymbol) {
+			this.properties.add(child);
 		}
 		
 		return super.addChild(child);

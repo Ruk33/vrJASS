@@ -163,7 +163,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 			isArray = false;
 		}
 
-		new PropertySymbol(name, type, isStatic, isArray, visibility,
+		Symbol property = new PropertySymbol(name, type, isStatic, isArray, visibility,
 				this.scope, ctx.propertyName);
 
 		return null;
