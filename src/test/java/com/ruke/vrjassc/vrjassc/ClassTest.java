@@ -374,5 +374,22 @@ public class ClassTest {
 
 		compile.run(code);
 	}
+	
+	@Test
+	public void implementAllAbstractMethodsSameWay() {
+		Compile compile = new Compile();
+		String code = "interface Person\n"
+				+ "public method setName takes string name returns Person\n"
+				+ "endinterface\n"
+				+ "struct Pirate extends Person\n"
+				+ "public method setName takes nothing returns string\n"
+				+ "endmethod\n"
+				+ "endstruct\n";
+
+		expectedEx.expect(ImplementAbstractMethodClassException.class);
+		expectedEx.expectMessage("4:7 Class <Pirate> must implements all abstract methods");
+
+		compile.run(code);
+	}
 
 }

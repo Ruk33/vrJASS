@@ -41,6 +41,11 @@ public class ClassSymbol extends InterfaceSymbol {
 		if (!this.isAbstract()) {
 			Symbol resolved;
 			
+			boolean ok;
+			int i;
+			Stack<Symbol> abstractMethodParams;
+			Stack<Symbol> resolvedParams;
+			
 			for (Symbol abstractMethod : this.getAbstractMethods()) {
 				resolved = this.resolve(
 					abstractMethod.getName(),
@@ -52,9 +57,34 @@ public class ClassSymbol extends InterfaceSymbol {
 					continue;
 				}
 				
-				if (((ClassMemberSymbol) resolved).isAbstract()) {
-					this.unimplementedAbstractMethods.add(resolved);
+				if (!((ClassMemberSymbol) resolved).isAbstract()) {
+					i = 0;
+					ok = true;
+					
+					abstractMethodParams = ((FunctionSymbol) abstractMethod).getParams();
+					resolvedParams = ((FunctionSymbol) resolved).getParams();
+					
+					if (resolvedParams.size() == abstractMethodParams.size()) {
+						for (Symbol param : abstractMethodParams) {
+							if (!resolvedParams.get(i).getType().equals(param.getType())) {
+								ok = false;
+								break;
+							}
+							
+							i++;
+						}
+					}
+					
+					if (!resolved.getType().equals(abstractMethod.getType())) {
+						ok = false;
+					}
+					
+					if (ok) {
+						continue;
+					}
 				}
+				
+				this.unimplementedAbstractMethods.add(resolved);
 			}
 		}
 		
