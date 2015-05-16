@@ -22,6 +22,7 @@ import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedVariableException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.NativeFunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ParameterSymbol;
@@ -255,8 +256,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitLibraryDefinition(LibraryDefinitionContext ctx) {
 		String name = ctx.libraryName.getText();
 
-		this.scope = new Symbol(name, null, PrimitiveType.LIBRARY,
-				Visibility.PUBLIC, this.scope, ctx.libraryName);
+		this.scope = new LibrarySymbol(name, this.scope, ctx.libraryName);
 
 		for (LibraryStatementsContext statements : ctx.libraryStatements()) {
 			this.visit(statements);

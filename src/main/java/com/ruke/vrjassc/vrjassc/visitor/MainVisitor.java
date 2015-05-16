@@ -27,6 +27,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitializerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementsContext;
@@ -84,12 +85,14 @@ import com.ruke.vrjassc.vrjassc.symbol.ClassMemberSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 import com.ruke.vrjassc.vrjassc.util.ClassDefaultAllocator;
 import com.ruke.vrjassc.vrjassc.util.FunctionSorter;
+import com.ruke.vrjassc.vrjassc.util.InitializerHandler;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 import com.ruke.vrjassc.vrjassc.util.TypeCompatibleChecker;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
@@ -104,9 +107,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 	protected Stack<String> classGlobals;
 
-	protected Stack<String> requiredLibraries;
-
 	protected FunctionSorter functionSorter;
+	
+	protected InitializerHandler initializerHandler;
 
 	protected Prefix prefixer;
 
@@ -130,7 +133,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.classGlobals = new Stack<String>();
 		this.natives = new Stack<String>();
 		this.functionSorter = new FunctionSorter();
-		this.requiredLibraries = new Stack<String>();
+		this.initializerHandler = new InitializerHandler();
 
 		this.prefixer = new Prefix();
 		this.symbolVisitor = symbolVisitor;
@@ -894,8 +897,18 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		String result = "function " + this.scope.getFullName() + " takes "
 				+ params + " returns " + type + System.lineSeparator()
-				+ this.visit(ctx.statements()) + System.lineSeparator()
-				+ "endfunction";
+				+ this.visit(ctx.statements()) + System.lineSeparator();
+		
+		if (this.scope.getName().equals("main")) {
+			for (Symbol init : this.initializerHandler.getInitializers()) {
+				result += "call "
+						+ ((LibrarySymbol) init).getInitializer().getFullName()
+						+ "()"
+						+ System.lineSeparator();
+			}
+		}
+		
+		result += "endfunction";
 
 		if (!type.equals("nothing")) {
 			if (!this.hasReturn) {
@@ -1098,21 +1111,41 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	}
 
 	@Override
+	public String visitInitializer(InitializerContext ctx) {
+		Symbol initializer = this.scope.resolve(
+			ctx.funcName.getText(),
+			PrimitiveType.FUNCTION,
+			false
+		);
+		
+		((LibrarySymbol) this.scope).setInitializer(initializer);
+		
+		return "";
+	}
+	
+	@Override
 	public String visitLibraryDefinition(LibraryDefinitionContext ctx) {
 		String name = ctx.libraryName.getText();
-		Stack<String> prevRequiredLibraries = this.requiredLibraries;
 		Stack<String> result = new Stack<String>();
 		String visited;
 
 		Symbol prevScope = this.scope;
 
 		this.scope = this.scope.resolve(name, PrimitiveType.LIBRARY, false);
-		this.requiredLibraries = new Stack<String>();
-
+				
 		if (ctx.requirements() != null) {
 			for (TerminalNode req : ctx.requirements().ID()) {
-				this.requiredLibraries.push(req.getText());
+				this.scope.addChild(
+					this.symbolVisitor.getGlobalScope().resolve(
+						req.getText(), PrimitiveType.LIBRARY, false
+					)
+				);
 			}
+		}
+		
+		if (ctx.initializer() != null) {
+			this.visit(ctx.initializer());
+			this.initializerHandler.add((LibrarySymbol) this.scope);
 		}
 
 		for (LibraryStatementsContext library : ctx.libraryStatements()) {
@@ -1124,7 +1157,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		}
 
 		this.scope = prevScope;
-		this.requiredLibraries = prevRequiredLibraries;
 
 		return String.join(System.lineSeparator(), result);
 	}

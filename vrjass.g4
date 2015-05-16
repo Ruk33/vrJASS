@@ -61,8 +61,10 @@ libraryStatements
 	
 requirements: 'requires' ID (',' ID)*;
 
+initializer: 'initializer' funcName=ID;
+
 libraryDefinition:
-	'library' libraryName=ID requirements? EOL
+	'library' libraryName=ID (initializer)? (requirements)? EOL
 		libraryStatements*
 	'endlibrary'
 	;
