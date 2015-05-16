@@ -55,6 +55,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SuperContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThistypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableTypeContext;
@@ -319,6 +320,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		return "this";
 	}
 
+	@Override
+	public String visitThistype(ThistypeContext ctx) {
+		Symbol _class = this.scope.getParent();
+		this.expressionType = _class.getType();
+
+		return _class.getFullName();
+	}
+	
 	@Override
 	public String visitSuper(SuperContext ctx) {
 		ClassSymbol _super = ((ClassSymbol) this.scope.getParent()).getSuper();

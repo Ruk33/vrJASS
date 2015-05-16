@@ -27,6 +27,15 @@ public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 			new ParameterSymbol("this", this.getParent().getType(), this, null);
 		}
 	}
+	
+	@Override
+	public String getFullName() {
+		if (this.isStatic()) {
+			return super.getFullName().replaceFirst("struct", "struct_s");
+		}
+		
+		return super.getFullName();
+	}
 
 	@Override
 	public boolean isStatic() {

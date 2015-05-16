@@ -141,6 +141,7 @@ expression
 	|'function' expression #Code
 	|left=expression '.' right=expression #Member
 	|'this' #This
+	|'thistype' #Thistype
 	|'super' #Super
 	|functionExpression #Function
 	|varName=ID ('[' index=expression ']')? #Variable	

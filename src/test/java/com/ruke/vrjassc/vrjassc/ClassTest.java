@@ -205,13 +205,13 @@ public class ClassTest {
 				+ "endmethod\n"
 				+ "endstruct";
 
-		String result = "function struct_Foo__nope takes integer a returns nothing"
+		String result = "function struct_s_Foo__nope takes integer a returns nothing"
 				+ System.lineSeparator()
 				+ System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
-				+ "function struct_Foo_bar takes nothing returns nothing" + System.lineSeparator()
-				+ "call struct_Foo__nope(1)" + System.lineSeparator()
-				+ "call struct_Foo_bar()" + System.lineSeparator()
+				+ "function struct_s_Foo_bar takes nothing returns nothing" + System.lineSeparator()
+				+ "call struct_s_Foo__nope(1)" + System.lineSeparator()
+				+ "call struct_s_Foo_bar()" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
@@ -257,11 +257,11 @@ public class ClassTest {
 				+ "integer struct_Foo_instances" + System.lineSeparator()
 				+ "integer array struct_Foo_i" + System.lineSeparator()
 				+ "endglobals" + System.lineSeparator()
-				+ "function struct_Foo_create takes nothing returns integer" + System.lineSeparator()
+				+ "function struct_s_Foo_create takes nothing returns integer" + System.lineSeparator()
 				+ "return struct_Foo_instances" + System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
 				+ "function bar takes nothing returns integer" + System.lineSeparator()
-				+ "local integer instance=struct_Foo_create()" + System.lineSeparator()
+				+ "local integer instance=struct_s_Foo_create()" + System.lineSeparator()
 				+ "set struct_Foo_i[instance]=3" + System.lineSeparator()
 				+ "return struct_Foo_i[instance]" + System.lineSeparator()
 				+ "endfunction";
@@ -422,6 +422,28 @@ public class ClassTest {
 			+ "function struct_Person_deallocate takes integer this returns nothing" + System.lineSeparator()
 			+ "set struct_Person_s__recycle[this]=struct_Person_s__recycle[0]" + System.lineSeparator()
 			+ "set struct_Person_s__recycle[0]=this" + System.lineSeparator()
+			+ "endfunction";
+
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void thistype() {
+		Compile compile = new Compile();
+		String code = "struct Person extends array\n"
+				+ "private static method getPersonCount takes nothing returns integer\n"
+				+ "return 5"
+				+ "endmethod\n"
+				+ "private method howManyPerson takes nothing returns integer\n"
+				+ "return thistype.getPersonCount()\n"
+				+ "endmethod\n"
+				+ "endstruct";
+
+		String result = "function struct_s_Person__getPersonCount takes nothing returns integer" + System.lineSeparator()
+			+ "return 5" + System.lineSeparator()
+			+ "endfunction" + System.lineSeparator()
+			+ "function struct_Person__howManyPerson takes integer this returns integer" + System.lineSeparator()
+			+ "return struct_s_Person__getPersonCount()" + System.lineSeparator()
 			+ "endfunction";
 
 		assertEquals(result, compile.run(code));
