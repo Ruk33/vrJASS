@@ -200,6 +200,6 @@ STR: '"' .*? '"';
 
 EOL: [\r\n]+;
 
-//COMMENT : '/*' .*? '*/' -> skip;
+COMMENT : '/*' .*? '*/' -> skip;
 WS: [\t ]+ -> skip;
 LINE_COMMENT: '//' .*? [\r\n] -> skip;
