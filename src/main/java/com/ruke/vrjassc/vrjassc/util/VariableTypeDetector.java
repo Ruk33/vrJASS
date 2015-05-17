@@ -31,7 +31,7 @@ public class VariableTypeDetector {
 			"texttag", "attacktype", "damagetype", "weapontype", "soundtype",
 			"lightning", "pathingtype", "image", "ubersplat", "handle",
 			"widget", "ability", "gamestate", "eventid", "code", "integer",
-			"real", "string", "boolean", "nothing" };
+			"real", "string", "boolean", "nothing", "null" };
 
 	public static boolean isHandle(String type) {
 		return !Arrays.asList(VariableTypeDetector.nonHandle).contains(type);

@@ -8,6 +8,11 @@ import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Visibility;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class ClassDefaultAllocator {
 
 	protected Symbol symbol;

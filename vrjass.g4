@@ -77,7 +77,7 @@ methodDefinition:
 	 'endmethod'
 	 ;
 	 
-propertyStatement: (visibility=('private'|'public'))? STATIC? variableType propertyName=ID ('=' value=expression)?;
+propertyStatement: (visibility=('private'|'public'))? STATIC? variableType (array='array')? propertyName=ID ('=' value=expression)?;
 
 implementModule: 'implement' moduleName=ID EOL;
 

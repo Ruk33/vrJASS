@@ -264,7 +264,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitBooleanExpression(BooleanExpressionContext ctx) {
 		String result = this.visit(ctx.expression());
 
-		if (this.expressionType.equals("integer")) {
+		if (this.expressionType.equals("integer") || VariableTypeDetector.isUserType(this.expressionType)) {
 			result += "!=0";
 			this.expressionType = "boolean";
 		}
@@ -371,17 +371,15 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		right = this.visit(ctx.right);
 		member = this.symbol;
-		result = member.getFullName();
-
+		result = right;
+		
 		if (member instanceof ClassMemberSymbol) {
 			if (!((ClassMemberSymbol) member).isStatic()) {
-				if (member instanceof MethodSymbol) {
-					result += "(" + left + ")";
-				} else {
-					result += "[" + left + "]";
+				if (member instanceof PropertySymbol) {
+					result += "[this]";
 				}
-			} else {
-				result = right;
+				
+				result = result.replaceFirst("this", left);
 			}
 		}
 
@@ -398,13 +396,17 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		if (this._class != null) {
 			variable = this._class.resolve(name, PrimitiveType.VARIABLE, false);
-
-			if (variable == null || variable.getParent() != this._class) {
+			
+			if (variable == null) {
 				throw new UndefinedPropertyException(ctx.varName, this._class);
 			}
-		} else {
+			
+			this._class = null;
+		}
+		
+		if (variable == null) {
 			variable = this.scope.resolve(name, PrimitiveType.VARIABLE, true);
-
+			
 			if (variable == null) {
 				throw new UndefinedVariableException(ctx.varName);
 			}
@@ -418,7 +420,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			index = "[" + this.visit(ctx.index) + "]";
 
 			if (((VariableSymbol) variable).isArray()) {
-				if (!"integer".equals(this.expressionType)) {
+				if (!"integer".equals(this.expressionType) && VariableTypeDetector.isJassType(this.expressionType)) {
 					throw new InvalidArrayVariableIndexException(
 							ctx.index.getStart());
 				}
@@ -429,7 +431,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		this.symbol = variable;
 		this.expressionType = variable.getType();
-
+		
 		return variable.getFullName() + index;
 	}
 
@@ -548,11 +550,11 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		if (leftType.equals("string") && rightType.equals("string")) {
 			this.expressionType = "string";
 		} else {
-			if (!leftIsNumeric) {
+			if (!leftIsNumeric && VariableTypeDetector.isJassType(leftType)) {
 				throw new MathematicalExpressionException(ctx.left.getStart());
 			}
 
-			if (!rightIsNumeric) {
+			if (!rightIsNumeric && VariableTypeDetector.isJassType(rightType)) {
 				throw new MathematicalExpressionException(ctx.right.getStart());
 			}
 
@@ -978,14 +980,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.symbol = variable;
 
 		if (ctx.value != null) {
-			((VariableSymbol) variable).setValue(this.visit(ctx.value));
+			String value = this.visit(ctx.value);
 			
 			if (((VariableSymbol) variable).isArray()) {
 				if (variable instanceof PropertySymbol == false) {
 					throw new InitializeArrayVariableException(ctx.propertyName);
 				}
 			} else {
-				result += "=" + ((VariableSymbol) variable).getValue();
+				result += "=" + value;
 			}
 
 			if (!variable.getType().equals(this.expressionType)) {
@@ -1085,7 +1087,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				);
 			}
 		} else {
-			cda = new ClassDefaultAllocator(this.scope);
+			//cda = new ClassDefaultAllocator(this.scope);
 		}
 		
 		for (ClassStatementsContext classStat : ctx.classStatements()) {

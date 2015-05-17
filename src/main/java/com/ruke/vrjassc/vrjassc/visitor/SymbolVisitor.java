@@ -178,11 +178,12 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		Visibility visibility = this.getVisibility(ctx.visibility);
 
 		if (isStatic) {
-			isArray = false;
+			isArray = ctx.array != null;
 		}
 
-		Symbol property = new PropertySymbol(name, type, isStatic, isArray, visibility,
-				this.scope, ctx.propertyName);
+		new PropertySymbol(
+			name, type, isStatic, isArray, visibility, this.scope, ctx.propertyName
+		);
 
 		return null;
 	}

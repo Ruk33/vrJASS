@@ -41,7 +41,7 @@ public class ModuleTest {
 	@Test
 	public void undefined() {
 		Compile compile = new Compile();
-		String code = "struct Foo\n"
+		String code = "struct Foo extends array\n"
 				+ "implement Bar\n"
 				+ "endstruct";
 

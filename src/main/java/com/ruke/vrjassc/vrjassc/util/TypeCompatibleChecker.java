@@ -6,6 +6,10 @@ public class TypeCompatibleChecker {
 		if (a.equals(b)) {
 			return true;
 		}
+		
+		if (a.equals("thistype") && b.equals("integer")) {
+			return true;
+		}
 
 		if (a.equals("real") && b.equals("integer")) {
 			return true;

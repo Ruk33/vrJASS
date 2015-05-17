@@ -65,12 +65,12 @@ public class Symbol {
 	public String getFullName() {
 		String name = this.getName();
 
-		if (this.parent != null) {
-			if (this.parent.getName() != null) {
+		if (this.getParent() != null) {
+			if (this.getParent().getName() != null) {
 				if (this.getVisibility() == Visibility.PRIVATE) {
-					name = this.parent.getFullName() + PRIVATE_SEPARATOR + name;
+					name = this.getParent().getFullName() + PRIVATE_SEPARATOR + name;
 				} else if (this.getVisibility() == Visibility.PUBLIC) {
-					name = this.parent.getFullName() + PUBLIC_SEPARATOR + name;
+					name = this.getParent().getFullName() + PUBLIC_SEPARATOR + name;
 				}
 			}
 		}

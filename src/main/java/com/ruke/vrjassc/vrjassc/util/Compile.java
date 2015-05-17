@@ -36,6 +36,7 @@ public class Compile {
 	}
 
 	public String run(String code) throws CompileException {
+		Preprocessor preprocessor;
 		TextMacro textMacro;
 		ModulePreprocessor module;
 		
@@ -54,6 +55,12 @@ public class Compile {
 		module = new ModulePreprocessor(code);
 		code = module.getOutput();
 
+		preprocessor = new Preprocessor(code);
+		preprocessor.add(new ClassPreprocessor());
+		preprocessor.run();
+		
+		code = preprocessor.getOutput();
+		
 		if (this.commonPath != null && this.blizzardPath != null) {
 			Path commonj = Paths.get(this.commonPath);
 			String commonjCode = null;
