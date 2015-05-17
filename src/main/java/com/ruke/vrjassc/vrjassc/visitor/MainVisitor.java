@@ -96,7 +96,6 @@ import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
 import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
-import com.ruke.vrjassc.vrjassc.util.ClassDefaultAllocator;
 import com.ruke.vrjassc.vrjassc.util.FunctionSorter;
 import com.ruke.vrjassc.vrjassc.util.InitializerHandler;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
@@ -1068,7 +1067,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitClassDefinition(ClassDefinitionContext ctx) {
 		String name = ctx.className.getText();
 		LinkedList<String> result = new LinkedList<String>();
-		ClassDefaultAllocator cda = null;
 		String visited;
 
 		Symbol prevScope = this.scope;
@@ -1087,8 +1085,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 					name
 				);
 			}
-		} else {
-			//cda = new ClassDefaultAllocator(this.scope);
 		}
 		
 		for (ClassStatementsContext classStat : ctx.classStatements()) {
@@ -1097,23 +1093,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			if (visited != null) {
 				result.add(visited);
 			}
-		}
-		
-		if (cda != null) {
-			this.functionSorter.functionBeingDefined(cda.getSetPropertiesName());
-			this.functionSorter.setFunctionBody(cda.getSetPropertiesName(), cda.getSetProperties());
-			
-			this.functionSorter.functionBeingDefined(cda.getAllocatorName());
-			this.functionSorter.setFunctionBody(cda.getAllocatorName(), cda.getAllocator());
-
-			this.functionSorter.functionBeingDefined(cda.getDeallocatorName());
-			this.functionSorter.setFunctionBody(cda.getDeallocatorName(), cda.getDeallocator());
-
-			this.classGlobals.addAll(cda.getGlobals());
-			
-			result.addFirst(cda.getSetProperties());
-			result.addFirst(cda.getAllocator());
-			result.addFirst(cda.getDeallocator());
 		}
 
 		this.scope = prevScope;
