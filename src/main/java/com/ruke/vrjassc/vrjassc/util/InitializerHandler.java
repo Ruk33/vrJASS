@@ -2,7 +2,8 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
+
+import com.ruke.vrjassc.vrjassc.symbol.InitializerContainerSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
 public class InitializerHandler {
@@ -10,20 +11,27 @@ public class InitializerHandler {
 	private HashMap<Symbol, Integer> initializerOrder = new HashMap<Symbol, Integer>();
 	private LinkedList<Symbol> initializers = new LinkedList<Symbol>();
 	
-	public void add(LibrarySymbol library) {
-		if (this.initializerOrder.containsKey(library)) {
+	public void add(Symbol symbol) {
+		if (symbol instanceof InitializerContainerSymbol == false) {
+			return;
+		}
+		
+		InitializerContainerSymbol initializerContainer =
+				(InitializerContainerSymbol) symbol;
+		
+		if (this.initializerOrder.containsKey(initializerContainer)) {
 			return;
 		}
 		
 		int order = this.initializers.size();
 		
-		for (Symbol requirement : library.getRequirements()) {
-			this.add((LibrarySymbol) requirement);
-			order = this.initializerOrder.get(requirement);
+		for (Symbol loadFirst : initializerContainer.getSymbolsToLoadFirst()) {
+			this.add(loadFirst);
+			order = this.initializerOrder.get(loadFirst);
 		}
 
-		this.initializerOrder.put(library, order);
-		this.initializers.add(library);
+		this.initializerOrder.put(initializerContainer, order);
+		this.initializers.add(initializerContainer);
 	}
 	
 	public LinkedList<Symbol> getInitializers() {

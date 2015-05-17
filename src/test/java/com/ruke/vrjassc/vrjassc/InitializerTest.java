@@ -9,7 +9,7 @@ import com.ruke.vrjassc.vrjassc.util.Compile;
 public class InitializerTest {
 
 	@Test
-	public void test() {
+	public void library() {
 		Compile compile = new Compile();
 		String code = "library bar initializer init requires foo\n"
 				+ "private function init takes nothing returns nothing\n\n"
@@ -34,6 +34,29 @@ public class InitializerTest {
 				+ System.lineSeparator()
 				+ "call foo__init()" + System.lineSeparator()
 				+ "call bar__init()" + System.lineSeparator()
+				+ "endfunction";
+
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void _class() {
+		Compile compile = new Compile();
+		String code = "struct Foo extends array\n"
+				+ "private static method onInit takes nothing returns nothing\n"
+				+ "endmethod\n"
+				+ "endstruct\n"
+				+ "function main takes nothing returns nothing\n\n"
+				+ "endfunction";
+
+		
+		String result = "function struct_s_Foo__onInit takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function main takes nothing returns nothing" + System.lineSeparator()
+				+ System.lineSeparator()
+				+ "call struct_s_Foo__onInit()" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));

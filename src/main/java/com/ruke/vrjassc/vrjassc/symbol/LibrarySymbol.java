@@ -1,13 +1,13 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import java.util.Collection;
 import java.util.LinkedList;
 
 import org.antlr.v4.runtime.Token;
 
-public class LibrarySymbol extends Symbol {
+public class LibrarySymbol extends InitializerContainerSymbol {
 
 	protected LinkedList<Symbol> requirements;
-	protected Symbol initializer;
 	
 	public LibrarySymbol(String name, Symbol parent, Token token) {
 		super(name, null, PrimitiveType.LIBRARY, Visibility.PUBLIC, parent, token);
@@ -23,17 +23,13 @@ public class LibrarySymbol extends Symbol {
 		return super.addChild(child);
 	}
 	
-	public Symbol setInitializer(Symbol initializer) {
-		this.initializer = initializer;
-		return this;
-	}
-	
-	public Symbol getInitializer() {
-		return this.initializer;
-	}
-	
 	public LinkedList<Symbol> getRequirements() {
 		return this.requirements;
+	}
+
+	@Override
+	public Collection<Symbol> getSymbolsToLoadFirst() {
+		return this.getRequirements();
 	}
 
 }

@@ -88,8 +88,8 @@ import com.ruke.vrjassc.vrjassc.exception.VariableIsNotArrayException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassMemberSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InitializerContainerSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
 import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
@@ -932,7 +932,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		if (this.scope.getName().equals("main")) {
 			for (Symbol init : this.initializerHandler.getInitializers()) {
 				result += "call "
-						+ ((LibrarySymbol) init).getInitializer().getFullName()
+						+ ((InitializerContainerSymbol) init).getInitializer().getFullName()
 						+ "()"
 						+ System.lineSeparator();
 			}
@@ -1066,6 +1066,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		Symbol prevScope = this.scope;
 		this.scope = this.scope.resolve(name, PrimitiveType.CLASS, true);
 		
+		Symbol initializer = this.scope.resolve("onInit", null, false);
+		((InitializerContainerSymbol) this.scope).setInitializer(initializer);
+		this.initializerHandler.add(this.scope);
+		
 		if (ctx.extendList() != null) {
 			this.visit(ctx.extendList());
 			
@@ -1158,7 +1162,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			false
 		);
 		
-		((LibrarySymbol) this.scope).setInitializer(initializer);
+		((InitializerContainerSymbol) this.scope).setInitializer(initializer);
 		
 		return "";
 	}
@@ -1185,7 +1189,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		if (ctx.initializer() != null) {
 			this.visit(ctx.initializer());
-			this.initializerHandler.add((LibrarySymbol) this.scope);
+			this.initializerHandler.add(this.scope);
 		}
 
 		for (LibraryStatementsContext library : ctx.libraryStatements()) {
