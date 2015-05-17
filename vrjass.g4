@@ -79,7 +79,7 @@ methodDefinition:
 	 
 propertyStatement: (visibility=('private'|'public'))? STATIC? variableType propertyName=ID ('=' value=expression)?;
 
-implementModule: 'implements' moduleName=ID EOL;
+implementModule: 'implement' moduleName=ID EOL;
 
 classStatements
 	:methodDefinition

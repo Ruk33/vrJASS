@@ -21,7 +21,7 @@ public class ModulePreprocessor {
 		String name;
 		
 		for (String line : this.code.split("\n")) {
-			if (line.contains("implements")) {
+			if (line.contains("implement")) {
 				name = line.substring(line.lastIndexOf(" ") + 1);
 				
 				if (!this.modules.containsKey(name)) {
@@ -30,7 +30,7 @@ public class ModulePreprocessor {
 				
 				this.output = this.output.replace(
 					line,
-					line + System.lineSeparator() + this.modules.get(name)
+					System.lineSeparator() + this.modules.get(name)
 				);
 			}
 		}
