@@ -1189,8 +1189,9 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		if (ctx.initializer() != null) {
 			this.visit(ctx.initializer());
-			this.initializerHandler.add(this.scope);
 		}
+		
+		this.initializerHandler.add(this.scope);
 
 		for (LibraryStatementsContext library : ctx.libraryStatements()) {
 			visited = this.visit(library);

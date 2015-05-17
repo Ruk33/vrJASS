@@ -35,7 +35,15 @@ public class InitializerHandler {
 	}
 	
 	public LinkedList<Symbol> getInitializers() {
-		return this.initializers;
+		LinkedList<Symbol> result = new LinkedList<Symbol>();
+		
+		for (Symbol symbol : this.initializers) {
+			if (((InitializerContainerSymbol) symbol).getInitializer() != null) {
+				result.add(symbol);
+			}
+		}
+		
+		return result;
 	}
 	
 }

@@ -61,5 +61,75 @@ public class InitializerTest {
 
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void _module() {
+		Compile compile = new Compile();
+		String code = "struct Foo extends array\n"
+				+ "implements Bar\n"
+				+ "endstruct\n"
+				+ "module Bar\n"
+				+ "private static method onInit takes nothing returns nothing\n"
+				+ "endmethod\n"
+				+ "endmodule\n"
+				+ "function main takes nothing returns nothing\n\n"
+				+ "endfunction";
+
+		
+		String result = "function struct_s_Foo__onInit takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function main takes nothing returns nothing" + System.lineSeparator()
+				+ System.lineSeparator()
+				+ "call struct_s_Foo__onInit()" + System.lineSeparator()
+				+ "endfunction";
+
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void vJassInitializeModule() {
+		Compile compile = new Compile();
+		String code = "library Foo requires Bar\n"
+				
+				+ "struct InitStruct extends array\n"
+				+ "implements InitMod\n"
+				+ "endstruct\n"
+				
+				+ "module InitMod\n"
+				+ "private static method onInit takes nothing returns nothing\n"
+				+ "endmethod\n"
+				+ "endmodule\n"
+				
+				+ "endlibrary\n"
+
+				
+				+ "library Bar initializer Initialize\n"
+				+ "private function Initialize takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "endlibrary\n"
+				
+				
+				+ "function main takes nothing returns nothing\n\n"
+				+ "endfunction";
+
+		
+		String result = "function struct_s_Foo_InitStruct__onInit takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function Bar__Initialize takes nothing returns nothing"
+				+ System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function main takes nothing returns nothing" + System.lineSeparator()
+				+ System.lineSeparator()
+				+ "call Bar__Initialize()" + System.lineSeparator()
+				+ "call struct_s_Foo_InitStruct__onInit()" + System.lineSeparator()
+				+ "endfunction";
+
+		assertEquals(result, compile.run(code));
+	}
 
 }
