@@ -448,5 +448,20 @@ public class ClassTest {
 
 		assertEquals(result, compile.run(code));
 	}
+	
+	@Test
+	public void allocatingDeallocating() {
+		Compile compile = new Compile();
+		String code = "struct Person\n"
+				+ "private static method foo takes nothing returns nothing\n"
+				+ "local Person person = thistype.allocate()\n"
+				+ "call person.deallocate()\n"
+				+ "endmethod\n"
+				+ "endstruct";
+
+		ExpectedException.none();
+		
+		compile.run(code);
+	}
 
 }

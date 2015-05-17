@@ -2,9 +2,11 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.Stack;
 
+import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Visibility;
 
 public class ClassDefaultAllocator {
 
@@ -107,6 +109,9 @@ public class ClassDefaultAllocator {
 	public ClassDefaultAllocator(Symbol symbol) {
 		this.symbol = symbol;
 		this.name = symbol.getName();
+		
+		new MethodSymbol("allocate", this.symbol.getType(), true, false, Visibility.PRIVATE, this.symbol, null);
+		new MethodSymbol("deallocate", this.symbol.getType(), false, false, Visibility.PRIVATE, this.symbol, null);
 	}
 
 	public Stack<String> getGlobals() {
