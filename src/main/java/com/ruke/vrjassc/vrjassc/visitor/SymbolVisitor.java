@@ -154,17 +154,17 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 
 	@Override
 	public Void visitParameter(ParameterContext ctx) {
-		String name = ctx.ID().getText();
+		String name = ctx.variableName().getText();
 		String type = ctx.variableType().getText();
 		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE,
 				false);
 
 		if (variable != null) {
-			throw new AlreadyDefinedVariableException(ctx.ID().getSymbol(),
+			throw new AlreadyDefinedVariableException(ctx.variableName().getStart(),
 					(VariableSymbol) variable);
 		}
 
-		new ParameterSymbol(name, type, this.scope, ctx.ID().getSymbol());
+		new ParameterSymbol(name, type, this.scope, ctx.variableName().getStart());
 
 		return null;
 	}

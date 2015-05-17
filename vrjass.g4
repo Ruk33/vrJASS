@@ -16,9 +16,10 @@ altInit
 	|EOL
 	;
 
-variableType: ID;
+variableName: ID|'this';
+variableType: ID|'this'|'thistype';
 
-parameter: variableType ID; 
+parameter: variableType variableName; 
 
 parameters
 	:(parameter (',' parameter)*)

@@ -337,8 +337,14 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 	@Override
 	public String visitThis(ThisContext ctx) {
-		this.expressionType = this.scope.resolve("this",
-				PrimitiveType.VARIABLE, false).getType();
+		Symbol _this = this.scope.resolve("this", PrimitiveType.VARIABLE, false);
+		
+		if (_this == null) {
+			this.expressionType = "integer";
+		} else {
+			this.expressionType = _this.getType();
+		}
+		
 		return "this";
 	}
 
@@ -689,7 +695,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 	@Override
 	public String visitParameter(ParameterContext ctx) {
-		return this.visit(ctx.variableType()) + ' ' + ctx.ID().getText();
+		return this.visit(ctx.variableType()) + ' ' + ctx.variableName().getText();
 	}
 
 	@Override
