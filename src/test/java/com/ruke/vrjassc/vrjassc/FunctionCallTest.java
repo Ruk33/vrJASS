@@ -38,6 +38,7 @@ public class FunctionCallTest {
 	 *
 	 * compile.run(code); }
 	 */
+	
 	@Test
 	public void callPublic() {
 		Compile compile = new Compile();

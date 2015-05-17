@@ -2,12 +2,18 @@ package com.ruke.vrjassc.vrjassc;
 
 import static org.junit.Assert.*;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import com.ruke.vrjassc.vrjassc.exception.UndefinedModuleException;
 import com.ruke.vrjassc.vrjassc.util.Compile;
 
 public class ModuleTest {
 
+	@Rule
+	public ExpectedException expectedEx = ExpectedException.none();
+	
 	@Test
 	public void test() {
 		Compile compile = new Compile();
@@ -30,6 +36,19 @@ public class ModuleTest {
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
+	public void undefined() {
+		Compile compile = new Compile();
+		String code = "struct Foo\n"
+				+ "implement Bar\n"
+				+ "endstruct";
+
+		expectedEx.expect(UndefinedModuleException.class);
+		expectedEx.expectMessage("2:10 Module <Bar> is not defined");
+
+		compile.run(code);
 	}
 
 }

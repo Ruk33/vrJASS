@@ -82,6 +82,7 @@ import com.ruke.vrjassc.vrjassc.exception.TooManyArgumentsFunctionCallException;
 import com.ruke.vrjassc.vrjassc.exception.TooManyExtendClassException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedMethodException;
+import com.ruke.vrjassc.vrjassc.exception.UndefinedModuleException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedPropertyException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedVariableException;
 import com.ruke.vrjassc.vrjassc.exception.VariableIsNotArrayException;
@@ -167,6 +168,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public String visitImplementModule(ImplementModuleContext ctx) {
 		String name = ctx.moduleName.getText();
 		Symbol module = this.scope.resolve(name, PrimitiveType.MODULE, true);
+		
+		if (module == null) {
+			throw new UndefinedModuleException(ctx.moduleName, name);
+		}
 		
 		this.scope.addChild(module);
 		
