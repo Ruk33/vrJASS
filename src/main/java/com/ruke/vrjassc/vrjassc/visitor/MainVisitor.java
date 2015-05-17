@@ -929,7 +929,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		this.hasReturn = false;
 		this.scope = this.scope.resolve(name, PrimitiveType.FUNCTION, true);
 
-		if (ctx.visibility != null
+		if (ctx.visibility() != null
 				&& this.scope.getParent() == this.symbolVisitor
 						.getGlobalScope()) {
 			throw new NoScopeVisibilityException(ctx.functionName);
@@ -1109,7 +1109,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		Symbol variable = this.scope.resolve(name, PrimitiveType.VARIABLE,
 				false);
 
-		if (ctx.visibility != null && this.scope.getName() == null) {
+		if (ctx.visibility() != null && this.scope.getName() == null) {
 			throw new NoScopeVisibilityException(ctx.varName);
 		}
 

@@ -97,11 +97,11 @@ public class InitializerTest {
 				+ "implements InitMod\n"
 				+ "endstruct\n"
 				
-				+ "struct InitStructTwo extends array\n"
+				+ "public struct InitStructTwo extends array\n"
 				+ "implements InitMod\n"
 				+ "endstruct\n"
 				
-				+ "module InitMod\n"
+				+ "private module InitMod\n"
 				+ "private static method onInit takes nothing returns nothing\n"
 				+ "endmethod\n"
 				+ "endmodule\n"
@@ -119,7 +119,7 @@ public class InitializerTest {
 				+ "endfunction";
 
 		
-		String result = "function struct_s_Foo_InitStruct__onInit takes nothing returns nothing"
+		String result = "function struct_s_InitStruct__onInit takes nothing returns nothing"
 				+ System.lineSeparator()
 				+ System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
@@ -136,7 +136,7 @@ public class InitializerTest {
 				+ "function main takes nothing returns nothing" + System.lineSeparator()
 				+ System.lineSeparator()
 				+ "call Bar__Initialize()" + System.lineSeparator()
-				+ "call struct_s_Foo_InitStruct__onInit()" + System.lineSeparator()
+				+ "call struct_s_InitStruct__onInit()" + System.lineSeparator()
 				+ "call struct_s_Foo_InitStructTwo__onInit()" + System.lineSeparator()
 				+ "endfunction";
 

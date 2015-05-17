@@ -1,7 +1,5 @@
 package com.ruke.vrjassc.vrjassc.visitor;
 
-import org.antlr.v4.runtime.Token;
-
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ClassDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ClassStatementsContext;
@@ -18,6 +16,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ModuleDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VisibilityContext;
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedVariableException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
@@ -49,12 +48,12 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		return this.globalScope;
 	}
 	
-	public Visibility getVisibility(Token visibility) {
-		if (visibility == null) {
+	public Visibility getVisibility(VisibilityContext visibilityContext) {
+		if (visibilityContext == null) {
 			return null;
 		}
 
-		if (visibility.getText().equals("private")) {
+		if (visibilityContext.getText().equals("private")) {
 			return Visibility.PRIVATE;
 		}
 
@@ -64,7 +63,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	@Override
 	public Void visitModuleDefinition(ModuleDefinitionContext ctx) {
 		String name = ctx.moduleName.getText();
-		Visibility visibility = this.getVisibility(null);
+		Visibility visibility = this.getVisibility(ctx.visibility());
 		
 		this.scope = new ModuleSymbol(name, visibility, this.scope, ctx.moduleName);
 		
@@ -83,7 +82,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String name = ctx.methodName.getText();
 		String type = ctx.returnType().getText();
 		boolean isStatic = ctx.STATIC() != null;
-		Visibility visibility = this.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility());
 		
 		this.scope = new MethodSymbol(
 			name,
@@ -105,7 +104,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	@Override
 	public Void visitInterfaceDefinition(InterfaceDefinitionContext ctx) {
 		String name = ctx.interfaceName.getText();
-		Visibility visibility = this.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility());
 		
 		this.scope = new InterfaceSymbol(name, visibility, this.scope, ctx.interfaceName);
 		
@@ -125,7 +124,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String type = ctx.variableType().getText();
 		boolean isConstant = ctx.CONSTANT() != null;
 		boolean isArray = ctx.array != null;
-		Visibility visibility = this.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility());
 
 		new VariableSymbol(name, type, isConstant, isArray, true, visibility,
 				this.scope, ctx.varName);
@@ -175,7 +174,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String type = ctx.variableType().getText();
 		boolean isStatic = ctx.STATIC() != null;
 		boolean isArray = true;
-		Visibility visibility = this.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility());
 
 		if (isStatic) {
 			isArray = ctx.array != null;
@@ -193,7 +192,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		String name = ctx.methodName.getText();
 		String type = ctx.returnType().getText();
 		boolean isStatic = ctx.STATIC() != null;
-		Visibility visibility = this.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility());
 
 		this.scope = new MethodSymbol(name, type, isStatic, false, visibility,
 				this.scope, ctx.methodName);
@@ -229,7 +228,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	public Void visitFunctionDefinition(FunctionDefinitionContext ctx) {
 		String name = ctx.functionName.getText();
 		String type = ctx.returnType().getText();
-		Visibility visibility = this.getVisibility(ctx.visibility);
+		Visibility visibility = this.getVisibility(ctx.visibility());
 		Symbol function = this.scope.resolve(name, PrimitiveType.FUNCTION,
 				false);
 
@@ -252,12 +251,13 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 	@Override
 	public Void visitClassDefinition(ClassDefinitionContext ctx) {
 		String name = ctx.className.getText();
+		Visibility visibility = this.getVisibility(ctx.visibility());
 		boolean isAbstract = ctx.ABSTRACT() != null;
 		
 		this.scope = new ClassSymbol(
 			name,
 			isAbstract,
-			Visibility.PUBLIC,
+			visibility,
 			this.scope,
 			ctx.className
 		);

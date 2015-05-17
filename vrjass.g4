@@ -18,6 +18,7 @@ altInit
 
 variableName: ID|'this';
 variableType: ID|'this'|'thistype';
+visibility: 'private'|'public';
 
 parameter: variableType variableName; 
 
@@ -73,12 +74,12 @@ libraryDefinition:
 	;
 
 methodDefinition:
-	(visibility=('private'|'public'))? ABSTRACT? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
+	(visibility)? ABSTRACT? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
 	 	statements
 	 'endmethod'
 	 ;
 	 
-propertyStatement: (visibility=('private'|'public'))? STATIC? variableType (array='array')? propertyName=ID ('=' value=expression)?;
+propertyStatement: (visibility)? STATIC? variableType (array='array')? propertyName=ID ('=' value=expression)?;
 
 implementModule: 'implement' moduleName=ID EOL;
 
@@ -96,19 +97,19 @@ extendList
 	;
 
 classDefinition:
-	ABSTRACT? 'struct' className=ID ('extends' extendList)? EOL
+	(visibility)? (ABSTRACT)? 'struct' className=ID ('extends' extendList)? EOL
 		classStatements*
 	'endstruct'
 	;
 
 moduleDefinition:
-	'module' moduleName=ID EOL
+	(visibility)? 'module' moduleName=ID EOL
 		classStatements*
 	'endmodule'
 	;
 
 interfaceMethodDefinition
-	: (visibility='public')? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType;
+	: (visibility)? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType;
 
 interfaceStatements
 	:interfaceMethodDefinition
@@ -116,13 +117,13 @@ interfaceStatements
 	;
 	
 interfaceDefinition:
-	(visibility='public')? 'interface' interfaceName=ID EOL
+	(visibility)? 'interface' interfaceName=ID EOL
 		interfaceStatements*
 	'endinterface'
 	;
 
 functionDefinition:
-	 (visibility=('private'|'public'))? 'function' functionName=ID 'takes' parameters 'returns' returnType EOL
+	 (visibility)? 'function' functionName=ID 'takes' parameters 'returns' returnType EOL
 	 	statements
 	 'endfunction'
 	 ;
@@ -186,7 +187,7 @@ setVariableStatement: 'set' varName=expression operator=('=' | '/=' | '*=' | '-=
 localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
 
 globalVariableStatement
-	:CONSTANT? (visibility=('private'|'public'))? variableType (array='array')? varName=ID ('=' value=expression)?
+	:CONSTANT? (visibility)? variableType (array='array')? varName=ID ('=' value=expression)?
 	;
 
 CONSTANT: 'constant';
