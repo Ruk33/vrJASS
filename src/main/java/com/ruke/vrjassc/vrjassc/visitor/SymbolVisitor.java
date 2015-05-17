@@ -14,6 +14,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ModuleDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
@@ -24,6 +25,7 @@ import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.ModuleSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.NativeFunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ParameterSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PrimitiveType;
@@ -57,6 +59,22 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		}
 
 		return Visibility.PUBLIC;
+	}
+	
+	@Override
+	public Void visitModuleDefinition(ModuleDefinitionContext ctx) {
+		String name = ctx.moduleName.getText();
+		Visibility visibility = this.getVisibility(null);
+		
+		this.scope = new ModuleSymbol(name, visibility, this.scope, ctx.moduleName);
+		
+		for (ClassStatementsContext statement : ctx.classStatements()) {
+			this.visit(statement);
+		}
+		
+		this.scope = this.scope.getParent();
+		
+		return null;
 	}
 	
 	@Override

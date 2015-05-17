@@ -36,7 +36,9 @@ public class Compile {
 	}
 
 	public String run(String code) throws CompileException {
-		TextMacro textMacro = new TextMacro(code);
+		TextMacro textMacro;
+		ModulePreprocessor module;
+		
 		ANTLRInputStream is = null;
 		vrjassLexer lexer = null;
 		TokenStream token = null;
@@ -44,7 +46,13 @@ public class Compile {
 		SymbolVisitor symbolVisitor = null;
 		MainVisitor mainVisitor = null;
 
-		code = textMacro.getOutput().replace("\t", "    ");
+		code = code.replace("\t", "    ");
+		
+		textMacro = new TextMacro(code);
+		code = textMacro.getOutput();
+		
+		module = new ModulePreprocessor(code);
+		code = module.getOutput();
 
 		if (this.commonPath != null && this.blizzardPath != null) {
 			Path commonj = Paths.get(this.commonPath);

@@ -54,6 +54,10 @@ public class Symbol {
 		}
 	}
 
+	public HashMap<String, Symbol> getChilds() {
+		return this.childs;
+	}
+	
 	public String getName() {
 		return this.name;
 	}

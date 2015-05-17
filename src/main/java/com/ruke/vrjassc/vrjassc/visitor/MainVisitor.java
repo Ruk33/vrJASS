@@ -27,6 +27,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ImplementModuleContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitializerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
@@ -38,6 +39,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LoopStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MemberContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ModuleDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
@@ -154,6 +156,21 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 	public Prefix getPrefixer() {
 		return this.prefixer;
+	}
+	
+	@Override
+	public String visitModuleDefinition(ModuleDefinitionContext ctx) {
+		return "";
+	}
+	
+	@Override
+	public String visitImplementModule(ImplementModuleContext ctx) {
+		String name = ctx.moduleName.getText();
+		Symbol module = this.scope.resolve(name, PrimitiveType.MODULE, true);
+		
+		this.scope.addChild(module);
+		
+		return "";
 	}
 	
 	@Override

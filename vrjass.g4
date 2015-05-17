@@ -10,6 +10,7 @@ altInit
 	|globalDefinition
 	|libraryDefinition
 	|classDefinition
+	|moduleDefinition
 	|nativeDefinition
 	|typeDefinition
 	|EOL
@@ -54,6 +55,7 @@ libraryStatements
 	|interfaceDefinition
 	|functionDefinition
 	|classDefinition
+	|moduleDefinition
 	|nativeDefinition
 	|typeDefinition
 	|EOL
@@ -77,10 +79,13 @@ methodDefinition:
 	 
 propertyStatement: (visibility=('private'|'public'))? STATIC? variableType propertyName=ID ('=' value=expression)?;
 
+implementModule: 'implements' moduleName=ID EOL;
+
 classStatements
 	:methodDefinition
 	|propertyStatement
 	|interfaceMethodDefinition
+	|implementModule
 	|EOL
 	;
 
@@ -93,6 +98,12 @@ classDefinition:
 	ABSTRACT? 'struct' className=ID ('extends' extendList)? EOL
 		classStatements*
 	'endstruct'
+	;
+
+moduleDefinition:
+	'module' moduleName=ID EOL
+		classStatements*
+	'endmodule'
 	;
 
 interfaceMethodDefinition
