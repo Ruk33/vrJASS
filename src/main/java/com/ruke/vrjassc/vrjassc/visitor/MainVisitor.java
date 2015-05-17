@@ -995,11 +995,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			} else {
 				result += "=" + value;
 			}
-
-			if (!variable.getType().equals(this.expressionType)) {
-				throw new IncorrectVariableTypeException(ctx.propertyName,
-						variable.getType(), this.expressionType);
-			}
 		}
 
 		this.classGlobals.push(result);
