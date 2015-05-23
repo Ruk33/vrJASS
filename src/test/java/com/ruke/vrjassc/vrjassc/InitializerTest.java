@@ -102,7 +102,7 @@ public class InitializerTest {
 				+ "endstruct\n"
 				
 				+ "private module InitMod\n"
-				+ "private static method onInit takes nothing returns nothing\n"
+				+ "public static method onInit takes nothing returns nothing\n"
 				+ "endmethod\n"
 				+ "endmodule\n"
 				
@@ -119,12 +119,12 @@ public class InitializerTest {
 				+ "endfunction";
 
 		
-		String result = "function struct_s_InitStruct__onInit takes nothing returns nothing"
+		String result = "function struct_s_InitStruct_onInit takes nothing returns nothing"
 				+ System.lineSeparator()
 				+ System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
 				
-				+ "function struct_s_Foo__InitStructTwo__onInit takes nothing returns nothing"
+				+ "function struct_s_Foo__InitStructTwo_onInit takes nothing returns nothing"
 				+ System.lineSeparator()
 				+ System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
@@ -136,8 +136,8 @@ public class InitializerTest {
 				+ "function main takes nothing returns nothing" + System.lineSeparator()
 				+ System.lineSeparator()
 				+ "call Bar__Initialize()" + System.lineSeparator()
-				+ "call struct_s_InitStruct__onInit()" + System.lineSeparator()
-				+ "call struct_s_Foo__InitStructTwo__onInit()" + System.lineSeparator()
+				+ "call struct_s_InitStruct_onInit()" + System.lineSeparator()
+				+ "call struct_s_Foo__InitStructTwo_onInit()" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));

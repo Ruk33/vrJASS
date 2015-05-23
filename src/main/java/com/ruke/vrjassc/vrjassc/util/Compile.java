@@ -45,9 +45,7 @@ public class Compile {
 		SymbolVisitor symbolVisitor = null;
 		MainVisitor mainVisitor = null;
 
-		code = code.replace("\t", "    ");
-
-		preprocessor = new Preprocessor(code);
+		preprocessor = new Preprocessor(code.replace("\t", "    "));
 		
 		preprocessor.add(new TextMacroPreprocessor());
 		preprocessor.add(new ModulePreprocessor());
