@@ -96,9 +96,11 @@ public class Symbol {
 	 * @return Itself
 	 */
 	public Symbol addChild(Symbol child) {
-		// prefix and with no prefix
-		this.childs.put(child.getFullName(), child);
-		this.childs.put(child.getName(), child);
+		if (child != null) {
+			// prefix and with no prefix
+			this.childs.put(child.getFullName(), child);
+			this.childs.put(child.getName(), child);
+		}
 
 		return this;
 	}
