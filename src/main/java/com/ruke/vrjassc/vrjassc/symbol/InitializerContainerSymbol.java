@@ -2,19 +2,14 @@ package com.ruke.vrjassc.vrjassc.symbol;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Stack;
-
 import org.antlr.v4.runtime.Token;
 
 public abstract class InitializerContainerSymbol extends Symbol {
 
-	protected Stack<Symbol> initializers;
-	
 	public InitializerContainerSymbol(String name, String type,
 			PrimitiveType primitiveType, Visibility visibility, Symbol parent,
 			Token token) {
 		super(name, type, primitiveType, visibility, parent, token);
-		this.initializers = new Stack<Symbol>();
 	}
 
 	protected Symbol initializer;

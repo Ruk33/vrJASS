@@ -46,7 +46,7 @@ public class ModulePreprocessor implements PreprocessorAction {
 				continue;
 			}
 			
-			code = code.replace(match, match + System.lineSeparator() + body);
+			code = code.replace(match, body);
 		}
 
 		return code;
