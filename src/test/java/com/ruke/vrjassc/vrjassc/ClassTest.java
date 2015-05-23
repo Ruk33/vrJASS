@@ -18,6 +18,38 @@ public class ClassTest {
 	public ExpectedException expectedEx = ExpectedException.none();
 
 	@Test
+	public void privateStruct() {
+		Compile compile = new Compile();
+		String code = "library Foo\n"
+				+ "private struct Bar\n"
+				+ "endstruct\n"
+				+ "endlibrary";
+
+		String result = "globals" + System.lineSeparator()
+				+ "integer array struct_s_Foo__Bar__recycle" + System.lineSeparator()
+				+ "endglobals" + System.lineSeparator()
+				+ "function struct_Foo__Bar__initializeProperties takes integer this returns nothing" + System.lineSeparator()
+				+ System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function struct_s_Foo__Bar__allocate takes nothing returns integer" + System.lineSeparator()
+				+ "local integer instance=struct_s_Foo__Bar__recycle[0]" + System.lineSeparator()
+				+ "if struct_s_Foo__Bar__recycle[instance]!=0 then" + System.lineSeparator()
+				+ "set struct_s_Foo__Bar__recycle[0]=struct_s_Foo__Bar__recycle[instance]" + System.lineSeparator()
+				+ "else" + System.lineSeparator()
+				+ "set struct_s_Foo__Bar__recycle[0]=instance+1" + System.lineSeparator()
+				+ "endif" + System.lineSeparator()
+				+ "call struct_Foo__Bar__initializeProperties(instance)" + System.lineSeparator()
+				+ "return instance" + System.lineSeparator()
+				+ "endfunction" + System.lineSeparator()
+				+ "function struct_Foo__Bar__deallocate takes integer this returns nothing" + System.lineSeparator()
+				+ "set struct_s_Foo__Bar__recycle[this]=struct_s_Foo__Bar__recycle[0]" + System.lineSeparator()
+				+ "set struct_s_Foo__Bar__recycle[0]=this" + System.lineSeparator()
+				+ "endfunction";
+
+		assertEquals(result, compile.run(code));
+	}
+	
+	@Test
 	public void defaultAllocation() {
 		Compile compile = new Compile();
 		String code = "struct Foo\n" + "endstruct";

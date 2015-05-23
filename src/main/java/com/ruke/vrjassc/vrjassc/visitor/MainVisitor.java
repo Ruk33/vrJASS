@@ -163,7 +163,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String name = ctx.moduleName.getText();
 		this.scope = this.scope.resolve(name, PrimitiveType.MODULE, true);
 		
-		//super.visitModuleDefinition(ctx);
 		return "";
 	}
 	
@@ -182,7 +181,6 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.scope.addChild(module);
 		
-		//super.visitImplementModule(ctx);
 		return "";
 	}
 	

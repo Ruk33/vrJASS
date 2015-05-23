@@ -154,17 +154,23 @@ public class Symbol {
 	}
 
 	public boolean hasAccess(Symbol symbol) {
+		if (symbol.getVisibility() == Visibility.PUBLIC) {
+			return true;
+		}
+		
 		if (this == symbol.getParent()) {
 			return true;
 		}
-
-		if (this.getParent() != symbol.getParent()) {
-			if (symbol.getVisibility() == Visibility.PRIVATE) {
-				return false;
-			}
+		
+		if (this.getParent() == symbol.getParent()) {
+			return true;
 		}
-
-		return true;
+		
+		if (this.getParent() == null) {
+			return false;
+		}
+		
+		return this.getParent().hasAccess(symbol);
 	}
 
 	public boolean isTypeCompatible(String type) {
