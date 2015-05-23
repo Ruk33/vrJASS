@@ -97,7 +97,7 @@ public class InitializerTest {
 				+ "implement InitMod\n"
 				+ "endstruct\n"
 				
-				+ "public struct InitStructTwo extends array\n"
+				+ "private struct InitStructTwo extends array\n"
 				+ "implement InitMod\n"
 				+ "endstruct\n"
 				
@@ -124,7 +124,7 @@ public class InitializerTest {
 				+ System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
 				
-				+ "function struct_s_Foo_InitStructTwo__onInit takes nothing returns nothing"
+				+ "function struct_s_Foo__InitStructTwo__onInit takes nothing returns nothing"
 				+ System.lineSeparator()
 				+ System.lineSeparator()
 				+ "endfunction" + System.lineSeparator()
@@ -137,7 +137,7 @@ public class InitializerTest {
 				+ System.lineSeparator()
 				+ "call Bar__Initialize()" + System.lineSeparator()
 				+ "call struct_s_InitStruct__onInit()" + System.lineSeparator()
-				+ "call struct_s_Foo_InitStructTwo__onInit()" + System.lineSeparator()
+				+ "call struct_s_Foo__InitStructTwo__onInit()" + System.lineSeparator()
 				+ "endfunction";
 
 		assertEquals(result, compile.run(code));

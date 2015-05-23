@@ -13,8 +13,8 @@ import de.peeeq.jmpq.JmpqError;
 public class vrjassc {
 
 	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.out.println("You have to pass the path of the map containing vrJASS code");
+		if (args.length != 3) {
+			System.out.println("You have to pass the path to common.j, blizzard.j and the map containing vrJASS code");
 			System.exit(0);
 
 			return;
