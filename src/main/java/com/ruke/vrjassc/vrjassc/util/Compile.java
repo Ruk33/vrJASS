@@ -24,7 +24,12 @@ public class Compile {
 
 	protected String commonPath;
 	protected String blizzardPath;
+	protected String compiled;
 
+	public String getCompiled() {
+		return this.compiled;
+	}
+	
 	public Compile setCommonPath(String path) {
 		this.commonPath = path;
 		return this;
@@ -53,7 +58,7 @@ public class Compile {
 		
 		preprocessor.run();
 		
-		code = preprocessor.getOutput();
+		this.compiled = preprocessor.getOutput();
 		
 		if (this.commonPath != null && this.blizzardPath != null) {
 			Path commonj = Paths.get(this.commonPath);
@@ -89,13 +94,15 @@ public class Compile {
 			symbolVisitor = new SymbolVisitor();
 		}
 
-		is = new ANTLRInputStream(code);
+		is = new ANTLRInputStream(this.compiled);
 		lexer = new vrjassLexer(is);
 		token = new CommonTokenStream(lexer);
 		parser = new vrjassParser(token);
 		mainVisitor = new MainVisitor(parser, symbolVisitor);
 
-		return mainVisitor.getOutput();
+		this.compiled = mainVisitor.getOutput();
+		
+		return this.compiled;
 	}
 
 	public String runFromFile(String pathname) throws CompileException,

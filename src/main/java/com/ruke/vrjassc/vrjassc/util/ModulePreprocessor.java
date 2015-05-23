@@ -9,7 +9,7 @@ public class ModulePreprocessor implements PreprocessorAction {
 	protected HashMap<String, String> modules = new HashMap<String, String>();
 	
 	protected String findModules(String code) {
-		Matcher m = Pattern.compile("(?i)(module *[\\s\\S]*?endmodule)").matcher(code);
+		Matcher m = Pattern.compile("(?i)module[\\s\\S]+?endmodule").matcher(code);
 		
 		String match;
 		String firstLine;
@@ -31,7 +31,7 @@ public class ModulePreprocessor implements PreprocessorAction {
 	}
 	
 	protected String implementModules(String code) {
-		Matcher m = Pattern.compile("(?i)(implement *.+)").matcher(code);
+		Matcher m = Pattern.compile("(?i)implement.+").matcher(code);
 		String match;
 		
 		String name;
@@ -48,7 +48,7 @@ public class ModulePreprocessor implements PreprocessorAction {
 			
 			code = code.replace(match, body);
 		}
-		
+
 		return code;
 	}
 

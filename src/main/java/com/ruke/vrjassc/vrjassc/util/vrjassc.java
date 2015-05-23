@@ -3,8 +3,6 @@ package com.ruke.vrjassc.vrjassc.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 
 import de.peeeq.jmpq.JmpqEditor;
@@ -20,11 +18,10 @@ public class vrjassc {
 			return;
 		}
 
+		Compile compile = new Compile();
 		File war3jcode = null;
 
 		try {
-			Compile compile = new Compile();
-
 			File map = new File(args[2]);
 			JmpqEditor editor = new JmpqEditor(map);
 
@@ -47,18 +44,11 @@ public class vrjassc {
 		} catch (JmpqError je) {
 			new ErrorWindow(je.getMessage(), "", 0);
 		} catch (CompileException ce) {
-			try {
-				new ErrorWindow(
-					ce.getMessage(),
-					String.join(
-						System.lineSeparator(),
-						Files.readAllLines(war3jcode.toPath())
-					),
-					ce.getLine()
-				);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			new ErrorWindow(
+				ce.getMessage(),
+				compile.getCompiled(),
+				ce.getLine()
+			);
 			//System.exit(2);
 		} catch (IOException io) {
 			new ErrorWindow(io.getMessage(), "", 0);

@@ -160,6 +160,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	
 	@Override
 	public String visitModuleDefinition(ModuleDefinitionContext ctx) {
+		String name = ctx.moduleName.getText();
+		this.scope = this.scope.resolve(name, PrimitiveType.MODULE, true);
+		
+		//super.visitModuleDefinition(ctx);
 		return "";
 	}
 	
@@ -178,6 +182,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		
 		this.scope.addChild(module);
 		
+		//super.visitImplementModule(ctx);
 		return "";
 	}
 	
@@ -1014,7 +1019,13 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		this.scope = this.scope.resolve(name, PrimitiveType.FUNCTION, true);
 
-		if (!((MethodSymbol) this.scope).isStatic()) {
+		if (((MethodSymbol) this.scope).isStatic()) {
+			if (name.equals("onInit")) {
+				Symbol initializer = this.scope.getParent().resolve("onInit", null, false);
+				((InitializerContainerSymbol) this.scope.getParent()).setInitializer(initializer);
+				this.initializerHandler.add(this.scope.getParent());
+			}
+		} else {
 			if (params.equals("nothing")) {
 				params = "integer this";
 			} else {
@@ -1075,11 +1086,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		Symbol prevScope = this.scope;
 		this.scope = this.scope.resolve(name, PrimitiveType.CLASS, true);
-		
-		Symbol initializer = this.scope.resolve("onInit", null, false);
-		((InitializerContainerSymbol) this.scope).setInitializer(initializer);
-		this.initializerHandler.add(this.scope);
-		
+				
 		if (ctx.extendList() != null) {
 			this.visit(ctx.extendList());
 			
