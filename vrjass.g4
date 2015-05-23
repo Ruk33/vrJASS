@@ -13,6 +13,8 @@ altInit
 	|moduleDefinition
 	|nativeDefinition
 	|typeDefinition
+	|textmacroDefinition
+	|runTextmacroStatement
 	|EOL
 	;
 
@@ -27,6 +29,19 @@ parameters
 	|'nothing'
 	;
 
+textmacroParams: ID (',' ID)*;
+textmacroBody: init|statements;
+
+textmacroDefinition
+	:'//!' 'textmacro' ID ('takes' textmacroParams)? EOL
+		textmacroBody
+	'//!' 'endtextmacro'
+	;
+
+textmacroArg: ID|STR|INT;
+textmacroArgs: textmacroArg (',' textmacroArg)*;
+runTextmacroStatement: '//!' 'runtextmacro' ID '(' textmacroArgs? ')' EOL;
+
 statement
 	:functionStatement
 	|returnStatement
@@ -35,6 +50,7 @@ statement
 	|ifStatement
 	|loopStatement
 	|exitwhenStatement
+	|runTextmacroStatement
 	|EOL
 	;
 	
@@ -60,6 +76,8 @@ libraryStatements
 	|moduleDefinition
 	|nativeDefinition
 	|typeDefinition
+	|textmacroDefinition
+	|runTextmacroStatement
 	|EOL
 	;
 	
@@ -88,6 +106,8 @@ classStatements
 	|propertyStatement
 	|interfaceMethodDefinition
 	|implementModule
+	|textmacroDefinition
+	|runTextmacroStatement
 	|EOL
 	;
 

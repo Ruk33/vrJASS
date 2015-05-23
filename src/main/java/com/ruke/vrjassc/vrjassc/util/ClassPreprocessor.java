@@ -67,7 +67,8 @@ public class ClassPreprocessor implements PreprocessorAction {
 					match,
 					match.replaceFirst(
 						"\n",
-						this.getInitializePropertiesBody(match)
+						System.lineSeparator()
+						+ this.getInitializePropertiesBody(match)
 						+ System.lineSeparator()
 						+ this.getAllocateBody()
 						+ System.lineSeparator()

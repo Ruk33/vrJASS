@@ -1,105 +1,150 @@
 package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentsTextmacroException;
+import com.ruke.vrjassc.vrjassc.exception.UndefinedTextmacroException;
 
 public class TextMacroPreprocessor implements PreprocessorAction {
-	
-	private class TextMacro {
+
+	private class Macro {
 		private String name;
-		private String code;
-		private HashMap<String, String> variables;
-		
-		public void setName(String name) {
+		private Stack<String> params;
+		private String body;
+
+		public Macro(String name, Stack<String> params, String body) {
 			this.name = name;
+			this.params = params;
+			this.body = body;
 		}
-		
-		public String getName() {
-			return this.name;
+
+		public String getBody() {
+			return this.body;
 		}
-		
-		public void setCode(String code) {
-			this.code = code;
-		}
-		
-		public String getCode() {
-			return this.code;
-		}
-		
-		public void setVariable(String name, String value) {
-			this.variables.put(name, value);
-		}
-		
-		public HashMap<String, String> getVariables() {
-			return this.variables;
-		}
-		
-		public String render() {
-			String output = this.code;
-			
-			for (String variable : this.variables.keySet()) {
-				output = output.replace("$" + variable + "$", this.variables.get(variable));
-			}
-			
-			return output;
+
+		public Stack<String> getParams() {
+			return this.params;
 		}
 	}
 	
-	protected HashMap<String, TextMacro> textmacros = new HashMap<String, TextMacro>();
-	protected TextMacro textmacro;
-	
-	@Override
-	public void setPreprocessor(Preprocessor preprocessor) {
-		// TODO Auto-generated method stub
+	protected HashMap<String, Macro> macros = new HashMap<String, Macro>();
 		
+	public boolean hasTextMacros(String code) {
+		return code.contains("textmacro ");
 	}
 
-	@Override
-	public void recognitionPhase(String line) {
-		if (line.startsWith("endtextmacro")) {
-			this.textmacros.put(this.textmacro.getName(), this.textmacro);
-			this.textmacro = null;
-		} else if (line.startsWith("textmacro")) {
-			this.textmacro = new TextMacro();
-			
-			this.textmacro.setName(line.split(" ")[2]);
-			this.textmacro.setCode("");
-			
-			for (String param : line.split("takes")[1].split(",")) {
-				this.textmacro.setVariable(param, "");
-			}
-			
-			System.out.println(this.textmacro.getVariables().keySet());
-		} else {
-			if (this.textmacro != null) {
-				this.textmacro.setCode(
-					this.textmacro.getCode() + line + System.lineSeparator()
-				);
+	protected Stack<String> getParametersFromText(String text) {
+		Stack<String> result = new Stack<String>();
+
+		if (text.contains("takes")) {
+			String params = text.split("takes")[1];
+
+			for (String param : params.split(",")) {
+				result.push(param.trim());
 			}
 		}
+
+		return result;
 	}
 
-	@Override
-	public String replacePhase(String line) {
+	protected Stack<String> getArgumentsFromText(String text) {
+		Stack<String> result = new Stack<String>();
+		String parenthesis = text.replaceAll("(?i).+\\((.+)\\)", "$1");
+
+		for (String comma : parenthesis.split(",")) {
+			result.push(comma.trim());
+		}
+
+		return result;
+	}
+
+	/**
+	 * Find and register the macros in the hashmap
+	 * Also, remove the macro itself from the output
+	 */
+	protected String findTextMacros(String code) {
+		Matcher m = Pattern.compile("(?i)(\\/\\/\\! *textmacro *[\\S\\s]*?endtextmacro)").matcher(code);
+		String match;
+		
 		String name;
-		Iterator<String> params;
+		Stack<String> params;
+		String body;
 		
-		if (line.startsWith("runtextmacro")) {
-			name = line.replaceAll("(?i)//! runtextmacro (.+) *\\(.+\\)", "$1");
-			this.textmacro = this.textmacros.get(name);
-						
-			if (this.textmacro != null) {
-				params = this.textmacro.getVariables().keySet().iterator();
-				
-				for (String arg : line.replaceAll("(?i).+\\((.+)\\)", "$1").split(",")) {
-					this.textmacro.setVariable(params.next(), arg);
-				}
-			}
+		while (m.find()) {
+			match = m.group();
 			
-			return this.textmacro.render();
+			name = match.split(" ")[2]; // //![0] textmacro[1] name[2]
+			params = new Stack<String>();
+			body = match
+					// remove header
+					.replaceAll(
+						"(?i)\\/\\/\\! *textmacro *.+", ""
+					)
+					// remove footer
+					.replaceAll(
+						"(?i)\\/\\/! *endtextmacro", ""
+					);
+			
+			// first line, split by "takes"
+			for (String param : this.getParametersFromText(match.split("\n")[0])) {
+				params.push(param.trim());
+			}
+
+			this.macros.put(name, new Macro(name, params, body));
+			code = code.replace(match, "");
 		}
 		
-		return line;
+		return code;
+	}
+
+	protected String replaceRunTextMacro(String code) {
+		Matcher m = Pattern.compile("(?i)(\\/\\/\\! *runtextmacro *.+)").matcher(code);
+		
+		String match;
+		
+		String name;
+		Macro macro;
+		Stack<String> args;
+		String body;
+		
+		while (m.find()) {
+			match = m.group();
+			
+			name = match.replaceAll("(?i)//! *runtextmacro *(.+) *\\(.+\\)", "$1");
+			macro = this.macros.get(name);
+
+			if (macro == null) {
+				throw new UndefinedTextmacroException(name);
+			}
+
+			args = this.getArgumentsFromText(match);
+
+			if (args.size() != macro.getParams().size()) {
+				throw new IncorrectArgumentsTextmacroException(name);
+			}
+			
+			body = macro.getBody();
+			
+			for (String param : macro.getParams()) {
+				body = body.replace("$" + param + "$", args.pop());
+			}
+			
+			code = code.replace(match, body);
+		}
+		
+		return code;
+	}
+
+	@Override
+	public String run(String code) {
+		if (!this.hasTextMacros(code)) {
+			return code;
+		}
+		
+		return this.replaceRunTextMacro(this.findTextMacros(code));
 	}
 
 }

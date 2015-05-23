@@ -37,7 +37,6 @@ public class Compile {
 
 	public String run(String code) throws CompileException {
 		Preprocessor preprocessor;
-		TextMacro textMacro;
 		ModulePreprocessor module;
 		
 		ANTLRInputStream is = null;
@@ -48,15 +47,15 @@ public class Compile {
 		MainVisitor mainVisitor = null;
 
 		code = code.replace("\t", "    ");
-		
-		textMacro = new TextMacro(code);
-		code = textMacro.getOutput();
-		
+				
 		module = new ModulePreprocessor(code);
 		code = module.getOutput();
 
 		preprocessor = new Preprocessor(code);
+		
+		preprocessor.add(new TextMacroPreprocessor());
 		preprocessor.add(new ClassPreprocessor());
+		
 		preprocessor.run();
 		
 		code = preprocessor.getOutput();

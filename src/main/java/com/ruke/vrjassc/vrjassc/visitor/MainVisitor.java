@@ -973,7 +973,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 		String variableType = this.visit(ctx.variableType());
 		Symbol variable = this.scope.resolve(variableName, PrimitiveType.VARIABLE, false);
 		String result = variableType;
-
+		
 		if (((VariableSymbol) variable).isArray()) {
 			result += " array ";
 		} else {
