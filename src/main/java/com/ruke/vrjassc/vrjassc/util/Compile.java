@@ -37,7 +37,6 @@ public class Compile {
 
 	public String run(String code) throws CompileException {
 		Preprocessor preprocessor;
-		ModulePreprocessor module;
 		
 		ANTLRInputStream is = null;
 		vrjassLexer lexer = null;
@@ -47,13 +46,11 @@ public class Compile {
 		MainVisitor mainVisitor = null;
 
 		code = code.replace("\t", "    ");
-				
-		module = new ModulePreprocessor(code);
-		code = module.getOutput();
 
 		preprocessor = new Preprocessor(code);
 		
 		preprocessor.add(new TextMacroPreprocessor());
+		preprocessor.add(new ModulePreprocessor());
 		preprocessor.add(new ClassPreprocessor());
 		
 		preprocessor.run();

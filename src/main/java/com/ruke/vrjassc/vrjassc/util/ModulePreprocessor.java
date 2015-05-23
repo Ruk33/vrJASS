@@ -1,66 +1,60 @@
 package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class ModulePreprocessor {
+public class ModulePreprocessor implements PreprocessorAction {
 	
-	protected String output;
-	protected String code;
-	protected HashMap<String, String> modules;
+	protected HashMap<String, String> modules = new HashMap<String, String>();
 	
-	public ModulePreprocessor(String code) {
-		this.output = code;
-		this.code = code;
-		this.modules = new HashMap<String, String>();
+	protected String findModules(String code) {
+		Matcher m = Pattern.compile("(?i)(module *[\\s\\S]*?endmodule)").matcher(code);
 		
-		this.findModules();
-		this.makeOutput();
-	}
-	
-	protected void makeOutput() {
+		String match;
+		String firstLine;
+		
 		String name;
+		String body;
 		
-		for (String line : this.code.split("\n")) {
-			if (line.contains("implement")) {
-				name = line.substring(line.lastIndexOf(" ") + 1);
-				
-				if (!this.modules.containsKey(name)) {
-					continue;
-				}
-				
-				this.output = this.output.replace(
-					line,
-					System.lineSeparator() + this.modules.get(name)
-				);
-			}
+		while (m.find()) {
+			match = m.group();
+			firstLine = match.split("\n")[0];
+			
+			name = firstLine.substring(firstLine.lastIndexOf(" ") + 1);
+			body = match.replace(firstLine, "").replace("endmodule", "");
+			
+			this.modules.put(name, body);
 		}
+		
+		return code;
 	}
 	
-	public String getOutput() {
-		return this.output;
-	}
-	
-	protected void findModules() {
-		boolean inModule = false;
+	protected String implementModules(String code) {
+		Matcher m = Pattern.compile("(?i)(implement *.+)").matcher(code);
+		String match;
 		
-		String name = null;
-		String body = null;
+		String name;
+		String body;
 		
-		for (String line : this.code.split("\n")) {
-			if (line.contains("endmodule")) {
-				this.modules.put(name, body);
-				inModule = false;
-			} else if (line.contains("module")) {
-				name = line.substring(line.lastIndexOf(" ") + 1);
-				body = "";
-				
-				inModule = true;
-			} else {
-				if (inModule) {
-					body += line + System.lineSeparator();
-				}
+		while (m.find()) {
+			match = m.group();
+			name = match.split(" ")[1];
+			body = this.modules.get(name);
+			
+			if (body == null) {
+				continue;
 			}
+			
+			code = code.replace(match, body);
 		}
+		
+		return code;
+	}
+
+	@Override
+	public String run(String code) {
+		return this.implementModules(this.findModules(code));
 	}
 
 }

@@ -20,7 +20,7 @@ public class ModuleTest {
 		Compile compile = new Compile();
 		String code = "library Bar\n"
 				+ "public struct Person extends array\n"
-				+ "implements Foo\n"
+				+ "implement Foo\n"
 				+ "endstruct\n"
 				+ "public module Foo\n"
 				+ "public static method lorem takes nothing returns integer\n"

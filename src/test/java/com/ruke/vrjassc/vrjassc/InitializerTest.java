@@ -66,7 +66,7 @@ public class InitializerTest {
 	public void _module() {
 		Compile compile = new Compile();
 		String code = "struct Foo extends array\n"
-				+ "implements Bar\n"
+				+ "implement Bar\n"
 				+ "endstruct\n"
 				+ "module Bar\n"
 				+ "private static method onInit takes nothing returns nothing\n"
@@ -94,11 +94,11 @@ public class InitializerTest {
 		String code = "library Foo requires Bar\n"
 				
 				+ "struct InitStruct extends array\n"
-				+ "implements InitMod\n"
+				+ "implement InitMod\n"
 				+ "endstruct\n"
 				
 				+ "public struct InitStructTwo extends array\n"
-				+ "implements InitMod\n"
+				+ "implement InitMod\n"
 				+ "endstruct\n"
 				
 				+ "private module InitMod\n"
