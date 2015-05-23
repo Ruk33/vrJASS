@@ -172,6 +172,10 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 			throw new UndefinedModuleException(ctx.moduleName, name);
 		}
 		
+		if (!this.scope.hasAccess(module)) {
+			throw new ElementNoAccessException(ctx.moduleName);
+		}
+		
 		this.scope.addChild(module);
 		
 		return "";

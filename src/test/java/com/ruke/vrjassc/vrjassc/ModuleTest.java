@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.ruke.vrjassc.vrjassc.exception.ElementNoAccessException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedModuleException;
 import com.ruke.vrjassc.vrjassc.util.Compile;
 
@@ -49,6 +50,23 @@ public class ModuleTest {
 
 		expectedEx.expect(UndefinedModuleException.class);
 		expectedEx.expectMessage("2:10 Module <Bar> is not defined");
+
+		compile.run(code);
+	}
+	
+	@Test
+	public void usingPrivateIncorrectly() {
+		Compile compile = new Compile();
+		String code = "library foo\n"
+				+ "private module bar\n"
+				+ "endmodule\n"
+				+ "endlibrary\n"
+				+ "struct lorem extends array\n"
+				+ "implement foo__bar\n"
+				+ "endstruct";
+
+		expectedEx.expect(ElementNoAccessException.class);
+		expectedEx.expectMessage("6:10 No access to element <foo__bar>");
 
 		compile.run(code);
 	}
