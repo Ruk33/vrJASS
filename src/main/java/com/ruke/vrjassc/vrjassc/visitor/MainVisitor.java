@@ -39,7 +39,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LoopStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MemberContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ModuleDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
@@ -157,15 +156,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 	public Prefix getPrefixer() {
 		return this.prefixer;
 	}
-	
-	@Override
-	public String visitModuleDefinition(ModuleDefinitionContext ctx) {
-		String name = ctx.moduleName.getText();
-		this.scope = this.scope.resolve(name, PrimitiveType.MODULE, true);
 		
-		return "";
-	}
-	
 	@Override
 	public String visitImplementModule(ImplementModuleContext ctx) {
 		String name = ctx.moduleName.getText();
@@ -1017,13 +1008,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		this.scope = this.scope.resolve(name, PrimitiveType.FUNCTION, true);
 
-		if (((MethodSymbol) this.scope).isStatic()) {
-			if (name.equals("onInit")) {
-				Symbol initializer = this.scope.getParent().resolve("onInit", null, false);
-				((InitializerContainerSymbol) this.scope.getParent()).setInitializer(initializer);
-				this.initializerHandler.add(this.scope.getParent());
-			}
-		} else {
+		if (!((MethodSymbol) this.scope).isStatic()) {
 			if (params.equals("nothing")) {
 				params = "integer this";
 			} else {
@@ -1084,7 +1069,7 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 
 		Symbol prevScope = this.scope;
 		this.scope = this.scope.resolve(name, PrimitiveType.CLASS, true);
-				
+		
 		if (ctx.extendList() != null) {
 			this.visit(ctx.extendList());
 			
@@ -1103,6 +1088,8 @@ public class MainVisitor extends vrjassBaseVisitor<String> {
 				result.add(visited);
 			}
 		}
+		
+		this.initializerHandler.add(this.scope);
 
 		this.scope = prevScope;
 

@@ -23,7 +23,11 @@ public class MethodSymbol extends FunctionSymbol implements ClassMemberSymbol {
 		this._static = isStatic;
 		this._abstract = isAbstract;
 
-		if (!this.isStatic()) {
+		if (this.isStatic()) {
+			if (this.getName().equals("onInit")) {
+				((InitializerContainerSymbol) this.getParent()).setInitializer(this);
+			}
+		} else {
 			new ParameterSymbol("this", this.getParent().getType(), this, null);
 		}
 	}
