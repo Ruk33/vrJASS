@@ -4,25 +4,23 @@ import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
 
-public class FunctionSymbol extends Symbol {
+public class FunctionSymbol extends ScopeSymbol {
 
 	protected Stack<Symbol> params;
-
-	public FunctionSymbol(String name, String type, Visibility visibility,
-			Symbol parent, Token token) {
-		super(name, type, PrimitiveType.FUNCTION, visibility, parent, token);
+	
+	public FunctionSymbol(String name, Scope scope, Token token) {
+		super(name, scope, token);
 		this.params = new Stack<Symbol>();
 	}
-
-	@Override
-	public Symbol addChild(Symbol child) {
-		if (child instanceof ParameterSymbol) {
-			this.params.push(child);
+	
+	public Symbol defineParam(Symbol param) {
+		if (param != null) {
+			this.params.push(param);
 		}
-
-		return super.addChild(child);
+		
+		return this.define(param);
 	}
-
+	
 	public Stack<Symbol> getParams() {
 		return this.params;
 	}

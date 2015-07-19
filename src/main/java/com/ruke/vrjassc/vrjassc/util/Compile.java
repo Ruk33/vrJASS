@@ -1,14 +1,8 @@
 package com.ruke.vrjassc.vrjassc.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Stack;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -17,7 +11,9 @@ import org.antlr.v4.runtime.TokenStream;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassLexer;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
-import com.ruke.vrjassc.vrjassc.visitor.MainVisitor;
+import com.ruke.vrjassc.vrjassc.symbol.Scope;
+import com.ruke.vrjassc.vrjassc.symbol.VrJassScope;
+import com.ruke.vrjassc.vrjassc.visitor.CompilerVisitor;
 import com.ruke.vrjassc.vrjassc.visitor.SymbolVisitor;
 
 public class Compile {
@@ -41,86 +37,68 @@ public class Compile {
 	}
 
 	public String run(String code) throws CompileException {
-		Preprocessor preprocessor;
-		
 		ANTLRInputStream is = null;
 		vrjassLexer lexer = null;
 		TokenStream token = null;
 		vrjassParser parser = null;
-		SymbolVisitor symbolVisitor = null;
-		MainVisitor mainVisitor = null;
-
-		preprocessor = new Preprocessor(code.replace("\t", "    "));
 		
-		preprocessor.add(new TextMacroPreprocessor());
-		preprocessor.add(new ModulePreprocessor());
-		preprocessor.add(new ClassPreprocessor());
-		
-		preprocessor.run();
-		
-		this.compiled = preprocessor.getOutput();
-		
+		Scope scope = new VrJassScope();
+		SymbolVisitor symbolVisitor = new SymbolVisitor(scope);
+		CompilerVisitor compilerVisitor = new CompilerVisitor(scope);
+				
 		if (this.commonPath != null && this.blizzardPath != null) {
-			Path commonj = Paths.get(this.commonPath);
-			String commonjCode = null;
+			String blizzCode = null;
 
 			try {
-				commonjCode = String.join(System.lineSeparator(), Files.readAllLines(commonj));
+				blizzCode = String.join(
+					System.lineSeparator(),
+					Files.readAllLines(Paths.get(this.commonPath))
+				);
+				
+				blizzCode += System.lineSeparator();
+								
+				blizzCode += String.join(
+					System.lineSeparator(),
+					Files.readAllLines(Paths.get(this.blizzardPath))
+				);
+				
+				blizzCode += System.lineSeparator();
 			} catch (IOException e) {
-				new ErrorWindow("common.j file was not found", "", 0);
+				new ErrorWindow(e.getMessage(), "", 0);
 				e.printStackTrace();
 			}
 
-			Path blizzardj = Paths.get(this.blizzardPath);
-			String blizzardjCode = null;
-
-			try {
-				blizzardjCode = String.join(System.lineSeparator(), Files.readAllLines(blizzardj));
-			} catch (IOException e) {
-				new ErrorWindow("blizzard.j file was not found", "", 0);
-				e.printStackTrace();
-			}
-
-			String commonBlizzardCode = commonjCode + System.lineSeparator() + blizzardjCode;
-
-			is = new ANTLRInputStream(commonBlizzardCode);
+			is = new ANTLRInputStream(blizzCode);
 			lexer = new vrjassLexer(is);
 			token = new CommonTokenStream(lexer);
 			parser = new vrjassParser(token);
-			mainVisitor = new MainVisitor(parser);
-
-			symbolVisitor = mainVisitor.getSymbolVisitor();
-		} else {
-			symbolVisitor = new SymbolVisitor();
+			
+			symbolVisitor.visit(parser.init());
+			parser.reset();
 		}
 
-		is = new ANTLRInputStream(this.compiled);
+		is = new ANTLRInputStream(code.replace("\t", "    ") + System.lineSeparator());
 		lexer = new vrjassLexer(is);
 		token = new CommonTokenStream(lexer);
 		parser = new vrjassParser(token);
-		mainVisitor = new MainVisitor(parser, symbolVisitor);
+		
+		symbolVisitor.visit(parser.init());
+		parser.reset();
 
-		this.compiled = mainVisitor.getOutput();
+		compilerVisitor.visit(parser.init());
+		
+		this.compiled = "";
 		
 		return this.compiled;
 	}
 
-	public String runFromFile(String pathname) throws CompileException,
-			IOException {
-		File file = new File(pathname);
-		Reader reader = new FileReader(file);
-		BufferedReader buf = new BufferedReader(reader);
-		Stack<String> lines = new Stack<String>();
-
-		while (lines.push(buf.readLine()) != null) {
-		}
-
-		lines.pop(); // last line is null
-
-		reader.close();
-		buf.close();
-
-		return this.run(String.join(System.lineSeparator(), lines));
+	public String runFromFile(String path) throws IOException {
+		return this.run(
+			String.join(
+				System.lineSeparator(),
+				Files.readAllLines(Paths.get(path))
+			)
+		);
 	}
 
 }

@@ -1,126 +1,110 @@
 package com.ruke.vrjassc.vrjassc;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import com.ruke.vrjassc.vrjassc.util.Compile;
+import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
+import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
 
-public class LibraryTest {
-
-	@Rule
-	public ExpectedException expectedEx = ExpectedException.none();
+public class LibraryTest extends TestHelper {
 
 	@Test
-	public void correct() {
-		Compile compile = new Compile();
-		String code = "library foo\n"
-				+ "function bar takes nothing returns nothing\n"
-				+ "endfunction\n"
-				+ "private function nope takes nothing returns nothing\n"
-				+ "endfunction\n"
-				+ "public function yep takes nothing returns nothing\n"
-				+ "endfunction\n"
-				+ "endlibrary";
-
-		String result = "function bar takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction" + System.lineSeparator()
-				+ "function foo__nope takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction" + System.lineSeparator()
-				+ "function foo_yep takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction";
-
-		assertEquals(result, compile.run(code));
-	}
-
-	@Test
-	public void noCollisionPublic() {
-		Compile compile = new Compile();
-		String code = "library foo\n"
-				+ "public function yep takes nothing returns nothing\n"
-				+ "endfunction\n"
+	public void callPrivateFunctionExternally() {
+		this.expectedEx.expect(NoAccessException.class);
+		this.expectedEx.expectMessage("7:9 Element <lorem> does not have access to element <lorem>");
+		this.run("library foo\n"
+					+ "private function lorem takes nothing returns nothing\n"
+					+ "endfunction\n"
 				+ "endlibrary\n"
 				+ "library bar\n"
-				+ "public function yep takes nothing returns nothing\n"
-				+ "endfunction\n"
-				+ "endlibrary";
-
-		String result = "function foo_yep takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction" + System.lineSeparator()
-				+ "function bar_yep takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction";
-
-		assertEquals(result, compile.run(code));
+					+ "private function lorem takes nothing returns nothing\n"
+						+ "call foo.lorem()\n"
+					+ "endfunction\n"
+				+ "endlibrary");
 	}
-
+	
 	@Test
-	public void noCollisionPrivate() {
-		Compile compile = new Compile();
-		String code = "library foo\n"
-				+ "private function yep takes nothing returns nothing\n"
-				+ "endfunction\n"
+	public void callPublicFunctionExternally() {
+		this.expectedEx.none();
+		this.run("library foo\n"
+					+ "public function lorem takes nothing returns nothing\n"
+					+ "endfunction\n"
+					+ "public function bar takes nothing returns nothing\n"
+					+ "endfunction\n"
+					+ "public function e takes nothing returns nothing\n"
+					+ "endfunction\n"
 				+ "endlibrary\n"
 				+ "library bar\n"
-				+ "private function yep takes nothing returns nothing\n"
-				+ "endfunction\n"
-				+ "endlibrary";
-
-		String result = "function foo__yep takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction" + System.lineSeparator()
-				+ "function bar__yep takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction";
-
-		assertEquals(result, compile.run(code));
+					+ "private function lorem takes nothing returns nothing\n"
+						+ "call foo.lorem()\n"
+						+ "call foo.bar()\n"
+						+ "call foo.e()\n"
+					+ "endfunction\n"
+				+ "endlibrary");
 	}
-
+	
 	@Test
-	public void requires() {
-		Compile compile = new Compile();
-		String code = "library foo requires bar, other\n" + "endlibrary\n"
-				+ "library bar\n" + "endlibrary\n" + "library other\n"
-				+ "endlibrary";
-
-		assertEquals("", compile.run(code));
-	}
-
-	@Test
-	public void functionSort() {
-		Compile compile = new Compile();
-		String code = "library lorem requires foo\n"
-				+ "public function ipsum takes nothing returns nothing\n"
-				+ "call foo_bar()\n"
-				+ "endfunction\n"
+	public void functionsArePrivateByDefault() {
+		this.expectedEx.expect(NoAccessException.class);
+		this.expectedEx.expectMessage("7:9 Element <ipsum> does not have access to element <lorem>");
+		this.run("library foo\n"
+					+ "function lorem takes nothing returns nothing\n"
+					+ "endfunction\n"
 				+ "endlibrary\n"
-				+ "library foo\n"
-				+ "public function bar takes nothing returns nothing\n"
-				+ "endfunction\n"
-				+ "endlibrary";
-
-		String result = "function foo_bar takes nothing returns nothing"
-				+ System.lineSeparator()
-				+ System.lineSeparator()
-				+ "endfunction" + System.lineSeparator()
-				+ "function lorem_ipsum takes nothing returns nothing" + System.lineSeparator()
-				+ "call foo_bar()" + System.lineSeparator()
-				+ "endfunction";
-
-		assertEquals(result, compile.run(code));
+				+ "library bar\n"
+					+ "private function ipsum takes nothing returns nothing\n"
+						+ "call foo.lorem()\n"
+					+ "endfunction\n"
+				+ "endlibrary");
+	}
+	
+	@Test
+	public void accessingPrivateGlobal() {
+		this.expectedEx.expect(NoAccessException.class);
+		this.expectedEx.expectMessage("8:20 Element <ipsum> does not have access to element <pi>");
+		this.run("library foo\n"
+					+ "globals\n"
+						+ "private real pi = 3.14\n"
+					+ "endglobals\n"
+				+ "endlibrary\n"
+				+ "library bar\n"
+					+ "private function ipsum takes nothing returns nothing\n"
+						+ "local real pi = foo.pi\n"
+					+ "endfunction\n"
+				+ "endlibrary");
+	}
+	
+	@Test
+	public void accessingPublicGlobal() {
+		this.expectedEx.none();
+		this.run("library foo\n"
+					+ "globals\n"
+						+ "public real pi = 3.14\n"
+					+ "endglobals\n"
+				+ "endlibrary\n"
+				+ "library bar\n"
+					+ "private function ipsum takes nothing returns nothing\n"
+						+ "local real pi = foo.pi\n"
+						+ "set foo.pi = pi*pi\n"
+					+ "endfunction\n"
+				+ "endlibrary");
+	}
+	
+	/**
+	 * I knnow, some languages allow it, actually jass does and local always wins
+	 * But for some people this tend to confuse so I decided not to support it
+	 */
+	@Test
+	public void dontAllowLocalAndGlobalVariablesShareName() {
+		this.expectedEx.expect(AlreadyDefinedException.class);
+		this.expectedEx.expectMessage("6:14 Element <pi> is already defined on 3:12");
+		this.run("library foo\n"
+					+ "globals\n"
+						+ "public real pi\n"
+					+ "endglobals\n"
+					+ "function bar takes nothing returns nothing\n"
+						+ "local integer pi\n"
+					+ "endfunction\n"
+				+ "endlibrary");
 	}
 
 }

@@ -4,178 +4,79 @@ import java.util.HashMap;
 
 import org.antlr.v4.runtime.Token;
 
-import com.ruke.vrjassc.vrjassc.util.TypeCompatibleChecker;
-
 public class Symbol {
 
-	public static final String PRIVATE_SEPARATOR = "__";
-
-	public static final String PUBLIC_SEPARATOR = "_";
-
+	/**
+	 * 
+	 */
 	protected String name;
 
 	/**
 	 * For variables, its the type (unit, real, integer, etc.) For functions,
 	 * its the return type
 	 */
-	protected String type;
-
-	protected PrimitiveType primitiveType;
-
-	protected Visibility visibility;
-
-	protected HashMap<String, Symbol> childs;
+	protected Type type;
 
 	/**
-	 * Parent of the symbol (for example, a library may be the parent of a
-	 * function)
-	 *
-	 * Can be null
-	 *
-	 * If a parent is passed to the constructor, the parent will automatically
-	 * call to addChild
+	 * 
 	 */
-	protected Symbol parent;
+	protected HashMap<Modifier, Boolean> modifiers;
 
+	/**
+	 * 
+	 */
+	protected Scope scope;
+	
+	/**
+	 * Where it is being defined
+	 */
 	protected Token token;
 
-	public Symbol(String name, String type, PrimitiveType primitiveType,
-			Visibility visibility, Symbol parent, Token token) {
+	public Symbol(String name, Scope scope, Token token) {
 		this.name = name;
-		this.type = type;
-		this.primitiveType = primitiveType;
-		this.visibility = visibility;
-		this.childs = new HashMap<String, Symbol>();
-		this.parent = parent;
+		this.modifiers = new HashMap<Modifier, Boolean>();
+		this.scope = scope;
 		this.token = token;
-
-		if (this.parent != null) {
-			this.parent.addChild(this);
-		}
-	}
-
-	public HashMap<String, Symbol> getChilds() {
-		return this.childs;
 	}
 	
 	public String getName() {
 		return this.name;
 	}
 
-	public String getFullName() {
-		String name = this.getName();
-
-		if (this.getParent() != null) {
-			if (this.getParent().getName() != null) {
-				if (this.getVisibility() == Visibility.PRIVATE) {
-					name = this.getParent().getFullName() + PRIVATE_SEPARATOR + name;
-				} else if (this.getVisibility() == Visibility.PUBLIC) {
-					name = this.getParent().getFullName() + PUBLIC_SEPARATOR + name;
-				}
-			}
-		}
-
-		return name;
-	}
-
-	public String getType() {
-		return this.type;
-	}
-
-	public PrimitiveType getPrimitiveType() {
-		return this.primitiveType;
-	}
-
-	public Visibility getVisibility() {
-		return this.visibility;
-	}
-
-	/**
-	 *
-	 * @param child
-	 * @return Itself
-	 */
-	public Symbol addChild(Symbol child) {
-		if (child != null) {
-			// prefix and with no prefix
-			this.childs.put(child.getFullName(), child);
-			this.childs.put(child.getName(), child);
-		}
-
+	public Symbol setType(Type type) {
+		this.type = type;
 		return this;
 	}
+	
+	public Type getType() {
+		return this.type;
+	}
+	
+	public Symbol setModifier(Modifier modifier, boolean value) {
+		this.modifiers.put(modifier, value);
+		return this;
+	}
+	
+	public boolean hasModifier(Modifier whichOne) {
+		return this.modifiers.getOrDefault(whichOne, false);
+	}
+	
+	public Scope getParentScope() {
+		return this.scope;
+	}
 
 	/**
-	 * Find a symbol and get it
-	 *
-	 * @param name
-	 * @param primitiveType
-	 * @param backwards
-	 *            true to look even on parents
+	 * 
+	 * @param type
 	 * @return
 	 */
-	public Symbol resolve(String name, PrimitiveType primitiveType,
-			boolean backwards) {
-		Symbol result = this.childs.get(name);
-
-		if (result == null) {
-			for (Symbol child : this.childs.values()) {
-				result = child.resolve(name, primitiveType, false);
-
-				if (result != null) {
-					break;
-				}
-			}
-		}
-		
-		if (result == null && backwards) {
-			if (this.parent != null) {
-				result = this.parent.resolve(name, primitiveType, true);
-			}
-		}
-		
-		if (result != null && result.getVisibility() == Visibility.LOCAL) {
-			if (result.getParent() != this) {
-				result = null;
-			}
-		}
-
-		return result;
+	public boolean isTypeCompatible(Symbol symbol) {
+		if (this.getType() == null || symbol.getType() == null) return false;
+		return this.getType().isTypeCompatible(symbol);
 	}
 
-	public Symbol getParent() {
-		return this.parent;
+	public Token getToken() {
+		return this.token;
 	}
 
-	public int getLine() {
-		return this.token.getLine();
-	}
-
-	public int getCharPositionInLine() {
-		return this.token.getCharPositionInLine();
-	}
-
-	public boolean hasAccess(Symbol symbol) {
-		if (symbol.getVisibility() == Visibility.PUBLIC) {
-			return true;
-		}
-		
-		if (this == symbol.getParent()) {
-			return true;
-		}
-		
-		if (this.getParent() == symbol.getParent()) {
-			return true;
-		}
-		
-		if (this.getParent() == null) {
-			return false;
-		}
-		
-		return this.getParent().hasAccess(symbol);
-	}
-
-	public boolean isTypeCompatible(String type) {
-		return TypeCompatibleChecker.isCompatible(this.getType(), type);
-	}
 }

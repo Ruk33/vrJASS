@@ -1,226 +1,299 @@
 grammar vrjass;
 
-// Rule where begin
-// Final EOF prevent a rare but known bug of Antlr4, dont remove it
-init: altInit+ EOF;
+init: topDeclaration* EOF;
 
-altInit
-	:functionDefinition
-	|interfaceDefinition
+topDeclaration:
+	NL
 	|globalDefinition
-	|libraryDefinition
-	|classDefinition
-	|moduleDefinition
-	|nativeDefinition
-	|typeDefinition
-	|textmacroDefinition
-	|runTextmacroStatement
-	|EOL
-	;
-
-variableName: ID|'this';
-variableType: ID|'this'|'thistype';
-visibility: 'private'|'public';
-
-parameter: variableType variableName; 
-
-parameters
-	:(parameter (',' parameter)*)
-	|'nothing'
-	;
-
-textmacroParams: ID (',' ID)*;
-textmacroBody: init|statements;
-
-textmacroDefinition
-	:'//!' 'textmacro' ID ('takes' textmacroParams)? EOL
-		textmacroBody
-	'//!' 'endtextmacro'
-	;
-
-textmacroArg: ID|STR|INT;
-textmacroArgs: textmacroArg (',' textmacroArg)*;
-runTextmacroStatement: '//!' 'runtextmacro' ID '(' textmacroArgs? ')' EOL;
-
-statement
-	:functionStatement
-	|returnStatement
-	|setVariableStatement
-	|localVariableStatement
-	|ifStatement
-	|loopStatement
-	|exitwhenStatement
-	|runTextmacroStatement
-	|EOL
-	;
-	
-statements: statement*;
-
-returnType: variableType|'nothing';
-
-globals
-	:globalVariableStatement
-	|EOL;
-
-globalDefinition:
-	'globals' EOL
-		globals*
-	'endglobals'
-	;
-
-libraryStatements
-	:globalDefinition
-	|interfaceDefinition
 	|functionDefinition
-	|classDefinition
-	|moduleDefinition
 	|nativeDefinition
 	|typeDefinition
-	|textmacroDefinition
-	|runTextmacroStatement
-	|EOL
-	;
-	
-requirements: 'requires' ID (',' ID)*;
-
-initializer: 'initializer' funcName=ID;
-
-libraryDefinition:
-	'library' libraryName=ID (initializer)? (requirements)? EOL
-		libraryStatements*
-	'endlibrary'
+	|structDefinition
+	|interfaceDefinition
+	|libraryDefinition
 	;
 
-methodDefinition:
-	(visibility)? ABSTRACT? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType EOL
-	 	statements
-	 'endmethod'
-	 ;
-	 
-propertyStatement: (visibility)? STATIC? variableType (array='array')? propertyName=ID ('=' value=expression)?;
-
-implementModule: 'implement' moduleName=ID EOL;
-
-classStatements
-	:methodDefinition
-	|propertyStatement
-	|interfaceMethodDefinition
-	|implementModule
-	|textmacroDefinition
-	|runTextmacroStatement
-	|EOL
+expression:
+	left=expression DIV right=expression #Div
+	|left=expression TIMES right=expression #Mult
+	|left=expression MINUS right=expression #Minus
+	|left=expression PLUS right=expression #Plus
+	|left=expression operator=(EQEQ | NOT_EQ | GREATER | GREATER_EQ | LESS | LESS_EQ) right=expression #Comparison
+	|left=expression operator=(OR | AND) right=expression #Logical
+	|INT #Integer
+	|REAL #Real
+	|STRING #String
+	|MINUS expression #Negative
+	|NOT expression #Not
+	|(TRUE | FALSE) #Boolean	
+	|NULL #Null
+	|FUNCTION expression #Code
+	|THIS #This
+	//|THISTYPE #Thistype
+	//|SUPER #Super
+	|functionExpression #Function
+	|memberExpression #Member
+	|variableExpression #Variable
+	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
 	;
 
-extendList
-	:(ID (',' ID)*)
-	|'array'
-	;
+superThistypeThis: SUPER | THISTYPE | THIS; 
 
-classDefinition:
-	(visibility)? (ABSTRACT)? 'struct' className=ID ('extends' extendList)? EOL
-		classStatements*
-	'endstruct'
-	;
+functionExpression: validName PAREN_LEFT arguments? PAREN_RIGHT;
 
-moduleDefinition:
-	(visibility)? 'module' moduleName=ID EOL
-		classStatements*
-	'endmodule'
-	;
+variableExpression: validName (BRACKET_LEFT index=integerExpression BRACKET_RIGHT)?;
 
-interfaceMethodDefinition
-	: (visibility)? STATIC? 'method' methodName=ID 'takes' parameters 'returns' returnType;
+functionOrVariable: functionExpression | variableExpression;
 
-interfaceStatements
-	:interfaceMethodDefinition
-	|EOL
-	;
-	
-interfaceDefinition:
-	(visibility)? 'interface' interfaceName=ID EOL
-		interfaceStatements*
-	'endinterface'
-	;
+primaryChainExpression: left=superThistypeThis (DOT functionOrVariable)+;
 
-functionDefinition:
-	 (visibility)? 'function' functionName=ID 'takes' parameters 'returns' returnType EOL
-	 	statements
-	 'endfunction'
-	 ;
+chainExpression: functionOrVariable (DOT functionOrVariable)+;
 
-typeDefinition:
-	'type' typeName=ID 'extends' extendName=ID
-	;
+memberExpression: primaryChainExpression | chainExpression;
 
-nativeDefinition:
-	CONSTANT? 'native' functionName=ID 'takes' parameters 'returns' returnType
-	;
+integerExpression: expression;
 
 booleanExpression: expression;
 
-expression
-	:left=expression '/' right=expression #Div
-	|left=expression '*' right=expression #Mult
-	|left=expression '-' right=expression #Minus	
-	|left=expression operator=('==' | '!=' | '>' | '>=' | '<' | '<=') right=expression #Comparison
-	|left=expression operator=('or'|'and') right=expression #Logical
-	|INT #Integer
-	|REAL #Real
-	|STR #String
-	|'-' expression #Negative
-	|'not' expression #Not
-	|('true'|'false') #Boolean
-	|'null' #Null
-	|'function' expression #Code
-	|left=expression '.' right=expression #Member
-	|'this' #This
-	|'thistype' #Thistype
-	|'super' #Super
-	|functionExpression #Function
-	|varName=ID ('[' index=expression ']')? #Variable	
-	|'(' expression ')' #Parenthesis
-	|left=expression '+' right=expression #Plus
+statements: statement*;
+
+elseIfStatement: 
+	ELSEIF booleanExpression THEN NL statements;
+	
+elseIfStatements: elseIfStatement*;
+
+elseStatement: 
+	(ELSE NL statements)?;
+
+ifStatement: 
+	IF booleanExpression THEN NL 
+		statements
+		elseIfStatements
+		elseStatement
+	ENDIF NL
+	;
+
+loopStatement:
+	LOOP NL
+		statements
+	ENDLOOP NL
+	;
+
+publicPrivate: PUBLIC | PRIVATE;
+
+globalVariableStatement: 
+	publicPrivate? CONSTANT? validType ARRAY? validName (EQ value=expression)? NL;
+
+localVariableStatement: 
+	LOCAL validType ARRAY? validName (EQ value=expression)? NL;
+
+setVariableStatement: 
+	SET name=expression (EQ value=expression)? NL;
+
+callMethodStatement: CALL memberExpression NL;
+
+callFunctionStatement: CALL functionExpression NL;
+
+exitwhenStatement: 
+	EXITWHEN booleanExpression NL;
+
+returnStatement: 
+	RETURN (expression)? NL;
+
+statement:
+	NL
+	|localVariableStatement
+	|setVariableStatement
+	|callFunctionStatement
+	|callMethodStatement
+	|exitwhenStatement
+	|loopStatement
+	|ifStatement
+	|returnStatement
+	;
+
+globalStatements: 
+	(NL | globalVariableStatement)*;
+
+globalDefinition:
+	GLOBALS NL
+		globalStatements
+	ENDGLOBALS NL
+	;
+
+typeDefinition: 
+	TYPE validName (EXTENDS validType)? NL;
+
+nativeDefinition: 
+	CONSTANT? NATIVE validName TAKES parameters RETURNS returnType NL;
+
+propertyStatement:
+	visibility STATIC? validType ARRAY? validName (EQ value=expression)? NL;
+
+structStatement:
+	NL
+	|propertyStatement
+	|methodDefinition
 	;
 	
-argument: expression;
+structStatements: structStatement*;
 
-arguments: argument (',' argument)*; 
+validImplementName: validName;
 
-exitwhenStatement: 'exitwhen' booleanExpression;
+implementsList: validImplementName (COMMA validImplementName)*;
 
-loopStatement: 'loop' EOL statements 'endloop';
+extendValidName: validName;
 
-elseIfStatement: 'elseif' booleanExpression 'then' EOL statements;
-
-elseStatement: 'else' EOL statements;
-
-ifStatement: 'if' booleanExpression 'then' EOL statements (elseIfStatement)* (elseStatement)? 'endif';
-
-functionStatement: 'call' func=expression;
-
-functionExpression: functionName=ID '(' arguments? ')';
-
-returnStatement: 'return' expression?;
-
-setVariableStatement: 'set' varName=expression operator=('=' | '/=' | '*=' | '-=' | '+=') value=expression;
-
-localVariableStatement: 'local' variableType (array='array')? varName=ID ('=' value=expression)?;
-
-globalVariableStatement
-	:CONSTANT? (visibility)? variableType (array='array')? varName=ID ('=' value=expression)?
+structDefinition:
+	visibility STRUCT name=validName (EXTENDS extendValidName)? (IMPLEMENTS implementsList)? NL
+		structStatements
+	ENDSTRUCT NL
 	;
 
+methodDefinition:
+	visibility STATIC? METHOD validName TAKES parameters RETURNS returnType NL
+		statements
+	ENDMETHOD NL
+	;
+
+interfaceStatement:
+	visibility STATIC? METHOD validName TAKES parameters RETURNS returnType NL;
+
+interfaceStatements: interfaceStatement*;
+
+interfaceDefinition:
+	visibility INTERFACE validName NL
+		interfaceStatements
+	ENDINTERFACE NL
+	;
+
+functionDefinition: 
+	visibility CONSTANT? FUNCTION validName TAKES parameters RETURNS returnType NL
+		statements
+	ENDFUNCTION NL
+	;
+
+libraryInitializer: 
+	(INITIALIZER validName)?;
+
+libraryRequirementsList: 
+	validName (COMMA validName)*;
+
+libraryRequirements: 
+	(REQUIRES libraryRequirementsList)?;
+
+libraryStatement:
+	NL
+	|functionDefinition
+	|structDefinition
+	|interfaceDefinition
+	|globalDefinition
+	;
+	
+libraryStatements: libraryStatement*;
+
+libraryDefinition:
+	LIBRARY validName libraryInitializer libraryRequirements NL
+		libraryStatements
+	ENDLIBRARY NL
+	;
+
+returnType: 
+	validType | NOTHING;
+
+parameter: 
+	validType validName;
+
+parameters: 
+	(
+		parameter (COMMA parameter)*
+	)
+	|NOTHING
+	;
+	
+arguments: 
+	expression (COMMA expression)*;
+
+validType: ID;
+
+validName: ID;
+
+visibility: (PRIVATE | PUBLIC)?;
+
+LIBRARY: 'library';
+ENDLIBRARY: 'endlibrary';
+INITIALIZER: 'initializer';
+REQUIRES: 'requires';
+THIS: 'this';
+THISTYPE: 'thistype';
+SUPER: 'super';
+DOT: '.';
+PRIVATE: 'private';
+PUBLIC: 'public';
+AND: 'and';
+OR: 'or';
+NULL: 'null';
+NOT: 'not';
+ARRAY: 'array';
+LOCAL: 'local';
+SET: 'set';
+EXITWHEN: 'exitwhen';
+CALL: 'call';
+GLOBALS: 'globals';
+ENDGLOBALS: 'endglobals';
+EXTENDS: 'extends';
+IMPLEMENTS: 'implements';
+TYPE: 'type';
+NATIVE: 'native';
 CONSTANT: 'constant';
 STATIC: 'static';
-ABSTRACT: 'stub';
+STRUCT: 'struct';
+ENDSTRUCT: 'endstruct';
+METHOD: 'method';
+ENDMETHOD: 'endmethod';
+INTERFACE: 'interface';
+ENDINTERFACE: 'endinterface';
+FUNCTION: 'function';
+ENDFUNCTION: 'endfunction';
+TAKES: 'takes';
+RETURNS: 'returns';
+RETURN: 'return';
+IF: 'if';
+THEN: 'then';
+ELSEIF: 'elseif';
+ELSE: 'else';
+ENDIF: 'endif';
+LOOP: 'loop';
+ENDLOOP: 'endloop';
+TRUE: 'true';
+FALSE: 'false';
+NOTHING: 'nothing';
+PAREN_LEFT: '(';
+PAREN_RIGHT: ')';
+BRACKET_LEFT: '[';
+BRACKET_RIGHT: ']';
+COMMA: ',';
+DIV: '/';
+TIMES: '*';
+MINUS: '-';
+PLUS: '+';
+EQ: '=';
+EQEQ: '==';
+NOT_EQ: '!=';
+LESS: '<';
+LESS_EQ: '<=';
+GREATER: '>';
+GREATER_EQ: '>=';
 
-ID: [a-zA-Z][a-zA-Z0-9_]*;
+NL: NEWLINE+;
+fragment NEWLINE: [\r\n];
+
+ID: [a-zA-Z_][a-zA-Z0-9_]*;
+
+STRING: '"' .*? '"';
 REAL: [0-9]+ '.' [0-9]* | '.'[0-9]+;
 INT: [0-9]+ | '0x' [0-9a-fA-F]+ | '\'' . . . . '\'' | '\'' . '\'';
-STR: '"' .*? '"';
 
-EOL: [\r\n]+;
-
+WS : [ \t]+ -> skip;
 COMMENT : '/*' .*? '*/' -> skip;
-WS: [\t ]+ -> skip;
-LINE_COMMENT: '//' .*? [\r\n] -> skip;
+LINE_COMMENT: '//' ~[\r\n]* -> skip;

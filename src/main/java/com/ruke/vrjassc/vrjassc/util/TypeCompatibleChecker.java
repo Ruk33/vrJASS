@@ -27,8 +27,7 @@ public class TypeCompatibleChecker {
 			}
 		}
 
-		if (VariableTypeDetector.isHandle(a)
-				&& VariableTypeDetector.isHandle(b)) {
+		if (VariableTypeDetector.isHandle(a) && VariableTypeDetector.isHandle(b)) {
 			return true;
 		}
 
