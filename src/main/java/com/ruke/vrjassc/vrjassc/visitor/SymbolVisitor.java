@@ -148,10 +148,12 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 				
 		Symbol variable = new GlobalVariableSymbol(name, scope, token);
 		
-		if (ctx.publicPrivate().PUBLIC() != null) {
-			variable.setModifier(Modifier.PUBLIC, true);
-		} else {
-			variable.setModifier(Modifier.PRIVATE, true);
+		if (ctx.publicPrivate() != null) {
+			if (ctx.publicPrivate().PUBLIC() != null) {
+				variable.setModifier(Modifier.PUBLIC, true);
+			} else {
+				variable.setModifier(Modifier.PRIVATE, true);
+			}
 		}
 		
 		//variable.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);

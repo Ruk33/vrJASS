@@ -7,9 +7,27 @@ import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
+import com.ruke.vrjassc.vrjassc.exception.StaticTypeException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 
 public class ClassTest extends TestHelper {
+	
+	@Test
+	public void usingStatic() {
+		this.expectedEx.expect(StaticTypeException.class);
+		this.expectedEx.expectMessage("1:22 Element <s_bar> is static");
+		this.run("globals\n"
+				+ "integer bar\n"
+				+ "endglobals\n"
+				+ "struct foo\n"
+					+ "//integer bar\n"
+					+ "static integer s_bar\n"
+					+ "method x takes nothing returns nothing\n"
+						+ "set this.bar = 2\n"
+						+ "set this.s_bar = 2\n"
+					+ "endmethod\n"
+				+ "endstruct");
+	}
 	
 	@Test
 	public void userDefinedType() {
