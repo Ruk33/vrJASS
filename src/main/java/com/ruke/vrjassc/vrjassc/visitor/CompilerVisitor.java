@@ -315,6 +315,7 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 	public Symbol visitChainExpression(ChainExpressionContext ctx) {
 		Scope scope = this.getScope();
 		
+		Symbol prevSymbol = null;
 		Symbol symbol = null;
 		int pushed = 0;
 		
@@ -322,16 +323,22 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 			symbol = this.visit(expr);
 			
 			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {
-				if (symbol.getType() instanceof Scope) {
+				if (symbol.getType() instanceof Scope) { // class
 					this.scopes.push((Scope) symbol.getType()).toggleEnclosingScope();
 					pushed++;
-				} else if (symbol instanceof Scope) {
+				} else if (symbol instanceof Scope) { // library
 					this.scopes.push((Scope) symbol).toggleEnclosingScope();
 					pushed++;
+				} else if (prevSymbol != null) {
+					if (!this.validator.mustBeValidMember(prevSymbol, symbol, expr.getStart())) {
+						throw this.validator.getException();
+					}
 				}
 			} else {
 				throw this.validator.getException();
 			}
+			
+			prevSymbol = symbol;
 		}
 		
 		// if we pushed scopes, come back to the original

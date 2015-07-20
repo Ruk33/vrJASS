@@ -12,10 +12,12 @@ import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
+import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
@@ -165,6 +167,24 @@ public class Validator {
 		if (symbol instanceof InterfaceSymbol == false) {
 			this.exception = new InvalidImplementTypeException(token, symbol);
 			return false;
+		}
+		
+		return true;
+	}
+
+	public boolean mustBeValidMember(Symbol prevSymbol, Symbol member, Token token) {
+		this.validated = member;
+		
+		if (member.hasModifier(Modifier.STATIC)) {
+			if (prevSymbol instanceof ClassSymbol == false) {
+				this.exception = new StaticNonStaticTypeException(token, member);
+				return false;
+			}
+		} else {
+			if (prevSymbol instanceof ClassSymbol) {
+				this.exception = new StaticNonStaticTypeException(token, member);
+				return false;
+			}
 		}
 		
 		return true;
