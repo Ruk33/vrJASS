@@ -4,6 +4,11 @@ public interface Scope {
 
 	public String getName();
 	
+	/**
+	 * Toggle the enclosing scope by nulling it or restoring it to the previous one
+	 * This is used in chain expressions so we dont look on globals
+	 * @return Itself
+	 */
 	public Scope toggleEnclosingScope();
 	
 	/**
