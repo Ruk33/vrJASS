@@ -9,6 +9,7 @@ public class ScopeSymbol extends Symbol implements Scope {
 
 	protected Map<String, Symbol> childs;
 	protected Map<String, Symbol> childsAliases;
+	protected Scope enclosingScope;
 	
 	public ScopeSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
@@ -93,6 +94,19 @@ public class ScopeSymbol extends Symbol implements Scope {
 	
 	public Map<String, Symbol> getChilds() {
 		return this.childs;
+	}
+
+	@Override
+	public Scope toggleEnclosingScope() {
+		if (this.enclosingScope == null) {
+			this.enclosingScope = this.scope;
+			this.scope = null;
+		} else {
+			this.scope = this.enclosingScope;
+			this.enclosingScope = null;
+		}
+		
+		return this;
 	}
 	
 }

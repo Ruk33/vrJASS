@@ -4,6 +4,8 @@ public interface Scope {
 
 	public String getName();
 	
+	public Scope toggleEnclosingScope();
+	
 	/**
 	 * Define a symbol as a child/member of this scope
 	 * @param whichSymbol

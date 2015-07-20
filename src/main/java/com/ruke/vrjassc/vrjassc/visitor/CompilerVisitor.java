@@ -15,11 +15,13 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidImplementNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
@@ -266,6 +268,50 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
+	public Symbol visitThisExpression(ThisExpressionContext ctx) {
+		if (!this.validator.mustBeDefined(this.getScope(), "this", ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
+		return this.validator.getValidatedSymbol();
+	}
+	
+	@Override
+	public Symbol visitMethodDefinition(MethodDefinitionContext ctx) {
+		Scope scope = this.getScope();
+		
+		String name = ctx.validName().getText();
+		Symbol method = scope.resolve(name);
+		boolean hasReturn = false;
+		
+		this.scopes.push((Scope) method);
+		
+		this.visit(ctx.returnType());
+		
+		if (ctx.returnType().getText().equals("nothing")) {
+			hasReturn = true;
+		}
+		
+		for (StatementContext stat : ctx.statements().statement()) {
+			this.visit(stat);
+			
+			if (stat.returnStatement() != null) {
+				hasReturn = true;
+			}
+		}
+		
+		if (!hasReturn) {
+			throw new MissReturnException(ctx.getStart(), method);
+		}
+		
+		this.visit(ctx.statements());
+		
+		this.scopes.pop();
+		
+		return method;
+	}
+	
+	@Override
 	public Symbol visitChainExpression(ChainExpressionContext ctx) {
 		Scope scope = this.getScope();
 		
@@ -277,10 +323,10 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 			
 			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {
 				if (symbol.getType() instanceof Scope) {
-					this.scopes.push((Scope) symbol.getType());
+					this.scopes.push((Scope) symbol.getType()).toggleEnclosingScope();
 					pushed++;
 				} else if (symbol instanceof Scope) {
-					this.scopes.push((Scope) symbol);
+					this.scopes.push((Scope) symbol).toggleEnclosingScope();
 					pushed++;
 				}
 			} else {
@@ -290,7 +336,7 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 		
 		// if we pushed scopes, come back to the original
 		while (pushed != 0) {
-			this.scopes.pop();
+			this.scopes.pop().toggleEnclosingScope();
 			pushed--;
 		}
 		

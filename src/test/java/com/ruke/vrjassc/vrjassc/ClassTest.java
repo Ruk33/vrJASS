@@ -17,10 +17,10 @@ public class ClassTest extends TestHelper {
 		this.expectedEx.expect(StaticTypeException.class);
 		this.expectedEx.expectMessage("1:22 Element <s_bar> is static");
 		this.run("globals\n"
-				+ "integer bar\n"
+				+ "//integer bar\n"
 				+ "endglobals\n"
 				+ "struct foo\n"
-					+ "//integer bar\n"
+					+ "integer bar\n"
 					+ "static integer s_bar\n"
 					+ "method x takes nothing returns nothing\n"
 						+ "set this.bar = 2\n"

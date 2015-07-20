@@ -43,13 +43,15 @@ functionExpression: validName PAREN_LEFT arguments? PAREN_RIGHT;
 
 variableExpression: validName (BRACKET_LEFT index=integerExpression BRACKET_RIGHT)?;
 
-functionOrVariable: functionExpression | variableExpression;
+thisExpression: THIS;
 
-primaryChainExpression: left=superThistypeThis (DOT functionOrVariable)+;
+functionOrVariable: functionExpression | variableExpression | thisExpression;
+
+//primaryChainExpression: left=superThistypeThis (DOT functionOrVariable)+;
 
 chainExpression: functionOrVariable (DOT functionOrVariable)+;
 
-memberExpression: primaryChainExpression | chainExpression;
+memberExpression: chainExpression;
 
 integerExpression: expression;
 

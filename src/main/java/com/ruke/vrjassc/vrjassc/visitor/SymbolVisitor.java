@@ -18,6 +18,7 @@ import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.GlobalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
@@ -207,7 +208,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 			throw this.validator.getException();
 		}
 		
-		FunctionSymbol method = new FunctionSymbol(name, scope, token);
+		MethodSymbol method = new MethodSymbol(name, scope, token);
 		
 		if (ctx.visibility().PUBLIC() != null) {
 			method.setModifier(Modifier.PUBLIC, true);
