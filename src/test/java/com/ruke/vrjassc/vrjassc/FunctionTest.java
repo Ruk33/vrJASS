@@ -1,6 +1,5 @@
 package com.ruke.vrjassc.vrjassc;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
@@ -58,16 +57,15 @@ public class FunctionTest extends TestHelper {
 	@Test
 	public void noReturn() {
 		this.expectedEx.expect(MissReturnException.class);
-		this.expectedEx.expectMessage("1:0 Function <foo> is missing return of type <integer>");
+		this.expectedEx.expectMessage("1:9 Function <foo> is missing return of type <integer>");
 		this.run("function foo takes nothing returns integer\n"
 				+ "endfunction");
 	}
 	
 	@Test
-	@Ignore
 	public void noReturnAlternative() {
 		this.expectedEx.expect(MissReturnException.class);
-		this.expectedEx.expectMessage("1:0 Function <foo> is missing return of type <integer>");
+		this.expectedEx.expectMessage("1:9 Function <foo> is missing return of type <integer>");
 		this.run("function foo takes nothing returns integer\n"
 					+ "if false then\n"
 						+ "return 1\n"
@@ -83,7 +81,6 @@ public class FunctionTest extends TestHelper {
 	}
 	
 	@Test
-	@Ignore
 	public void returnOnIfStatement() {
 		this.expectedEx.none();
 		this.run("function foo takes nothing returns integer\n"

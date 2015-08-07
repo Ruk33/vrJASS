@@ -232,20 +232,10 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 		
 		this.visit(ctx.returnType());
 		
-		if (ctx.returnType().getText().equals("nothing")) {
-			hasReturn = true;
-		}
-		
-		for (StatementContext stat : ctx.statements().statement()) {
-			this.visit(stat);
-			
-			if (stat.returnStatement() != null) {
-				hasReturn = true;
+		if (!ctx.returnType().getText().equals("nothing")) {
+			if (!this.validator.mustReturn(function, ctx.statements())) {
+				throw this.validator.getException();
 			}
-		}
-		
-		if (!hasReturn) {
-			throw new MissReturnException(ctx.getStart(), function);
 		}
 		
 		this.visit(ctx.statements());

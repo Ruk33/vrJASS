@@ -4,6 +4,9 @@ import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
 
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementsContext;
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
@@ -11,6 +14,7 @@ import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
+import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
 import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
@@ -188,6 +192,36 @@ public class Validator {
 		}
 		
 		return true;
+	}
+	
+	public boolean mustReturn(Symbol function, StatementsContext ctx) {
+		this.validated = function;
+		
+		for (StatementContext stat : ctx.statement()) {
+			if (stat.returnStatement() != null) {
+				return true;
+			} else if (stat.ifStatement() != null) {
+				if (stat.ifStatement().elseStatement() != null) {
+					boolean ifReturns = this.mustReturn(function, stat.ifStatement().statements());
+					boolean elseIfReturns = true;
+					boolean elseReturns = this.mustReturn(function, stat.ifStatement().elseStatement().statements());
+					
+					for (ElseIfStatementContext elseif : stat.ifStatement().elseIfStatements().elseIfStatement()) {
+						if (!this.mustReturn(function, elseif.statements())) {
+							elseIfReturns = false;
+							break;
+						}
+					}
+					
+					if (ifReturns && elseIfReturns && elseReturns) {
+						return true;
+					}
+				}
+			}
+		}
+		
+		this.exception = new MissReturnException(function.getToken(), function);
+		return false;
 	}
 
 }
