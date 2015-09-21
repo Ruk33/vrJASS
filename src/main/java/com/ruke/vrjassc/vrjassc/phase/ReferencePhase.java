@@ -1,4 +1,4 @@
-package com.ruke.vrjassc.vrjassc.visitor;
+package com.ruke.vrjassc.vrjassc.phase;
 
 import java.util.Stack;
 
@@ -31,9 +31,12 @@ import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 import com.ruke.vrjassc.vrjassc.util.Validator;
 
-public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
+public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
+
+	private TokenSymbolBag symbols;
 	
 	/**
 	 * 
@@ -50,7 +53,8 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 	 */
 	private Stack<Scope> scopes;
 			
-	public CompilerVisitor(Scope scope) {
+	public ReferencePhase(TokenSymbolBag symbols, Scope scope) {
+		this.symbols = symbols;
 		this.validator = new Validator();
 		this.scopes = new Stack<Scope>();
 		
@@ -226,7 +230,6 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 		
 		String name = ctx.validName().getText();
 		Symbol function = scope.resolve(name);
-		boolean hasReturn = false;
 		
 		this.scopes.push((Scope) function);
 		
@@ -311,6 +314,7 @@ public class CompilerVisitor extends vrjassBaseVisitor<Symbol> {
 		
 		for (FunctionOrVariableContext expr : ctx.functionOrVariable()) {
 			symbol = this.visit(expr);
+			this.symbols.saveFromChainExpression(expr, symbol);
 			
 			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {
 				if (symbol.getType() instanceof Scope) { // class

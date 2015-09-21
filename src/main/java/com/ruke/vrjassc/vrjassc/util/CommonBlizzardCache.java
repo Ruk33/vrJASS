@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.ruke.vrjassc.vrjassc.visitor.MainVisitor;
+import com.ruke.vrjassc.vrjassc.phase.MainVisitor;
 
 public class CommonBlizzardCache {
 

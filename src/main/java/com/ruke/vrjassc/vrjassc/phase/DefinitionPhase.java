@@ -1,4 +1,4 @@
-package com.ruke.vrjassc.vrjassc.visitor;
+package com.ruke.vrjassc.vrjassc.phase;
 
 import java.util.Stack;
 
@@ -24,15 +24,19 @@ import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 import com.ruke.vrjassc.vrjassc.util.Validator;
 
-public class SymbolVisitor extends vrjassBaseVisitor<Void> {
+public class DefinitionPhase extends vrjassBaseVisitor<Void> {
+	
+	private TokenSymbolBag symbols;
 	
 	private Validator validator;
 	
 	private Stack<Scope> scopes;
 	
-	public SymbolVisitor(Scope scope) {
+	public DefinitionPhase(TokenSymbolBag symbols, Scope scope) {
+		this.symbols = symbols;
 		this.validator = new Validator();
 		this.scopes = new Stack<Scope>();
 		
@@ -61,6 +65,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		variable.setType((Type) scope.resolve(type));
 		
 		scope.define(variable);
+		this.symbols.saveVariable(ctx, variable);
 		
 		if (ctx.value != null) {
 			this.visit(ctx.value);
@@ -80,7 +85,9 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		Symbol variable = new LocalVariableSymbol(name, scope, token);
 		
 		variable.setType((Type) scope.resolve(type));
+		
 		((FunctionSymbol) scope).defineParam(variable);
+		this.symbols.saveParameter(ctx, variable);
 		
 		return null;
 	}
@@ -106,6 +113,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		}
 		
 		scope.define(function);
+		this.symbols.saveFunction(ctx, function);
 		
 		this.scopes.push(function);
 		super.visitFunctionDefinition(ctx);
@@ -126,7 +134,9 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		}
 				
 		LibrarySymbol library = new LibrarySymbol(name, scope, token);
+		
 		scope.define(library);
+		this.symbols.saveLibrary(ctx, library);
 		
 		this.scopes.push(library);
 		super.visitLibraryDefinition(ctx);
@@ -161,6 +171,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		variable.setType((Type) scope.resolve(type));
 		
 		scope.define(variable);
+		this.symbols.saveGlobalVariable(ctx, variable);
 		
 		if (ctx.value != null) {
 			this.visit(ctx.value);
@@ -183,11 +194,12 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 				throw this.validator.getException();
 			}
 		}
-				
+		
 		ClassSymbol _class = new ClassSymbol(name, scope, token);
 		_class.setModifier(Modifier.PUBLIC, true);
 		
 		scope.define(_class);
+		this.symbols.saveClass(ctx, _class);
 		
 		this.scopes.push(_class);
 		super.visitStructDefinition(ctx);
@@ -219,6 +231,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		method.setType((Type) scope.resolve(type));
 		
 		scope.define(method);
+		this.symbols.saveMethod(ctx, method);
 		
 		this.scopes.push(method);
 		super.visitMethodDefinition(ctx);
@@ -249,6 +262,7 @@ public class SymbolVisitor extends vrjassBaseVisitor<Void> {
 		property.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		
 		scope.define(property);
+		this.symbols.saveProperty(ctx, property);
 		
 		return null;
 	}
