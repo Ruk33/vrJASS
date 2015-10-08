@@ -1,5 +1,6 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
+import java.util.Collection;
 import java.util.Stack;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
@@ -15,12 +16,14 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.util.ChainExpressionTranslator;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
 public class TranslationPhase extends vrjassBaseVisitor<Void> {
 
 	protected TokenSymbolBag symbols;
+	protected ChainExpressionTranslator chainTranslator;
 	
 	protected StringBuilder globals;
 	protected StringBuilder output;
@@ -34,6 +37,9 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 		this.globals = new StringBuilder();
 		
 		this.symbols = symbols;
+		this.chainTranslator = new ChainExpressionTranslator();
+		
+		this.chainTranslator.setHashtableName(this.getClassesHashtableName());
 	}
 	
 	public String getClassesHashtableName() {
@@ -51,45 +57,34 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 	public String getTranslatedPropertyName(Symbol property) {
 		return "struct_" + property.getParentScope().getName() + "_" + property.getName();
 	}
+	
+	protected String getTranslatedPropertyGetter(Collection<FunctionOrVariableContext> ctx) {
+		Stack<Symbol> symbols = new Stack<Symbol>();
 		
+		for (FunctionOrVariableContext expr : ctx) {
+			symbols.add(this.symbols.getFromChainExpression(expr));
+		}
+		
+		return this.chainTranslator.getGetter(symbols);
+	}
+	
+	protected String getTranslatedPropertySetter(Collection<FunctionOrVariableContext> ctx, String value) {
+		String result = this.getTranslatedPropertyGetter(ctx);
+		
+		result.replace("Load", "Save");
+		result.substring(0, result.length()-1);
+		result.concat(value);
+		result.concat(")");
+		
+		return result;
+	}
+	
 	protected String getTranslatedProperty(Stack<FunctionOrVariableContext> ctx, boolean setter) {
-		Stack<String> args = new Stack<String>();
-		FunctionOrVariableContext expr;
-		Symbol symbol;
-		String func;
-		
-		args.push(this.getClassesHashtableName());
-		args.push("<" + symbol.getName() + "> ");
-		
-		while (ctx.size() > 0) {
-			expr = ctx.pop();
-			symbol = this.symbols.getFromChainExpression(expr);
-			
-			if (symbol.getType() != null && VariableTypeDetector.isUserType(symbol.getType().getName())) {
-				args.insertElementAt(this.getTranslatedProperty(ctx, false), 1);
-			} else {
-				args.push("<" + symbol.getName() + "> ");
-			}
-		}
-		
-		// this.p.bar
-		// loadint(structs, this, p)
-		// loadint(structs, loadint(structs, this, p), bar)
-		
-		
-		/*
-		 * bar
-		 * p
-		 * 
-		 */
-		
 		if (setter) {
-			func = "SaveInteger";
-		} else {
-			func = "LoadInteger";
+			return this.getTranslatedPropertySetter(ctx, "epa!");
 		}
 		
-		return func + "(" + String.join(",", args) + ")";
+		return this.getTranslatedPropertyGetter(ctx);
 	}
 	
 	protected String getTranslatedProperty(ChainExpressionContext ctx, boolean setter) {

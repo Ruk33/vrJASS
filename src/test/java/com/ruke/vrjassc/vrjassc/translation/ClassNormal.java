@@ -24,14 +24,15 @@ public class ClassNormal extends TestHelper {
 							+ "integer struct_Person_vr_type=2\n"
 							+ "integer struct_Object_vr_instances=1\n"
 							+ "integer struct_Person_bar=2\n"
+							+ "integer struct_Person_p=3\n"
 						+ "endglobals\n"
 						+ "function struct_Object_allocate takes nothing returns integer\n"
 							+ "set struct_Object_vr_instances=struct_Object_vr_instances+1\n"
 							+ "return struct_Object_vr_instances\n"
 						+ "endfunction\n"
 						+ "function struct_Person_foo takes integer this returns integer\n"
-							+ "call SaveInteger(vr_structs, this, struct_Person_bar, 2)\n"
-							+ "return LoadInteger(vr_structs, this, struct_Person_bar)\n"
+							+ "call SaveInteger(vr_structs,this,struct_Person_bar,2)\n"
+							+ "return LoadInteger(vr_structs,LoadInteger(vr_structs,this,struct_Person_p),struct_Person_bar)\n"
 						+ "endfunction";
 		
 		assertEquals(expected, this.run(code));
