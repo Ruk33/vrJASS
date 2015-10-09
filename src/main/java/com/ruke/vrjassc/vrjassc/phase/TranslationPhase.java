@@ -1,11 +1,9 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
-import java.util.Collection;
-import java.util.Stack;
-
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
@@ -20,7 +18,7 @@ import com.ruke.vrjassc.vrjassc.util.ChainExpressionTranslator;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
-public class TranslationPhase extends vrjassBaseVisitor<Void> {
+public class TranslationPhase extends vrjassBaseVisitor<String> {
 
 	protected TokenSymbolBag symbols;
 	protected ChainExpressionTranslator chainTranslator;
@@ -30,7 +28,6 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 	
 	protected int classEnum;
 	protected int propertyEnum;
-	protected boolean settingProperty;
 	
 	public TranslationPhase(TokenSymbolBag symbols, Scope scope) {
 		this.output = new StringBuilder();
@@ -58,66 +55,38 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 		return "struct_" + property.getParentScope().getName() + "_" + property.getName();
 	}
 	
-	protected String getTranslatedPropertyGetter(Collection<FunctionOrVariableContext> ctx) {
-		Stack<Symbol> symbols = new Stack<Symbol>();
-		
-		for (FunctionOrVariableContext expr : ctx) {
-			symbols.add(this.symbols.getFromChainExpression(expr));
-		}
-		
-		return this.chainTranslator.getGetter(symbols);
-	}
-	
-	protected String getTranslatedPropertySetter(Collection<FunctionOrVariableContext> ctx, String value) {
-		String result = this.getTranslatedPropertyGetter(ctx);
-		
-		result.replace("Load", "Save");
-		result.substring(0, result.length()-1);
-		result.concat(value);
-		result.concat(")");
-		
-		return result;
-	}
-	
-	protected String getTranslatedProperty(Stack<FunctionOrVariableContext> ctx, boolean setter) {
-		if (setter) {
-			return this.getTranslatedPropertySetter(ctx, "epa!");
-		}
-		
-		return this.getTranslatedPropertyGetter(ctx);
-	}
-	
-	protected String getTranslatedProperty(ChainExpressionContext ctx, boolean setter) {
-		Stack<FunctionOrVariableContext> members = new Stack<FunctionOrVariableContext>();
-		members.addAll(ctx.functionOrVariable());
-		
-		return this.getTranslatedProperty(members, setter);
+	@Override
+	public String visitInteger(IntegerContext ctx) {
+		return ctx.getText();
 	}
 	
 	@Override
-	public Void visitChainExpression(ChainExpressionContext ctx) {
-		this.output.append(this.getTranslatedProperty(ctx, this.settingProperty));
-		return null;
+	public String visitChainExpression(ChainExpressionContext ctx) {
+		Symbol symbol;
+		
+		for (FunctionOrVariableContext expr : ctx.functionOrVariable()) {
+			symbol = this.symbols.getFromChainExpression(expr);
+			this.chainTranslator.append(symbol, null, null);
+		}
+
+		return this.chainTranslator.build();
 	}
 	
 	@Override
-	public Void visitReturnStatement(ReturnStatementContext ctx) {
+	public String visitReturnStatement(ReturnStatementContext ctx) {
 		this.output.append("return ");
-		this.visit(ctx.expression());
+		this.output.append(this.visit(ctx.expression()));
 		this.output.append("\n");
 		
 		return null;
 	}
 	
 	@Override
-	public Void visitSetVariableStatement(SetVariableStatementContext ctx) {
+	public String visitSetVariableStatement(SetVariableStatementContext ctx) {
 		if (ctx.name.getClass().getSimpleName().equals("MemberContext")) {
-			this.settingProperty = true;
-			
-			this.output.append("call ");
-			super.visitSetVariableStatement(ctx);
-			
-			this.settingProperty = false;
+			this.chainTranslator.setValue(this.visit(ctx.value));
+			this.output.append("call " + this.visit(ctx.name));
+			this.chainTranslator.deleteValue();
 		} else {
 			this.output.append("set...");
 		}
@@ -128,7 +97,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 	}
 	
 	@Override
-	public Void visitStructDefinition(StructDefinitionContext ctx) {
+	public String visitStructDefinition(StructDefinitionContext ctx) {
 		this.classEnum++;
 		
 		if (this.classEnum == 1) {
@@ -150,7 +119,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 	}
 	
 	@Override
-	public Void visitPropertyStatement(PropertyStatementContext ctx) {
+	public String visitPropertyStatement(PropertyStatementContext ctx) {
 		this.propertyEnum++;
 		
 		Symbol property = this.symbols.getProperty(ctx);
@@ -165,7 +134,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 	}
 	
 	@Override
-	public Void visitParameter(ParameterContext ctx) {
+	public String visitParameter(ParameterContext ctx) {
 		Symbol param = this.symbols.getParameter(ctx);
 		String type = param.getType().getName();
 		
@@ -179,7 +148,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 	}
 	
 	@Override
-	public Void visitReturnType(ReturnTypeContext ctx) {
+	public String visitReturnType(ReturnTypeContext ctx) {
 		String returnType = "nothing";
 		
 		if (ctx.NOTHING() == null) {
@@ -196,7 +165,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Void> {
 	}
 		
 	@Override
-	public Void visitMethodDefinition(MethodDefinitionContext ctx) {
+	public String visitMethodDefinition(MethodDefinitionContext ctx) {
 		Symbol method = this.symbols.getMethod(ctx);
 		
 		this.output.append("function ");

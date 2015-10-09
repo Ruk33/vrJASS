@@ -85,5 +85,19 @@ public class ChainExpression {
 		);
 		
 	}
+	
+	@Test
+	public void setting() {
+		Symbol foo = new Symbol("foo", null, null);
+		Symbol bar = new Symbol("bar", null, null);
+		
+		this.translator.append(foo, null, null);
+		this.translator.append(bar, null, null);
+		
+		assertEquals(
+			"SaveInteger(structs,foo,bar,2)",
+			this.translator.buildSetter("2")
+		);
+	}
 
 }

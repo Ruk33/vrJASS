@@ -9,6 +9,8 @@ import com.ruke.vrjassc.vrjassc.symbol.Type;
 public class ChainExpressionTranslator {
 	
 	protected String hashtableName;
+	protected String value;
+	protected boolean hasValue;
 	
 	private class Chainable {
 		protected Symbol symbol;
@@ -100,6 +102,33 @@ public class ChainExpressionTranslator {
 	public ChainExpressionTranslator setHashtableName(String name) {
 		this.hashtableName = name;
 		return this;
+	}
+
+	public String buildSetter(String value) {
+		String result = this.buildGetter().replace("Load", "Save");
+		return result.substring(0, result.length()-1)+","+value+")";
+	}
+	
+	public ChainExpressionTranslator setValue(String value) {
+		this.value = value;
+		this.hasValue = true;
+		
+		return this;
+	}
+	
+	public ChainExpressionTranslator deleteValue() {
+		this.value = null;
+		this.hasValue = false;
+		
+		return this;
+	}
+	
+	public String build() {
+		if (this.hasValue) {
+			return this.buildSetter(this.value);
+		}
+		
+		return this.buildGetter();
 	}
 	
 }

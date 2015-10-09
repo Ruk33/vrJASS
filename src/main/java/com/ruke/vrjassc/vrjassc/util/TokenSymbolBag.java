@@ -12,6 +12,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContex
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
@@ -29,6 +30,14 @@ public class TokenSymbolBag {
 	}
 	
 	public Symbol getVariable(LocalVariableStatementContext ctx) {
+		return this.bag.get(ctx.getStart());
+	}
+	
+	public void saveVariable(SetVariableStatementContext ctx, Symbol variable) {
+		this.bag.put(ctx.getStart(), variable);
+	}
+	
+	public Symbol getVariable(SetVariableStatementContext ctx) {
 		return this.bag.get(ctx.getStart());
 	}
 	
