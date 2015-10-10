@@ -10,7 +10,6 @@ public class ChainExpressionTranslator {
 	
 	protected String hashtableName;
 	protected String value;
-	protected boolean hasValue;
 	
 	private class Chainable {
 		protected Symbol symbol;
@@ -49,7 +48,7 @@ public class ChainExpressionTranslator {
 		
 		public boolean isSpecial() {
 			Type type = this.symbol.getType();
-			
+						
 			if (type != null) {
 				if (VariableTypeDetector.isUserType(type.getName())) {
 					return true;
@@ -81,7 +80,7 @@ public class ChainExpressionTranslator {
 		while (this.chain.size() != 0) {
 			ch = this.chain.peek();
 			
-			if (ch.isSpecial() && this.chain.size() != 1) {
+			if (this.chain.size() != 1 && ch.isSpecial()) {
 				args.add(this.buildGetter());
 				break;
 			}
@@ -105,30 +104,20 @@ public class ChainExpressionTranslator {
 	}
 
 	public String buildSetter(String value) {
-		String result = this.buildGetter().replace("Load", "Save");
+		String result = this.buildGetter().replaceFirst("Load", "Save");
 		return result.substring(0, result.length()-1)+","+value+")";
 	}
 	
-	public ChainExpressionTranslator setValue(String value) {
-		this.value = value;
-		this.hasValue = true;
-		
-		return this;
-	}
-	
-	public ChainExpressionTranslator deleteValue() {
-		this.value = null;
-		this.hasValue = false;
-		
-		return this;
-	}
-	
-	public String build() {
-		if (this.hasValue) {
-			return this.buildSetter(this.value);
+	public String build(String value) {
+		if (value == null) {
+			return this.buildGetter();
 		}
 		
-		return this.buildGetter();
+		return this.buildSetter(value);
+	}
+	
+	public void setValue(String value) {
+		this.value = value;
 	}
 	
 }

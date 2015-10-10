@@ -174,6 +174,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		Symbol variable = this.validator.getValidatedSymbol();
 		
+		if (ctx.index != null) {
+			this.visit(ctx.index);
+		}
+		
 		return variable;
 	}
 	

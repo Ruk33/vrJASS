@@ -259,6 +259,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 			property.setModifier(Modifier.PRIVATE, true);
 		}
 		
+		property.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);
 		property.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		
 		scope.define(property);
