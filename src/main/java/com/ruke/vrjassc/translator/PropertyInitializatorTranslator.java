@@ -7,6 +7,11 @@ import java.util.Stack;
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class PropertyInitializatorTranslator {
 
 	protected Hashtable<Symbol, Collection<Symbol>> properties = new Hashtable<Symbol, Collection<Symbol>>();

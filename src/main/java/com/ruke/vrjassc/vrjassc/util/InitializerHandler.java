@@ -3,9 +3,13 @@ package com.ruke.vrjassc.vrjassc.util;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import com.ruke.vrjassc.vrjassc.symbol.InitializerContainerSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class InitializerHandler {
 	
 	private HashMap<Symbol, Integer> initializerOrder = new HashMap<Symbol, Integer>();

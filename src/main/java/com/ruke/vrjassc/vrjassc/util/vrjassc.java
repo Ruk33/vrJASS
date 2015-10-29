@@ -8,6 +8,11 @@ import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import de.peeeq.jmpq.JmpqEditor;
 import de.peeeq.jmpq.JmpqError;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class vrjassc {
 
 	public static void main(String[] args) {

@@ -5,9 +5,11 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentsTextmacroException;
-import com.ruke.vrjassc.vrjassc.exception.UndefinedTextmacroException;
-
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class TextMacroPreprocessor implements PreprocessorAction {
 
 	private class Macro {

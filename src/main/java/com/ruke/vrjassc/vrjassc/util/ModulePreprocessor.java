@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class ModulePreprocessor implements PreprocessorAction {
 	
 	protected HashMap<String, String> modules = new HashMap<String, String>();

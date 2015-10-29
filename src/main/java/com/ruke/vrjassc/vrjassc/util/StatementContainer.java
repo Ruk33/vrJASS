@@ -9,6 +9,11 @@ import com.ruke.vrjassc.translator.expression.FunctionDefinition;
 import com.ruke.vrjassc.translator.expression.Statement;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class StatementContainer {
 	
 	protected LinkedList<Statement> statements = new LinkedList<Statement>();

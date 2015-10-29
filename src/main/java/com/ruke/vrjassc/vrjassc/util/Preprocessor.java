@@ -2,6 +2,11 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.LinkedList;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class Preprocessor {
 
 	protected LinkedList<PreprocessorAction> preprocessors;

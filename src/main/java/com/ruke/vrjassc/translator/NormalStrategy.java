@@ -1,5 +1,10 @@
 package com.ruke.vrjassc.translator;
 
+/**
+ * @deprecated
+ * @author Ruke
+ *
+ */
 public class NormalStrategy extends Translator {
 
 	private StringBuilder globals = new StringBuilder();
