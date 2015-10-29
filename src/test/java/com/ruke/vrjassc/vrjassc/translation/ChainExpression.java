@@ -32,7 +32,7 @@ public class ChainExpression {
 		this.translator.append(symbol, null, null);
 		this.translator.append(symbol, null, null);
 		
-		assertEquals("LoadInteger(structs,foo,foo)", this.translator.buildGetter());
+		assertEquals("LoadInteger(structs,foo,foo)", this.translator.build());
 	}
 		
 	@Test
@@ -52,7 +52,7 @@ public class ChainExpression {
 
 		assertEquals(
 			"LoadInteger(structs,LoadInteger(structs,foo,bar),dat_i)",
-			this.translator.buildGetter()
+			this.translator.build()
 		);
 	}
 	
@@ -69,7 +69,7 @@ public class ChainExpression {
 		
 		assertEquals(
 			"LoadInteger(structs,foo,bar*8191-IMinBJ(2,8191))",
-			this.translator.buildGetter()
+			this.translator.build()
 		);
 		
 		// this.bar[0].bar[2]
@@ -81,7 +81,7 @@ public class ChainExpression {
 		// load<type>(structs, instance, <attribute>)
 		assertEquals(
 			"LoadInteger(structs,LoadInteger(structs,foo,bar*8191-IMinBJ(0,8191)),bar*8191-IMinBJ(2,8191))",
-			this.translator.buildGetter()
+			this.translator.build()
 		);
 		
 	}
@@ -93,10 +93,11 @@ public class ChainExpression {
 		
 		this.translator.append(foo, null, null);
 		this.translator.append(bar, null, null);
+		this.translator.setValue("2");
 		
 		assertEquals(
 			"SaveInteger(structs,foo,bar,2)",
-			this.translator.buildSetter("2")
+			this.translator.build()
 		);
 	}
 
