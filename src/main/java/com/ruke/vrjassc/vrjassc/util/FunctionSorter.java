@@ -4,9 +4,13 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.NativeFunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
+/**
+ * 
+ * @author Ruke
+ * @deprecated
+ */
 public class FunctionSorter {
 
 	protected Stack<String> dummyGlobals;

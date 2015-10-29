@@ -1,4 +1,4 @@
-package translator;
+package com.ruke.vrjassc.translator;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 

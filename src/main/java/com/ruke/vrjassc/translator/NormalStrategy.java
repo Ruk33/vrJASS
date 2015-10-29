@@ -1,4 +1,4 @@
-package translator;
+package com.ruke.vrjassc.translator;
 
 public class NormalStrategy extends Translator {
 

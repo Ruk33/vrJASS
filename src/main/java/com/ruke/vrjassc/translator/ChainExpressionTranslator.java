@@ -1,15 +1,13 @@
-package com.ruke.vrjassc.vrjassc.util;
+package com.ruke.vrjassc.translator;
 
 import java.util.Stack;
 
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.util.HashtableFunctionGetter;
+import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
 public class ChainExpressionTranslator {
-	
-	protected String hashtableName;
-	protected String value;
 	
 	private class Chainable {
 		protected Symbol symbol;
@@ -18,10 +16,7 @@ public class ChainExpressionTranslator {
 		
 		public Chainable(Symbol symbol, String index, String key) {
 			this.symbol = symbol;
-			
-			if (symbol.hasModifier(Modifier.ARRAY)) {
-				this.index = index;
-			}
+			this.index = index;
 			
 			if (key == null) {
 				key = symbol.getName();
@@ -63,14 +58,22 @@ public class ChainExpressionTranslator {
 		}
 	}
 	
-	protected Stack<Chainable> chain = new Stack<Chainable>();
+	protected String hashtableName;
+	protected String value;
+	protected HashtableFunctionGetter functionGetter;
+	protected Stack<Chainable> chain;
+	
+	public ChainExpressionTranslator() {
+		this.functionGetter = new HashtableFunctionGetter();
+		this.chain = new Stack<ChainExpressionTranslator.Chainable>();
+	}
 	
 	public ChainExpressionTranslator append(Symbol symbol, String index, String key) {
 		this.chain.push(new Chainable(symbol, index, key));
 		return this;
 	}
-		
-	public String buildGetter() {
+	
+	protected String buildGetter() {
 		Stack<String> args = new Stack<String>();
 		Chainable property = this.chain.pop();
 		Chainable ch;
@@ -93,7 +96,12 @@ public class ChainExpressionTranslator {
 		
 		return "LoadInteger(" + String.join(",", args) + ")";
 	}
-
+	
+	protected String buildSetter() {
+		String result = this.buildGetter().replaceFirst("Load", "Save");
+		return result.substring(0, result.length()-1)+","+this.value+")";
+	}
+	
 	public String getHashtableName() {
 		return this.hashtableName;
 	}
@@ -102,22 +110,25 @@ public class ChainExpressionTranslator {
 		this.hashtableName = name;
 		return this;
 	}
-
-	public String buildSetter(String value) {
-		String result = this.buildGetter().replaceFirst("Load", "Save");
-		return result.substring(0, result.length()-1)+","+value+")";
+	
+	public ChainExpressionTranslator setValue(String value) {
+		this.value = value;
+		return this;
 	}
 	
-	public String build(String value) {
-		if (value == null) {
-			return this.buildGetter();
+	public String build() {
+		String result;
+		
+		if (this.chain.size() == 1) {
+			result = this.chain.pop().getKey();
+		} else if (this.value == null) {
+			result = this.buildGetter();
+		} else {
+			result = this.buildSetter();
+			this.value = null;
 		}
 		
-		return this.buildSetter(value);
-	}
-	
-	public void setValue(String value) {
-		this.value = value;
+		return result;
 	}
 	
 }

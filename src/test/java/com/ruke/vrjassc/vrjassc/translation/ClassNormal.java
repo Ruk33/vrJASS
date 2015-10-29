@@ -37,5 +37,25 @@ public class ClassNormal extends TestHelper {
 		
 		assertEquals(expected, this.run(code));
 	}
+	
+	@Test
+	public void defaultInitialization() {
+		String code = "struct foo\n"
+				+ "integer i = 2\n"
+				+ "endstruct";
+		
+		String expected = "globals\n"
+				+ "hashtable vr_structs=InitHashtable()\n"
+				+ "integer struct_foo_vr_type=1\n"
+				+ "integer struct_foo_i=1\n"
+				+ "endglobals\n"
+				+ "function struct_foo_allocate takes nothing returns integer\n"
+					+ "local integer this=struct_Object_allocate(struct_foo_vr_type)\n"
+					+ "call SaveInteger(null,this,struct_foo_i,2)\n"
+					+ "return this\n"
+				+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
 
 }

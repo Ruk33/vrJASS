@@ -5,13 +5,13 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.ruke.vrjassc.translator.ChainExpressionTranslator;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
-import com.ruke.vrjassc.vrjassc.util.ChainExpressionTranslator;
 
 public class ChainExpression {
 
