@@ -1,5 +1,6 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import java.util.Collection;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
@@ -11,6 +12,14 @@ public class FunctionSymbol extends ScopeSymbol {
 	public FunctionSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
 		this.params = new Stack<Symbol>();
+	}
+	
+	public Symbol defineParam(Collection<Symbol> params) {
+		for (Symbol param : params) {
+			this.defineParam(param);
+		}
+		
+		return this;
 	}
 	
 	public Symbol defineParam(Symbol param) {

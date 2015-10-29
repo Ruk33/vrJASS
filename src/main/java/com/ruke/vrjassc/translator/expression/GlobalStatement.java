@@ -4,8 +4,13 @@ public class GlobalStatement extends StatementBody {
 
 	@Override
 	public String translate() {
-		if (this.statements.isEmpty()) return "";
-		return "globals\n" + super.translate().trim() + "\nendglobals";
+		String globals = super.translate().trim();
+		
+		if (globals.isEmpty()) {
+			return "";
+		}
+		
+		return "globals\n" + globals + "\nendglobals";
 	}
 	
 }

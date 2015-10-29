@@ -105,6 +105,12 @@ public class StatementOrderTest {
 		FunctionSymbol barSymbol = new FunctionSymbol("bar", null, null);
 		FunctionDefinition barDef = new FunctionDefinition(barSymbol);
 		
+		fooSymbol.defineParam(i);
+		fooSymbol.setType(integer);
+		
+		barSymbol.defineParam(i);
+		barSymbol.setType(integer);
+		
 		ExpressionList fooArgs = new ExpressionList();
 		Expression fooExpression = new FunctionExpression(fooSymbol, false, fooArgs);
 		
@@ -116,12 +122,6 @@ public class StatementOrderTest {
 		
 		fooArgs.add(new RawExpression("i"));
 		barArgs.add(new RawExpression("i"));
-		
-		fooSymbol.defineParam(i);
-		fooSymbol.setType(integer);
-		
-		barSymbol.defineParam(i);
-		barSymbol.setType(integer);
 		
 		fooDef.append(barReturn);
 		barDef.append(fooReturn);
@@ -136,7 +136,7 @@ public class StatementOrderTest {
 			+ "endglobals\n"
 			+ "function vrjass_c_foo takes integer i returns integer\n"
 				+ "set vrjass_c_foo_i=i\n"
-				+ "call ExecuteFunc(\"vrjass_c_noargs_foo\")\n"
+				+ "call ExecuteFunc(\"vrjass_c_foo_noArgs\")\n"
 				+ "return vrjass_c_foo_return\n"
 			+ "endfunction\n"
 			+ "function bar takes integer i returns integer\n"

@@ -20,6 +20,11 @@ public class VariableStatement extends Statement {
 	}
 	
 	@Override
+	public Symbol getSymbol() {
+		return this.variable;
+	}
+	
+	@Override
 	public String translate() {
 		String type = this.variable.getType().getName();
 		String name = this.variable.getName();

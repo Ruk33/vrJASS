@@ -2,11 +2,17 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.Stack;
 
+import com.ruke.vrjassc.translator.expression.AssignmentStatement;
+import com.ruke.vrjassc.translator.expression.Expression;
+import com.ruke.vrjassc.translator.expression.ExpressionList;
 import com.ruke.vrjassc.translator.expression.FunctionDefinition;
+import com.ruke.vrjassc.translator.expression.FunctionExpression;
 import com.ruke.vrjassc.translator.expression.FunctionStatement;
 import com.ruke.vrjassc.translator.expression.RawExpression;
+import com.ruke.vrjassc.translator.expression.ReturnStatement;
 import com.ruke.vrjassc.translator.expression.Statement;
 import com.ruke.vrjassc.translator.expression.StatementBody;
+import com.ruke.vrjassc.translator.expression.VariableExpression;
 import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -15,12 +21,97 @@ public class MutualRecursion {
 
 	protected FunctionSymbol function;
 	
-	protected FunctionSymbol dummy;
-	protected FunctionSymbol dummyNoArgs;
+	protected StatementBody globals;
+	protected Stack<Symbol> globalArgs;
+	
+	protected Expression returnExpression;
+	protected Statement returnStatement;
+	
+	protected FunctionDefinition dummyDefinition;
+	protected FunctionDefinition dummyNoArgsDefinition;
+	
+	protected void defineGlobals() {
+		Symbol variable;
+		
+		this.globals = new StatementBody();
+		this.globalArgs = new Stack<Symbol>();
+		
+		for (Symbol param : this.function.getParams()) {
+			variable = new Symbol(this.getGlobalVariableName(param), null, null);
+			variable.setType(param.getType());
+			
+			this.globals.append(new VariableStatement(variable, null));
+			this.globalArgs.push(variable);
+		}
+		
+		if (this.function.getType() != null) {
+			variable = new Symbol(this.getPrefix() + "_return", null, null);
+			variable.setType(this.function.getType());
+			
+			this.returnExpression = new VariableExpression(variable, null);
+			this.globals.append(new VariableStatement(variable, null));
+		}
+		
+		this.returnStatement = new ReturnStatement(this.returnExpression);
+	}
+	
+	protected void defineDummyFunction() {
+		FunctionSymbol function = new FunctionSymbol(this.getPrefix(), null, null);
+		
+		function.setType(this.function.getType());
+		function.defineParam(this.function.getParams());
+		
+		this.dummyDefinition = new FunctionDefinition(function);
+		
+		String paramName;
+		
+		for (Symbol arg : this.globalArgs) {
+			paramName = arg.getName().replaceFirst(this.getPrefix() + "_", "");
+			
+			this.dummyDefinition.append(
+				new AssignmentStatement(
+					new VariableExpression(arg, null),
+					new RawExpression(paramName)
+				)
+			);
+		}
+		
+		String noArgsName = this.getDummyNoArgsName();
+		Expression execFuncExpr = new RawExpression("ExecuteFunc(\"" + noArgsName + "\")");
+		Statement noArgsCall = new FunctionStatement(execFuncExpr);
+		
+		this.dummyDefinition.append(noArgsCall);
+		this.dummyDefinition.append(this.returnStatement);
+	}
+	
+	protected void defineDummyNoArgsFunction() {
+		FunctionSymbol function = new FunctionSymbol(this.getDummyNoArgsName(), null, null);
+		
+		this.dummyNoArgsDefinition = new FunctionDefinition(function);
+		
+		ExpressionList args = new ExpressionList();
+		Expression functionCall = new FunctionExpression(this.function, false, args);
+		Statement statement;
+		
+		for (Symbol arg : this.globalArgs) {
+			args.add(new VariableExpression(arg, null));
+		}
+		
+		if (this.function.getType() == null) {
+			statement = new FunctionStatement(functionCall);
+		} else {
+			statement = new AssignmentStatement(this.returnExpression, functionCall);
+		}
+		
+		this.dummyNoArgsDefinition.append(statement);
+	}
 	
 	public MutualRecursion(FunctionSymbol function) {
 		this.function = function;
-		this.dummyNoArgs = new FunctionSymbol(this.getDummyNoArgsName(), null, null);
+		
+		this.defineGlobals();
+		this.defineDummyFunction();
+		this.defineDummyNoArgsFunction();
 	}
 	
 	public String getPrefix() {
@@ -36,54 +127,15 @@ public class MutualRecursion {
 	}
 	
 	public Statement getGlobalVariableBlock() {
-		StatementBody globalsBlock = new StatementBody();
-		Stack<Symbol> variables = new Stack<Symbol>();
-		Symbol _return;
-		Symbol temp;
-		
-		variables.addAll(this.function.getParams());
-		
-		if (this.function.getType() != null) {
-			_return = new Symbol("return", null, null);
-			_return.setType(this.function.getType());
-			
-			variables.push(_return);
-		}
-		
-		for (Symbol variable : variables) {
-			temp = new Symbol(this.getGlobalVariableName(variable), null, null);
-			temp.setType(variable.getType());
-			
-			globalsBlock.append(new VariableStatement(temp, null));
-		}
-		
-		return globalsBlock;
+		return this.globals;
 	}
 	
 	public Statement getDummyDefinition() {
-		this.dummy = new FunctionSymbol(this.getPrefix(), null, null);
-		
-		StatementBody functionDefinition = new FunctionDefinition(this.dummy);
-		
-		functionDefinition.append(
-			new FunctionStatement(
-				new RawExpression(
-					"ExecuteFunc(\"" + this.getDummyNoArgsName() + "\")"
-				)
-			)
-		);
-		
-		for (Symbol param : this.function.getParams()) {
-			this.dummy.defineParam(param);
-		}
-		
-		this.dummy.setType(this.function.getType());
-		
-		return functionDefinition;
+		return this.dummyDefinition;
 	}
 	
 	public Statement getDummyNoArgsDefinition() {
-		return new FunctionDefinition(this.dummyNoArgs);
+		return this.dummyNoArgsDefinition;
 	}
 	
 }
