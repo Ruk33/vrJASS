@@ -59,7 +59,7 @@ public class FunctionDefinitionTest {
 			translator.translate()
 		);
 		
-		translator.append(new FunctionStatement(new FunctionExpression(function, false, new ExpressionList())));
+		translator.add(new FunctionStatement(new FunctionExpression(function, false, new ExpressionList())));
 		
 		assertEquals(
 			"function foo takes integer bar,integer baz returns integer\n"

@@ -1,78 +1,92 @@
 package com.ruke.vrjassc.translator.expression;
 
 import java.util.HashMap;
-import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Map;
 
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
 
-public class JassContainer extends StatementBody {
+public class JassContainer extends StatementList {
 
-	protected HashMap<Symbol, MutualRecursion> mutualRecursionMap;
-	protected StatementBody globals;
+	protected Map<Symbol, Integer> pos = new HashMap<Symbol, Integer>();
+	protected Map<Symbol, MutualRecursion> recursion = new HashMap<Symbol, MutualRecursion>();
 	
 	@Override
-	public JassContainer getJassContainer() {
-		return this;
-	}
-	
-	public JassContainer() {
-		this.mutualRecursionMap = new HashMap<Symbol, MutualRecursion>();
-		this.globals = new GlobalStatement();
-	}
-	
-	public void registerMutualRecursion(FunctionSymbol function) {
-		this.mutualRecursionMap.put(function, new MutualRecursion(function));
-	}
-	
-	public MutualRecursion getMutualRecursion(FunctionSymbol function) {
-		return this.mutualRecursionMap.get(function);
-	}
-	
-	public StatementBody getGlobals() {
-		return this.globals;
-	}
-	
-	public StatementBody getAllGlobals() {
-		StatementBody allGlobals = new GlobalStatement();
+	public void add(Statement e) {
+		e.setParent(this);
 		
-		allGlobals.append(this.globals);
-		
-		for (MutualRecursion recursion : this.mutualRecursionMap.values()) {
-			allGlobals.append(recursion.getGlobalVariableBlock());
-		}
-		
-		return allGlobals;
+		this.pos.put(e.getSymbol(), this.statements.size());
+		super.add(e);
 	}
-	
-	protected String translateMutualRecursionFuncs(boolean noArgs) {
-		String result = "";
 		
-		for (MutualRecursion recursion : this.mutualRecursionMap.values()) {
-			if (noArgs) {
-				result += recursion.getDummyNoArgsDefinition().translate();
-			} else {
-				result += recursion.getDummyDefinition().translate();
+	protected void sort() {
+		LinkedList<Statement> sorted = new LinkedList<Statement>();
+		FunctionDefinition def;
+		Statement funDef;
+		int index;
+		
+		sorted.addAll(this.getStatements());
+
+		for (Statement statement : this.statements) {
+			if (statement instanceof FunctionDefinition == false) {
+				continue;
 			}
 			
-			result += "\n";
+			def = (FunctionDefinition) statement;
+			index = this.pos.get(def.getSymbol());
+			
+			for (Symbol fun : def.getUsedFunctions()) {
+				if (index < this.pos.get(fun)) {
+					funDef = this.statements.get(this.pos.get(fun));
+					
+					if (def.hasMutualRecursionWith(funDef)) {
+						this.createMutualRecursion(fun);
+					} else {
+						index = this.pos.get(fun);
+					}
+				}
+			}
+			
+			if (index != this.pos.get(def.getSymbol())) {
+				sorted.remove(def);
+				sorted.add(index, def);
+				
+				this.pos.put(def.getSymbol(), index);
+			}
 		}
 		
-		return result.trim();
+		GlobalStatement globals = new GlobalStatement();
+		
+		for (MutualRecursion rec : this.recursion.values()) {
+			globals.add(rec.getGlobalVariableBlock());
+			
+			sorted.addFirst(rec.getDummyDefinition());
+			sorted.addLast(rec.getDummyNoArgsDefinition());
+		}
+				
+		sorted.addFirst(globals);
+		
+		this.statements = sorted;
+	}
+	
+	protected void createMutualRecursion(Symbol function) {
+		if (this.getMutualRecursion(function) == null) {
+			MutualRecursion recursion = new MutualRecursion((FunctionSymbol) function);
+			this.recursion.put(function, recursion);
+		}
 	}
 	
 	@Override
+	public MutualRecursion getMutualRecursion(Symbol function) {
+		return this.recursion.get(function);
+	}
+
+	@Override
 	public String translate() {
-		Stack<String> result = new Stack<String>();
-		String body = super.translate();
-		
-		result.push(this.getAllGlobals().translate());
-		result.push(this.translateMutualRecursionFuncs(false));
-		result.push(body.trim());
-		result.push(this.translateMutualRecursionFuncs(true));
-		
-		return String.join("\n", result).trim();
+		this.sort();
+		return super.translate().trim();
 	}
 	
 }

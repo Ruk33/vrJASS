@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.ruke.vrjassc.translator.expression.GlobalStatement;
 import com.ruke.vrjassc.translator.expression.RawExpression;
-import com.ruke.vrjassc.translator.expression.StatementBody;
+import com.ruke.vrjassc.translator.expression.StatementList;
 import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -16,13 +16,13 @@ public class GlobalStatementTest {
 
 	@Test
 	public void empty() {
-		StatementBody globals = new GlobalStatement();
-		assertEquals("", globals.translate());
+		StatementList globals = new GlobalStatement();
+		assertEquals("globals\nendglobals", globals.translate());
 	}
 	
 	@Test
 	public void test() {
-		StatementBody globals = new GlobalStatement();
+		StatementList globals = new GlobalStatement();
 		
 		Symbol foo = new Symbol("foo", null, null);
 		Symbol bar = new Symbol("bar", null, null);
@@ -32,8 +32,8 @@ public class GlobalStatementTest {
 		foo.setType(integer);
 		bar.setType(integer);
 		
-		globals.append(new VariableStatement(foo, null));
-		globals.append(new VariableStatement(bar, new RawExpression("baz")));
+		globals.add(new VariableStatement(foo, null));
+		globals.add(new VariableStatement(bar, new RawExpression("baz")));
 		
 		assertEquals(
 			"globals\n"

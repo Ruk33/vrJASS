@@ -1,53 +1,58 @@
 package com.ruke.vrjassc.translator.expression;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
-public class StatementBody extends Statement {
+public class StatementBody extends StatementList {
 
-	protected List<Statement> statements = new LinkedList<Statement>();
+	protected StatementList declarations = new StatementList();
 	
-	public List<Statement> getList() {
-		return this.statements;
+	public StatementList getDeclarations() {
+		return this.declarations;
 	}
 	
-	public void append(Statement statement) {
-		statement.setParent(this);
-		this.statements.add(statement);
-	}
-
-	@Override
-	public boolean usesFunction(Symbol function) {
-		boolean result = super.usesFunction(function);
+	protected boolean canDeclareVariables() {
+		if (this.getParent() instanceof FunctionDefinition == false) {
+			return false;
+		}
 		
-		for (Statement statement : this.statements) {
-			if (statement.usesFunction(function)) {
-				return true;
+		if (this.getStatements().getLast() instanceof VariableStatement == false) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	protected void addVariableStatement(VariableStatement e) {
+		if (this.canDeclareVariables()) {
+			super.add(e);
+		} else {
+			if (e.value == null) {
+				this.getDeclarations().add(e);
+			} else {
+				Symbol s = e.getSymbol();
+				Expression var = new VariableExpression(s, null);
+				AssignmentStatement assign = new AssignmentStatement(var, e.value);
+				
+				this.getDeclarations().add(new VariableStatement(s, null));
+				this.add(assign);
 			}
 		}
-		
-		return result;
 	}
 	
-	@Override
-	public String translate() {
-		List<Statement> sortedStatements = new LinkedList<Statement>();
-		String result = "";
-		int index = 0;
+	public void add(Statement e) {
+		e.setParent(this);
 		
-		sortedStatements.addAll(this.statements);
+		this.getUsedFunctions().addAll(e.getUsedFunctions());
 		
-		for (Statement statement : this.statements) {
-			statement.sort(sortedStatements, index++);
+		if (e instanceof VariableStatement) {
+			this.addVariableStatement((VariableStatement) e);
+		} else {
+			if (e instanceof StatementBody) {
+				this.getDeclarations().add(((StatementBody) e).getDeclarations());
+			}
+			
+			super.add(e);
 		}
-		
-		for (Statement statement : sortedStatements) {
-			result += statement.translate() + "\n";
-		}
-		
-		return result;
 	}
 	
 }

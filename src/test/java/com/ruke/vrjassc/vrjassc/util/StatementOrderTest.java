@@ -47,14 +47,16 @@ public class StatementOrderTest {
 		Statement barSetTwo = new AssignmentStatement(barExpression, twoExpression);
 		Statement barSetOne = new AssignmentStatement(barExpression, oneExpression);
 		
-		container.append(fooDef);
+		container.add(fooDef);
 		
-		fooDef.append(barSetTwo);
-		fooDef.append(barSetOne);
-		fooDef.append(barDeclaration);
+		fooDef.add(barSetTwo);
+		fooDef.add(barSetOne);
+		fooDef.add(barDeclaration);
 		
 		assertEquals(
-			"function foo takes nothing returns nothing\n"
+			"globals\n"
+			+ "endglobals\n"
+			+ "function foo takes nothing returns nothing\n"
 			+ "local integer bar\n"
 			+ "set bar=2\n"
 			+ "set bar=1\n"
@@ -76,13 +78,15 @@ public class StatementOrderTest {
 		Expression barExpression = new FunctionExpression(barSymbol, false, new ExpressionList());
 		Statement barCall = new FunctionStatement(barExpression);
 		
-		fooDef.append(barCall);
+		fooDef.add(barCall);
 		
-		container.append(fooDef);
-		container.append(barDef);
+		container.add(fooDef);
+		container.add(barDef);
 		
 		assertEquals(
-			"function bar takes nothing returns nothing\n"
+			"globals\n"
+			+ "endglobals\n"
+			+ "function bar takes nothing returns nothing\n"
 			+ "endfunction\n"
 			+ "function foo takes nothing returns nothing\n"
 			+ "call bar()\n"
@@ -123,30 +127,30 @@ public class StatementOrderTest {
 		fooArgs.add(new RawExpression("i"));
 		barArgs.add(new RawExpression("i"));
 		
-		fooDef.append(barReturn);
-		barDef.append(fooReturn);
+		fooDef.add(barReturn);
+		barDef.add(fooReturn);
 		
-		scope.append(fooDef);
-		scope.append(barDef);
+		scope.add(fooDef);
+		scope.add(barDef);
 
 		assertEquals(
 			"globals\n"
-				+ "integer vrjass_c_foo_i\n"
-				+ "integer vrjass_c_foo_return\n"
+				+ "integer vrjass_c_bar_i\n"
+				+ "integer vrjass_c_bar_return\n"
 			+ "endglobals\n"
-			+ "function vrjass_c_foo takes integer i returns integer\n"
-				+ "set vrjass_c_foo_i=i\n"
-				+ "call ExecuteFunc(\"vrjass_c_foo_noArgs\")\n"
-				+ "return vrjass_c_foo_return\n"
-			+ "endfunction\n"
-			+ "function bar takes integer i returns integer\n"
-				+ "return vrjass_c_foo(i)\n"
+			+ "function vrjass_c_bar takes integer i returns integer\n"
+				+ "set vrjass_c_bar_i=i\n"
+				+ "call ExecuteFunc(\"vrjass_c_bar_noArgs\")\n"
+				+ "return vrjass_c_bar_return\n"
 			+ "endfunction\n"
 			+ "function foo takes integer i returns integer\n"
-				+ "return bar(i)\n"
+				+ "return vrjass_c_bar(i)\n"
 			+ "endfunction\n"
-			+ "function vrjass_c_foo_noArgs takes nothing returns nothing\n"
-			+ "set vrjass_c_foo_return=foo(vrjass_c_foo_i)\n"
+			+ "function bar takes integer i returns integer\n"
+				+ "return foo(i)\n"
+			+ "endfunction\n"
+			+ "function vrjass_c_bar_noArgs takes nothing returns nothing\n"
+				+ "set vrjass_c_bar_return=bar(vrjass_c_bar_i)\n"
 			+ "endfunction",
 			scope.translate()
 		);

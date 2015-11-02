@@ -43,9 +43,9 @@ public class FunctionStatementTest {
 		Scope foo = new ClassSymbol("foo", null, null);
 		FunctionSymbol bar = new MethodSymbol("bar", foo, null);
 		
-		Expression function = new FunctionExpression(bar, false, new ExpressionList());
 		ChainExpression chain = new ChainExpression();
 		
+		Expression function = new FunctionExpression(bar, false, new ExpressionList());
 		Expression _this = new VariableExpression(new LocalVariableSymbol("this", bar, null), null);
 		
 		chain.append(_this, null);

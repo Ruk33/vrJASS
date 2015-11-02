@@ -11,7 +11,7 @@ import com.ruke.vrjassc.translator.expression.FunctionStatement;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.ReturnStatement;
 import com.ruke.vrjassc.translator.expression.Statement;
-import com.ruke.vrjassc.translator.expression.StatementBody;
+import com.ruke.vrjassc.translator.expression.StatementList;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
 import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
@@ -21,7 +21,7 @@ public class MutualRecursion {
 
 	protected FunctionSymbol function;
 	
-	protected StatementBody globals;
+	protected StatementList globals;
 	protected Stack<Symbol> globalArgs;
 	
 	protected Expression returnExpression;
@@ -33,14 +33,14 @@ public class MutualRecursion {
 	protected void defineGlobals() {
 		Symbol variable;
 		
-		this.globals = new StatementBody();
+		this.globals = new StatementList();
 		this.globalArgs = new Stack<Symbol>();
 		
 		for (Symbol param : this.function.getParams()) {
 			variable = new Symbol(this.getGlobalVariableName(param), null, null);
 			variable.setType(param.getType());
 			
-			this.globals.append(new VariableStatement(variable, null));
+			this.globals.add(new VariableStatement(variable, null));
 			this.globalArgs.push(variable);
 		}
 		
@@ -49,7 +49,7 @@ public class MutualRecursion {
 			variable.setType(this.function.getType());
 			
 			this.returnExpression = new VariableExpression(variable, null);
-			this.globals.append(new VariableStatement(variable, null));
+			this.globals.add(new VariableStatement(variable, null));
 		}
 		
 		this.returnStatement = new ReturnStatement(this.returnExpression);
@@ -68,7 +68,7 @@ public class MutualRecursion {
 		for (Symbol arg : this.globalArgs) {
 			paramName = arg.getName().replaceFirst(this.getPrefix() + "_", "");
 			
-			this.dummyDefinition.append(
+			this.dummyDefinition.add(
 				new AssignmentStatement(
 					new VariableExpression(arg, null),
 					new RawExpression(paramName)
@@ -80,8 +80,8 @@ public class MutualRecursion {
 		Expression execFuncExpr = new RawExpression("ExecuteFunc(\"" + noArgsName + "\")");
 		Statement noArgsCall = new FunctionStatement(execFuncExpr);
 		
-		this.dummyDefinition.append(noArgsCall);
-		this.dummyDefinition.append(this.returnStatement);
+		this.dummyDefinition.add(noArgsCall);
+		this.dummyDefinition.add(this.returnStatement);
 	}
 	
 	protected void defineDummyNoArgsFunction() {
@@ -103,7 +103,7 @@ public class MutualRecursion {
 			statement = new AssignmentStatement(this.returnExpression, functionCall);
 		}
 		
-		this.dummyNoArgsDefinition.append(statement);
+		this.dummyNoArgsDefinition.add(statement);
 	}
 	
 	public MutualRecursion(FunctionSymbol function) {

@@ -1,6 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
 import java.util.LinkedList;
+
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
@@ -14,8 +15,9 @@ public class ChainExpression extends Expression {
 		this.chainTranslator = new ChainExpressionTranslator();
 		this.expressions = new LinkedList<Expression>();
 	}
-	
+		
 	public void append(Expression expression, String key) {
+		expression.setParent(this);
 		this.expressions.add(expression);
 	}
 	

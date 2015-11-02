@@ -1,6 +1,6 @@
 package com.ruke.vrjassc.translator.expression;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -49,21 +49,19 @@ public class FunctionDefinition extends StatementBody {
 		this.params = new ParameterList(function);
 		this.body = new StatementBody();
 		
-		this.body.setFunctionDefinition(this);
 		this.body.setParent(this);
 	}
-	
+
 	@Override
-	public boolean usesFunction(Symbol function) {
-		return this.body.usesFunction(function);
+	public Collection<Symbol> getUsedFunctions() {
+		return this.body.getUsedFunctions();
 	}
 	
 	@Override
-	public void append(Statement statement) {
-		statement.setFunctionDefinition(this);
-		this.body.append(statement);
+	public void add(Statement e) {
+		this.body.add(e);
 	}
-	
+		
 	@Override
 	public String translate() {
 		Type _return = this.function.getType();
@@ -80,10 +78,12 @@ public class FunctionDefinition extends StatementBody {
 		return String.format(
 			"function %s takes %s returns %s\n"
 				+ "%s"
+				+ "%s"
 			+ "endfunction",
 			this.function.getName(),
 			this.params.translate(),
 			returnType,
+			this.body.getDeclarations().translate(),
 			this.body.translate()
 		);
 	}
@@ -92,33 +92,9 @@ public class FunctionDefinition extends StatementBody {
 	public Symbol getSymbol() {
 		return this.function;
 	}
-	
-	@Override
-	public void sort(List<Statement> list, int index) {
-		int newIndex = index;
-		int indexFunc;
 
-		for (Statement definition : list) {
-			if (definition == this) {
-				continue;
-			}
-			
-			if (definition.usesFunction(this.getSymbol())) {
-				indexFunc = list.indexOf(definition);
-				
-				if (indexFunc < newIndex) {
-					newIndex = indexFunc;
-				} else {
-					this.getJassContainer()
-						.registerMutualRecursion((FunctionSymbol) function);
-				}
-			}
-		}
-
-		if (newIndex != index) {
-			list.remove(index);
-			list.add(newIndex, this);
-		}
+	public boolean hasMutualRecursionWith(Statement def) {
+		return this.getUsedFunctions().contains(def.getSymbol()) &&
+				def.getUsedFunctions().contains(this.getSymbol());
 	}
-	
 }
