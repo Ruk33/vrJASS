@@ -1,4 +1,4 @@
-package com.ruke.vrjassc.vrjassc.util;
+package com.ruke.vrjassc.vrjassc.translation.expression;
 
 import static org.junit.Assert.*;
 
