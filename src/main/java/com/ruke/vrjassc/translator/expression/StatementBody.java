@@ -4,6 +4,9 @@ import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
 public class StatementBody extends StatementList {
 
+	/**
+	 * Variable declarations that are not in the header of the body
+	 */
 	protected StatementList declarations = new StatementList();
 	
 	public StatementList getDeclarations() {

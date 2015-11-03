@@ -6,7 +6,7 @@ import java.util.Stack;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.ruke.vrjassc.translator.DefaultPropertyValueTranslator;
-import com.ruke.vrjassc.translator.expression.ComparisonExpression;
+import com.ruke.vrjassc.translator.expression.BooleanExpression;
 import com.ruke.vrjassc.translator.expression.Expression;
 import com.ruke.vrjassc.translator.expression.MathExpression;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
@@ -200,23 +200,23 @@ public class TranslationPhase extends AbstractParseTreeVisitor<Expression> imple
 	public Expression visitComparison(ComparisonContext ctx) {
 		Expression a = this.visit(ctx.left);
 		Expression b = this.visit(ctx.right);
-		ComparisonExpression.Operator operator;
+		BooleanExpression.Operator operator;
 		
 		if (ctx.EQEQ() != null) {
-			operator = ComparisonExpression.Operator.EQUAL_EQUAL;
+			operator = BooleanExpression.Operator.EQUAL_EQUAL;
 		} else if (ctx.NOT_EQ() != null) {
-			operator = ComparisonExpression.Operator.NOT_EQUAL;
+			operator = BooleanExpression.Operator.NOT_EQUAL;
 		} else if (ctx.GREATER() != null) {
-			operator = ComparisonExpression.Operator.GREATER;
+			operator = BooleanExpression.Operator.GREATER;
 		} else if (ctx.GREATER_EQ() != null) {
-			operator = ComparisonExpression.Operator.GREATER_EQUAL;
+			operator = BooleanExpression.Operator.GREATER_EQUAL;
 		} else if (ctx.LESS() != null) {
-			operator = ComparisonExpression.Operator.LESS;
+			operator = BooleanExpression.Operator.LESS;
 		} else {
-			operator = ComparisonExpression.Operator.LESS_EQUAL;
+			operator = BooleanExpression.Operator.LESS_EQUAL;
 		}
 		
-		return new ComparisonExpression(a, operator, b);
+		return new BooleanExpression(a, operator, b);
 	}
 
 	@Override

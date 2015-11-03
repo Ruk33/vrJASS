@@ -1,6 +1,8 @@
 package com.ruke.vrjassc.translator.expression;
 
-public class ComparisonExpression extends Expression {
+import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
+
+public class BooleanExpression extends Expression {
 
 	public static enum Operator {
 		EQUAL_EQUAL		{ public String toString() { return "=="; } },
@@ -15,7 +17,7 @@ public class ComparisonExpression extends Expression {
 	protected Operator operator;
 	protected Expression b;
 	
-	public ComparisonExpression(Expression a, Operator operator, Expression b) {
+	public BooleanExpression(Expression a, Operator operator, Expression b) {
 		this.a = a;
 		this.operator = operator;
 		this.b = b;
@@ -23,6 +25,13 @@ public class ComparisonExpression extends Expression {
 	
 	@Override
 	public String translate() {
+		if (this.b == null) {
+			String type = this.a.getSymbol().getType().getName();
+			if (VariableTypeDetector.isHandle(type)) {
+				return this.a.translate() + "!=null";
+			}
+		}
+		
 		return this.a.translate() + this.operator + this.b.translate();
 	}
 
