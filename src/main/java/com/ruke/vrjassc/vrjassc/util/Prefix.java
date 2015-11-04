@@ -3,7 +3,6 @@ package com.ruke.vrjassc.vrjassc.util;
 import org.antlr.v4.runtime.Token;
 
 /**
- * @deprecated
  * @author Ruke
  *
  */

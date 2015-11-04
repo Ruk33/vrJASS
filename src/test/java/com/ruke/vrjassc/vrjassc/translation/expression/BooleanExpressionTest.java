@@ -15,6 +15,32 @@ import com.ruke.vrjassc.vrjassc.symbol.Type;
 public class BooleanExpressionTest {
 
 	@Test
+	public void integer() {
+		Symbol s = new LocalVariableSymbol("foo", null, null);
+		Type htype = new BuiltInTypeSymbol("integer", null, null);
+		
+		s.setType(htype);
+		
+		VariableExpression var = new VariableExpression(s, null);
+		BooleanExpression bool = new BooleanExpression(var, null, null);
+		
+		assertEquals("foo!=0", bool.translate());
+	}
+	
+	@Test
+	public void string() {
+		Symbol s = new LocalVariableSymbol("foo", null, null);
+		Type htype = new BuiltInTypeSymbol("string", null, null);
+		
+		s.setType(htype);
+		
+		VariableExpression var = new VariableExpression(s, null);
+		BooleanExpression bool = new BooleanExpression(var, null, null);
+		
+		assertEquals("StringLength(foo)!=0", bool.translate());
+	}
+	
+	@Test
 	public void handle() {
 		Symbol s = new LocalVariableSymbol("foo", null, null);
 		Type htype = new BuiltInTypeSymbol("unit", null, null);

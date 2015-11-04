@@ -14,10 +14,6 @@ public class Compile {
 	protected String commonPath;
 	protected String blizzardPath;
 	protected String compiled;
-
-	public String getCompiled() {
-		return this.compiled;
-	}
 	
 	public Compile setCommonPath(String path) {
 		this.commonPath = path;
@@ -30,11 +26,10 @@ public class Compile {
 	}
 
 	public String run(String code) throws CompileException {
-		ANTLRInputStream is = new ANTLRInputStream(code.replace("\t", "    ") + "\n");
+		String replacedTabs = code.replace("\t", "    ");
+		ANTLRInputStream is = new ANTLRInputStream(replacedTabs + "\n");
 		
-		this.compiled = this.compiler.compile(is);
-		
-		return this.compiled;
+		return this.compiler.compile(is);
 	}
 
 	public String runFromFile(String path) throws IOException {

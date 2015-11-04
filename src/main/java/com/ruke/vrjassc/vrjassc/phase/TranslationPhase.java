@@ -1,17 +1,12 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
-import java.util.Hashtable;
-import java.util.Stack;
-
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-
-import com.ruke.vrjassc.translator.DefaultPropertyValueTranslator;
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
 import com.ruke.vrjassc.translator.expression.Expression;
 import com.ruke.vrjassc.translator.expression.MathExpression;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.ReturnStatement;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ArgumentsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanExpressionContext;
@@ -76,7 +71,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VisibilityContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
@@ -87,30 +81,13 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
-import com.ruke.vrjassc.vrjassc.symbol.Scope;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 
-public class TranslationPhase extends AbstractParseTreeVisitor<Expression> implements vrjassVisitor<Expression> {
+public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	protected TokenSymbolBag symbols;
-	
-	protected StringBuilder globals;
-	protected StringBuilder output;
-	
-	protected int classEnum;
-	protected int propertyEnum;
-	protected String propertyValue;
-	
-	protected Hashtable<Symbol, String> propertiesKey = new Hashtable<Symbol, String>();
-	
-	protected Hashtable<Scope, Stack<Symbol>> propertiesWithDefaultValue = new Hashtable<Scope, Stack<Symbol>>();
-	protected DefaultPropertyValueTranslator propertiesDefaultValue = new DefaultPropertyValueTranslator();
-	
-	public TranslationPhase(TokenSymbolBag symbols, Scope scope) {
-		this.output = new StringBuilder();
-		this.globals = new StringBuilder();
 		
+	public TranslationPhase(TokenSymbolBag symbols) {
 		this.symbols = symbols;
 	}
 

@@ -27,8 +27,13 @@ public class BooleanExpression extends Expression {
 	public String translate() {
 		if (this.b == null) {
 			String type = this.a.getSymbol().getType().getName();
+			
 			if (VariableTypeDetector.isHandle(type)) {
 				return this.a.translate() + "!=null";
+			} else if (type.equals("string")) {
+				return "StringLength(" + this.a.translate() + ")!=0";
+			} else if (type.equals("integer")) {
+				return this.a.translate() + "!=0";
 			}
 		}
 		

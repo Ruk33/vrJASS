@@ -3,17 +3,13 @@ package com.ruke.vrjassc.vrjassc.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 
 import de.peeeq.jmpq.JmpqEditor;
 import de.peeeq.jmpq.JmpqError;
 
-/**
- * @deprecated
- * @author Ruke
- *
- */
-public class vrjassc {
+public class Main {
 
 	public static void main(String[] args) {
 		if (args.length != 3) {
@@ -47,20 +43,13 @@ public class vrjassc {
 
 			editor.close();
 		} catch (JmpqError je) {
-			new ErrorWindow(je.getMessage(), "", 0);
+			System.out.println(je.getMessage());
 		} catch (CompileException ce) {
-			new ErrorWindow(
-				ce.getMessage(),
-				compile.getCompiled(),
-				ce.getLine()
-			);
-			//System.exit(2);
+			System.out.println("Compile error: " + ce.getMessage());
+			System.out.println("Line: " + ce.getLine());
 		} catch (IOException io) {
-			new ErrorWindow(io.getMessage(), "", 0);
-			//System.exit(1);
+			System.out.println(io.getMessage());
 		}
-
-		//System.exit(0);
 	}
 
 }

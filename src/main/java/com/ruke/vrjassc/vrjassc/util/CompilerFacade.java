@@ -24,7 +24,7 @@ public class CompilerFacade {
 		
 		DefinitionPhase defPhase = new DefinitionPhase(symbols, scope);
 		ReferencePhase refPhase = new ReferencePhase(symbols, scope);
-		TranslationPhase tranPhase = new TranslationPhase(symbols, scope);
+		TranslationPhase tranPhase = new TranslationPhase(symbols);
 		
 		defPhase.visit(parser.init());
 		parser.reset();
@@ -32,9 +32,7 @@ public class CompilerFacade {
 		refPhase.visit(parser.init());
 		parser.reset();
 		
-		tranPhase.visit(parser.init());
-		
-		return tranPhase.getOutput();
+		return tranPhase.visit(parser.init()).translate();
 	}
 	
 }
