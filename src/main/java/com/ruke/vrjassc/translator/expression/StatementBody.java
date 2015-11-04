@@ -18,8 +18,10 @@ public class StatementBody extends StatementList {
 			return false;
 		}
 		
-		if (this.getStatements().getLast() instanceof VariableStatement == false) {
-			return false;
+		if (!this.getStatements().isEmpty()) {
+			if (this.getStatements().getLast() instanceof VariableStatement == false) {
+				return false;
+			}
 		}
 		
 		return true;

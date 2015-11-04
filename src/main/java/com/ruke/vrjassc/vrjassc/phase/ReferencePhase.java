@@ -17,6 +17,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
@@ -73,6 +74,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitInteger(IntegerContext ctx) {
 		return this.getScope().resolve("integer");
+	}
+	
+	@Override
+	public Symbol visitReal(RealContext ctx) {
+		return this.getScope().resolve("real");
 	}
 	
 	@Override
@@ -178,6 +184,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			this.visit(ctx.index);
 		}
 		
+		this.symbols.saveVariable(ctx, variable);
+		
 		return variable;
 	}
 	
@@ -206,6 +214,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		if (!this.validator.mustMatchArguments(function, arguments, token)) {
 			throw this.validator.getException();
 		}
+		
+		this.symbols.saveFunction(ctx, function);
 		
 		return function;
 	}

@@ -1,4 +1,4 @@
-package com.ruke.vrjassc.vrjassc;
+package com.ruke.vrjassc.vrjassc.util;
 
 import java.io.IOException;
 
@@ -6,7 +6,6 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
-import com.ruke.vrjassc.vrjassc.util.Compile;
 
 public abstract class TestHelper {
 

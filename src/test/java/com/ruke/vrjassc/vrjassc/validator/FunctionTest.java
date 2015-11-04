@@ -1,4 +1,4 @@
-package com.ruke.vrjassc.vrjassc;
+package com.ruke.vrjassc.vrjassc.validator;
 
 import org.junit.Test;
 
@@ -7,6 +7,7 @@ import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
+import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
 

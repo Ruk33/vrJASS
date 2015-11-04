@@ -1,4 +1,4 @@
-package com.ruke.vrjassc.vrjassc;
+package com.ruke.vrjassc.vrjassc.validator;
 
 import org.junit.Test;
 
@@ -9,6 +9,7 @@ import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
 import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
+import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
 	

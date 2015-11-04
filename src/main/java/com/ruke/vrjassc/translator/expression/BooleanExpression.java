@@ -23,9 +23,17 @@ public class BooleanExpression extends Expression {
 		this.b = b;
 	}
 	
+	public BooleanExpression(Expression a) {
+		this.a = a;
+	}
+
 	@Override
 	public String translate() {
 		if (this.b == null) {
+			if (this.a.translate().equals("true") || this.a.translate().equals("false")) {
+				return this.a.translate();
+			}
+			
 			String type = this.a.getSymbol().getType().getName();
 			
 			if (VariableTypeDetector.isHandle(type)) {

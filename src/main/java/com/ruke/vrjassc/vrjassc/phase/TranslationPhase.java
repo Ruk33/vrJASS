@@ -1,11 +1,27 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
+import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
+import com.ruke.vrjassc.translator.expression.ElseIfStatement;
+import com.ruke.vrjassc.translator.expression.ElseStatement;
+import com.ruke.vrjassc.translator.expression.ExitWhenStatement;
 import com.ruke.vrjassc.translator.expression.Expression;
+import com.ruke.vrjassc.translator.expression.ExpressionList;
+import com.ruke.vrjassc.translator.expression.FunctionDefinition;
+import com.ruke.vrjassc.translator.expression.FunctionExpression;
+import com.ruke.vrjassc.translator.expression.FunctionStatement;
+import com.ruke.vrjassc.translator.expression.IfStatement;
+import com.ruke.vrjassc.translator.expression.JassContainer;
+import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.ReturnStatement;
+import com.ruke.vrjassc.translator.expression.Statement;
+import com.ruke.vrjassc.translator.expression.StatementBody;
+import com.ruke.vrjassc.translator.expression.StatementList;
+import com.ruke.vrjassc.translator.expression.VariableExpression;
+import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ArgumentsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
@@ -16,29 +32,16 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitwhenStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExtendValidNameContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ImplementsListContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementsContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryInitializerContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryRequirementsContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryRequirementsListContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LoopStatementContext;
@@ -46,41 +49,28 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MemberContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MemberExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParametersContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PlusContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PublicPrivateContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SuperThistypeThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TopDeclarationContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidImplementNameContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidTypeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VisibilityContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 
 public class TranslationPhase extends vrjassBaseVisitor<Expression> {
@@ -93,23 +83,18 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitInit(InitContext ctx) {
-		return visitChildren(ctx);
-	}
+		StatementList jassContainer = new JassContainer();
+		
+		for (TopDeclarationContext stat : ctx.topDeclaration()) {
+			jassContainer.add((Statement) this.visit(stat));
+		}
 
-	@Override
-	public Expression visitTopDeclaration(TopDeclarationContext ctx) {
-		return visitChildren(ctx);
+		return jassContainer;
 	}
 
 	@Override
 	public Expression visitNull(NullContext ctx) {
 		return new RawExpression("null");
-	}
-
-	@Override
-	public Expression visitVariable(VariableContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -143,14 +128,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitFunction(FunctionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Expression visitNot(NotContext ctx) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -176,8 +154,12 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	@Override
 	public Expression visitComparison(ComparisonContext ctx) {
 		Expression a = this.visit(ctx.left);
-		Expression b = this.visit(ctx.right);
-		BooleanExpression.Operator operator;
+		Expression b = null;
+		BooleanExpression.Operator operator = null;
+		
+		if (ctx.right != null) {
+			b = this.visit(ctx.right);
+		}
 		
 		if (ctx.EQEQ() != null) {
 			operator = BooleanExpression.Operator.EQUAL_EQUAL;
@@ -189,7 +171,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			operator = BooleanExpression.Operator.GREATER_EQUAL;
 		} else if (ctx.LESS() != null) {
 			operator = BooleanExpression.Operator.LESS;
-		} else {
+		} else if (ctx.LESS_EQ() != null) {
 			operator = BooleanExpression.Operator.LESS_EQUAL;
 		}
 		
@@ -214,8 +196,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitPlus(PlusContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Expression a = this.visit(ctx.left);
+		Expression b = this.visit(ctx.right);
+		
+		return new MathExpression(a, MathExpression.Operator.PLUS, b);
 	}
 
 	@Override
@@ -226,8 +210,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitMinus(MinusContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Expression a = this.visit(ctx.left);
+		Expression b = this.visit(ctx.right);
+		
+		return new MathExpression(a, MathExpression.Operator.MINUS, b);
 	}
 
 	@Override
@@ -238,14 +224,33 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitFunctionExpression(FunctionExpressionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Symbol symbol = this.symbols.getFunction(ctx);
+		ExpressionList args = null;
+		
+		if (ctx.arguments() == null) {
+			args = new ExpressionList();
+		} else {
+			args = (ExpressionList) this.visit(ctx.arguments());
+		}
+		
+		return new FunctionExpression(symbol, false, args);
 	}
 
 	@Override
 	public Expression visitVariableExpression(VariableExpressionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Symbol symbol = this.symbols.getVariable(ctx);
+		Expression index = null;
+		
+		if (ctx.index != null) {
+			index = this.visit(ctx.index);
+		}
+		
+		return new VariableExpression(symbol, index);
+	}
+	
+	@Override
+	public Expression visitBooleanExpression(BooleanExpressionContext ctx) {
+		return new BooleanExpression(this.visit(ctx.expression()));
 	}
 
 	@Override
@@ -273,54 +278,47 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitIntegerExpression(IntegerExpressionContext ctx) {
-		return this.visit(ctx.expression());
-	}
-
-	@Override
-	public Expression visitBooleanExpression(BooleanExpressionContext ctx) {
-		return this.visit(ctx.expression());
-	}
-
-	@Override
-	public Expression visitStatements(StatementsContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	@Override
 	public Expression visitElseIfStatement(ElseIfStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitElseIfStatements(ElseIfStatementsContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		ElseIfStatement elif = new ElseIfStatement(this.visit(ctx.booleanExpression()));
+		
+		for (StatementContext statement : ctx.statements().statement()) {
+			elif.add((Statement) this.visit(statement));
+		}
+		
+		return elif;
 	}
 
 	@Override
 	public Expression visitElseStatement(ElseStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		ElseStatement _else = new ElseStatement();
+		
+		for (StatementContext statement : ctx.statements().statement()) {
+			_else.add((Statement) this.visit(statement));
+		}
+		
+		return _else;
 	}
 
 	@Override
 	public Expression visitIfStatement(IfStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IfStatement _if = new IfStatement(this.visit(ctx.booleanExpression()));
+
+		for (StatementContext stat : ctx.statements().statement()) {
+			_if.add((Statement) this.visit(stat));
+		}
+		
+		return _if;
 	}
 
 	@Override
 	public Expression visitLoopStatement(LoopStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitPublicPrivate(PublicPrivateContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		LoopStatement loop = new LoopStatement();
+		
+		for (StatementContext statement : ctx.statements().statement()) {
+			loop.add((Statement) this.visit(statement));
+		}
+		
+		return loop;
 	}
 
 	@Override
@@ -331,14 +329,19 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitLocalVariableStatement(LocalVariableStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Symbol symbol = this.symbols.getVariable(ctx);
+		Expression value = null;
+		
+		if (ctx.value != null) {
+			value = this.visit(ctx.value);
+		}
+		
+		return new VariableStatement(symbol, value);
 	}
 
 	@Override
 	public Expression visitSetVariableStatement(SetVariableStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return new AssignmentStatement(this.visit(ctx.name), this.visit(ctx.value));
 	}
 
 	@Override
@@ -349,24 +352,17 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitCallFunctionStatement(CallFunctionStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return new FunctionStatement(this.visit(ctx.functionExpression()));
 	}
 
 	@Override
 	public Expression visitExitwhenStatement(ExitwhenStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ExitWhenStatement(this.visit(ctx.booleanExpression()));
 	}
 
 	@Override
 	public Expression visitReturnStatement(ReturnStatementContext ctx) {
 		return new ReturnStatement(this.visit(ctx));
-	}
-
-	@Override
-	public Expression visitStatement(StatementContext ctx) {
-		return visitChildren(ctx);
 	}
 
 	@Override
@@ -377,53 +373,6 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitGlobalDefinition(GlobalDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitTypeDefinition(TypeDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitNativeDefinition(NativeDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitPropertyStatement(PropertyStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitStructStatement(StructStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitStructStatements(StructStatementsContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitValidImplementName(ValidImplementNameContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	@Override
-	public Expression visitImplementsList(ImplementsListContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitExtendValidName(ExtendValidNameContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -441,105 +390,26 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitInterfaceStatement(InterfaceStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitInterfaceStatements(InterfaceStatementsContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitInterfaceDefinition(InterfaceDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Expression visitFunctionDefinition(FunctionDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitLibraryInitializer(LibraryInitializerContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitLibraryRequirementsList(LibraryRequirementsListContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitLibraryRequirements(LibraryRequirementsContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitLibraryStatement(LibraryStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitLibraryStatements(LibraryStatementsContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitLibraryDefinition(LibraryDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitReturnType(ReturnTypeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitParameter(ParameterContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitParameters(ParametersContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		FunctionSymbol symbol = (FunctionSymbol) this.symbols.getFunction(ctx);
+		StatementBody function = new FunctionDefinition(symbol);
+		
+		for (StatementContext statement : ctx.statements().statement()) {
+			function.add((Statement) this.visit(statement));
+		}
+		
+		return function;
 	}
 
 	@Override
 	public Expression visitArguments(ArgumentsContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitValidType(ValidTypeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitValidName(ValidNameContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitVisibility(VisibilityContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		ExpressionList args = new ExpressionList();
+		
+		for (ExpressionContext expr : ctx.expression()) {
+			args.add(this.visit(expr));
+		}
+		
+		return args;
 	}
 	
 }
