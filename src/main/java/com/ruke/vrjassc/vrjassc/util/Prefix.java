@@ -1,57 +1,31 @@
 package com.ruke.vrjassc.vrjassc.util;
 
-import org.antlr.v4.runtime.Token;
+import java.util.LinkedList;
 
-/**
- * @author Ruke
- *
- */
+import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+
 public class Prefix {
 
-	public String getForScope(boolean _private, String scopeName) {
-		if (scopeName == null || scopeName.equals("")) {
-			return "";
+	public static String build(Symbol symbol) {
+		boolean isMethod = symbol instanceof MethodSymbol;
+		boolean isProperty = symbol instanceof PropertySymbol;
+		
+		if (isProperty || isMethod) {
+			LinkedList<String> e = new LinkedList<String>();
+			
+			while (symbol.getParentScope() != null) {
+				e.addFirst(symbol.getName());
+				symbol = (Symbol) symbol.getParentScope();
+			}
+			
+			e.addFirst("struct");
+			
+			return String.join("_", e);
 		}
-
-		if (_private) {
-			return scopeName + "__";
-		}
-
-		return scopeName + "_";
-	}
-
-	public String getForScope(Token visibility, String scopeName) {
-		boolean _private = false;
-
-		if (visibility == null) {
-			return "";
-		} else {
-			_private = visibility.getText().equals("private");
-		}
-
-		return this.getForScope(_private, scopeName);
-	}
-
-	public String getForClass(boolean _private, String scopeName,
-			String className) {
-		if (scopeName == null || scopeName.equals("")) {
-			scopeName = className;
-			return "struct_" + this.getForScope(_private, scopeName);
-		}
-
-		return "struct_" + this.getForScope(_private, scopeName) + className
-				+ "_";
-	}
-
-	public String getForClass(Token visibility, String scopeName,
-			String className) {
-		boolean _private = false;
-
-		if (visibility != null) {
-			_private = visibility.getText().equals("private");
-		}
-
-		return this.getForClass(_private, scopeName, className);
+		
+		return symbol.getName();
 	}
 
 }

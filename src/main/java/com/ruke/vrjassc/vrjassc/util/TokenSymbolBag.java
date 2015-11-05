@@ -15,6 +15,8 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
@@ -28,6 +30,14 @@ public class TokenSymbolBag {
 	private Hashtable<Token, Symbol> bag = new Hashtable<Token, Symbol>();
 	
 	public void saveVariable(LocalVariableStatementContext ctx, Symbol variable) {
+		this.bag.put(ctx.getStart(), variable);
+	}
+	
+	public Symbol getVariable(ThisContext ctx) {
+		return this.bag.get(ctx.getStart());
+	}
+	
+	public void saveVariable(ThisContext ctx, Symbol variable) {
 		this.bag.put(ctx.getStart(), variable);
 	}
 	
@@ -121,6 +131,14 @@ public class TokenSymbolBag {
 	
 	public void saveFunction(FunctionExpressionContext ctx, Symbol function) {
 		this.bag.put(ctx.getStart(), function);
+	}
+
+	public void saveVariable(ThisExpressionContext ctx, Symbol _this) {
+		this.bag.put(ctx.getStart(), _this);
+	}
+	
+	public Symbol getVariable(ThisExpressionContext ctx) {
+		return this.bag.get(ctx.getStart());
 	}
 	
 }

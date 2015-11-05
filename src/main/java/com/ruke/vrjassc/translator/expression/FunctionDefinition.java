@@ -3,8 +3,11 @@ package com.ruke.vrjassc.translator.expression;
 import java.util.Collection;
 
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.util.Prefix;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
 public class FunctionDefinition extends StatementBody {
@@ -21,6 +24,12 @@ public class FunctionDefinition extends StatementBody {
 			String type;
 			
 			this.expressions.clear();
+			
+			if (this.function instanceof MethodSymbol) {
+				if (!this.function.hasModifier(Modifier.STATIC)) {
+					this.add(new RawExpression("integer this"));
+				}
+			}
 			
 			for (Symbol param : this.function.getParams()) {
 				type = param.getType().getName();
@@ -80,7 +89,7 @@ public class FunctionDefinition extends StatementBody {
 				+ "%s"
 				+ "%s"
 			+ "endfunction",
-			this.function.getName(),
+			Prefix.build(this.function),
 			this.params.translate(),
 			returnType,
 			this.body.getDeclarations().translate(),

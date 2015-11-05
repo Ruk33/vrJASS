@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.util.Prefix;
 
 public class ChainExpression extends Expression {
 
@@ -14,6 +15,10 @@ public class ChainExpression extends Expression {
 	public ChainExpression() {
 		this.chainTranslator = new ChainExpressionTranslator();
 		this.expressions = new LinkedList<Expression>();
+	}
+	
+	public void setHashtableName(String name) {
+		this.chainTranslator.setHashtableName(name);
 	}
 		
 	public void append(Expression expression, String key) {
@@ -45,7 +50,7 @@ public class ChainExpression extends Expression {
 		}
 		
 		for (Expression expression : this.expressions) {
-			this.chainTranslator.append(expression.getSymbol(), null, null);
+			this.chainTranslator.append(expression.getSymbol(), null, Prefix.build(expression.getSymbol()));
 		}
 		
 		return this.chainTranslator.build();

@@ -12,6 +12,7 @@ public class JassContainer extends StatementList {
 
 	protected Map<Symbol, Integer> pos = new HashMap<Symbol, Integer>();
 	protected Map<Symbol, MutualRecursion> recursion = new HashMap<Symbol, MutualRecursion>();
+	protected StatementList globals = new StatementList();
 	
 	@Override
 	public void add(Statement e) {
@@ -19,6 +20,10 @@ public class JassContainer extends StatementList {
 		
 		this.pos.put(e.getSymbol(), this.statements.size());
 		super.add(e);
+	}
+	
+	public void addGlobal(Statement e) {
+		this.globals.add(e);
 	}
 		
 	protected void sort() {
@@ -57,16 +62,18 @@ public class JassContainer extends StatementList {
 			}
 		}
 		
-		GlobalStatement globals = new GlobalStatement();
+		GlobalStatement allGlobals = new GlobalStatement();
 		
 		for (MutualRecursion rec : this.recursion.values()) {
-			globals.add(rec.getGlobalVariableBlock());
+			allGlobals.add(rec.getGlobalVariableBlock());
 			
 			sorted.addFirst(rec.getDummyDefinition());
 			sorted.addLast(rec.getDummyNoArgsDefinition());
 		}
-				
-		sorted.addFirst(globals);
+		
+		allGlobals.add(this.globals);
+		
+		sorted.addFirst(allGlobals);
 		
 		this.statements = sorted;
 	}

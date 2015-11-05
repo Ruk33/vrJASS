@@ -2,6 +2,7 @@ package com.ruke.vrjassc.vrjassc.phase;
 
 import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
+import com.ruke.vrjassc.translator.expression.ChainExpression;
 import com.ruke.vrjassc.translator.expression.ElseIfStatement;
 import com.ruke.vrjassc.translator.expression.ElseStatement;
 import com.ruke.vrjassc.translator.expression.ExitWhenStatement;
@@ -19,7 +20,6 @@ import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.ReturnStatement;
 import com.ruke.vrjassc.translator.expression.Statement;
 import com.ruke.vrjassc.translator.expression.StatementBody;
-import com.ruke.vrjassc.translator.expression.StatementList;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
 import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
@@ -37,16 +37,12 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitwhenStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalStatementsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LoopStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MemberContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MemberExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
@@ -54,9 +50,11 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PlusContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SuperThistypeThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
@@ -68,28 +66,38 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 
 public class TranslationPhase extends vrjassBaseVisitor<Expression> {
-
+	
 	protected TokenSymbolBag symbols;
-		
+	
+	protected JassContainer container;
+
+	private int propertyEnum;
+	
 	public TranslationPhase(TokenSymbolBag symbols) {
 		this.symbols = symbols;
 	}
 
 	@Override
 	public Expression visitInit(InitContext ctx) {
-		StatementList jassContainer = new JassContainer();
+		this.container = new JassContainer();
+		
+		Symbol symbol = new Symbol("vrjass_structs", null, null);
+		symbol.setType(new BuiltInTypeSymbol("hashtable", null, null));
+		
+		Statement structHashtable = new VariableStatement(symbol, new RawExpression("InitHashtable()"));
+		this.container.addGlobal(structHashtable);
 		
 		for (TopDeclarationContext stat : ctx.topDeclaration()) {
-			jassContainer.add((Statement) this.visit(stat));
+			this.container.add((Statement) this.visit(stat));
 		}
 
-		return jassContainer;
+		return this.container;
 	}
 
 	@Override
@@ -185,8 +193,8 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitThis(ThisContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Symbol symbol = this.symbols.getVariable(ctx);
+		return new VariableExpression(symbol, null);
 	}
 
 	@Override
@@ -200,12 +208,6 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		Expression b = this.visit(ctx.right);
 		
 		return new MathExpression(a, MathExpression.Operator.PLUS, b);
-	}
-
-	@Override
-	public Expression visitMember(MemberContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -255,26 +257,21 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitThisExpression(ThisExpressionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitFunctionOrVariable(FunctionOrVariableContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Symbol symbol = this.symbols.getVariable(ctx);
+		return new VariableExpression(symbol, null);
 	}
 
 	@Override
 	public Expression visitChainExpression(ChainExpressionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitMemberExpression(MemberExpressionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		ChainExpression chain = new ChainExpression();
+		
+		chain.setHashtableName("vrjass_structs");
+		
+		for (FunctionOrVariableContext expr : ctx.functionOrVariable()) {
+			chain.append(this.visit(expr), null);
+		}
+		
+		return chain;
 	}
 
 	@Override
@@ -346,8 +343,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitCallMethodStatement(CallMethodStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return new FunctionStatement(this.visit(ctx.memberExpression()));
 	}
 
 	@Override
@@ -364,29 +360,22 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitReturnStatement(ReturnStatementContext ctx) {
 		return new ReturnStatement(this.visit(ctx));
 	}
-
-	@Override
-	public Expression visitGlobalStatements(GlobalStatementsContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression visitGlobalDefinition(GlobalDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public Expression visitStructDefinition(StructDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.visit(ctx.structStatements());
 	}
 
 	@Override
 	public Expression visitMethodDefinition(MethodDefinitionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		FunctionSymbol symbol = (FunctionSymbol) this.symbols.getMethod(ctx);
+		FunctionDefinition method = new FunctionDefinition(symbol);
+		
+		for (StatementContext statement : ctx.statements().statement()) {
+			method.add((Statement) this.visit(statement));
+		}
+		
+		return method;
 	}
 
 	@Override
@@ -410,6 +399,20 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		}
 		
 		return args;
+	}
+	
+	@Override
+	public Expression visitPropertyStatement(PropertyStatementContext ctx) {
+		this.propertyEnum++;
+		
+		Expression value = new RawExpression(String.valueOf(this.propertyEnum));
+		Symbol symbol = this.symbols.getProperty(ctx);
+		
+		Statement global = new VariableStatement(symbol, value);
+		
+		this.container.addGlobal(global);
+		
+		return null;
 	}
 	
 }

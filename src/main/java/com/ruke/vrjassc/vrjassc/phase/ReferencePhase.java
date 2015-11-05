@@ -22,6 +22,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidImplementNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
@@ -275,12 +276,29 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
+	public Symbol visitThis(ThisContext ctx) {
+		if (!this.validator.mustBeDefined(this.getScope(), "this", ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
+		Symbol _this = this.validator.getValidatedSymbol();
+		
+		this.symbols.saveVariable(ctx, _this);
+		
+		return _this;
+	}
+	
+	@Override
 	public Symbol visitThisExpression(ThisExpressionContext ctx) {
 		if (!this.validator.mustBeDefined(this.getScope(), "this", ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
-		return this.validator.getValidatedSymbol();
+		Symbol _this = this.validator.getValidatedSymbol();
+		
+		this.symbols.saveVariable(ctx, _this);
+		
+		return _this;
 	}
 	
 	@Override
