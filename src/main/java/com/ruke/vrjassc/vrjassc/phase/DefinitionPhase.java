@@ -228,6 +228,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 			method.setModifier(Modifier.PRIVATE, true);
 		}
 		
+		method.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		method.setType((Type) scope.resolve(type));
 		
 		scope.define(method);

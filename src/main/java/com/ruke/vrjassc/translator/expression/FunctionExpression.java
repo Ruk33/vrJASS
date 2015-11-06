@@ -1,9 +1,8 @@
 package com.ruke.vrjassc.translator.expression;
 
-import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
+import com.ruke.vrjassc.vrjassc.util.Prefix;
 
 public class FunctionExpression extends Expression {
 	
@@ -26,22 +25,11 @@ public class FunctionExpression extends Expression {
 	public ExpressionList getArguments() {
 		return this.args;
 	}
-		
-	protected String getName() {
-		String name = this.getSymbol().getName();
-		
-		if (this.getSymbol() instanceof MethodSymbol) {
-			Scope _class = this.getSymbol().getParentScope();
-			name = String.format("struct_%s_%s", _class.getName(), name);
-		}
-		
-		return name;
-	}
 	
 	@Override
 	public String translate() {
 		MutualRecursion recursion = this.getParent().getMutualRecursion(this.getSymbol());
-		String name = this.getName();
+		String name = Prefix.build(this.getSymbol());
 		
 		if (recursion != null) {
 			name = recursion.getPrefix();

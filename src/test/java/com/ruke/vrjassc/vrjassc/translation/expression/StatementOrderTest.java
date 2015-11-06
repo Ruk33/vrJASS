@@ -89,7 +89,7 @@ public class StatementOrderTest {
 			+ "function bar takes nothing returns nothing\n"
 			+ "endfunction\n"
 			+ "function foo takes nothing returns nothing\n"
-			+ "call bar()\n"
+				+ "call bar()\n"
 			+ "endfunction",
 			container.translate()
 		);

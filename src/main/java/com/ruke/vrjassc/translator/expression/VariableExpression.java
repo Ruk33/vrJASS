@@ -1,6 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.util.Prefix;
 
 public class VariableExpression extends Expression {
 
@@ -18,7 +19,8 @@ public class VariableExpression extends Expression {
 	
 	@Override
 	public String translate() {
-		String name = this.variable.getName();
+		//String name = this.variable.getName();
+		String name = Prefix.build(this.getSymbol());
 		
 		if (this.index != null) {
 			return name + "[" + this.index.translate() + "]";

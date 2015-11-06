@@ -50,7 +50,11 @@ public class ChainExpression extends Expression {
 		}
 		
 		for (Expression expression : this.expressions) {
-			this.chainTranslator.append(expression.getSymbol(), null, Prefix.build(expression.getSymbol()));
+			this.chainTranslator.append(
+				expression.getSymbol(),
+				null,
+				Prefix.build(expression.getSymbol())
+			);
 		}
 		
 		return this.chainTranslator.build();

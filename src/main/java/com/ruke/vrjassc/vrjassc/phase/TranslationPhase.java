@@ -55,6 +55,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SuperThistypeThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
@@ -77,6 +78,8 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	protected JassContainer container;
 
+	private int classEnum;
+	
 	private int propertyEnum;
 	
 	public TranslationPhase(TokenSymbolBag symbols) {
@@ -86,15 +89,22 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	@Override
 	public Expression visitInit(InitContext ctx) {
 		this.container = new JassContainer();
-		
-		Symbol symbol = new Symbol("vrjass_structs", null, null);
-		symbol.setType(new BuiltInTypeSymbol("hashtable", null, null));
-		
-		Statement structHashtable = new VariableStatement(symbol, new RawExpression("InitHashtable()"));
-		this.container.addGlobal(structHashtable);
+		Expression e;
 		
 		for (TopDeclarationContext stat : ctx.topDeclaration()) {
-			this.container.add((Statement) this.visit(stat));
+			e = this.visit(stat);
+			
+			if (e!= null) {
+				this.container.add((Statement) e);
+			}
+		}
+		
+		if (this.classEnum > 0) {
+			Symbol symbol = new Symbol("vrjass_structs", null, null);
+			symbol.setType(new BuiltInTypeSymbol("hashtable", null, null));
+			
+			Statement structHashtable = new VariableStatement(symbol, new RawExpression("InitHashtable()"));
+			this.container.addGlobal(structHashtable);
 		}
 
 		return this.container;
@@ -343,7 +353,8 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitCallMethodStatement(CallMethodStatementContext ctx) {
-		return new FunctionStatement(this.visit(ctx.memberExpression()));
+		Expression method = this.visit(ctx.memberExpression());
+		return new FunctionStatement(method);
 	}
 
 	@Override
@@ -358,18 +369,36 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitReturnStatement(ReturnStatementContext ctx) {
-		return new ReturnStatement(this.visit(ctx));
+		Expression value = null;
+		
+		if (ctx.expression() != null) {
+			value = this.visit(ctx.expression());
+		}
+		
+		return new ReturnStatement(value);
 	}
 	
 	@Override
 	public Expression visitStructDefinition(StructDefinitionContext ctx) {
-		return this.visit(ctx.structStatements());
+		Statement statement;
+		
+		this.classEnum++;
+		
+		for (StructStatementContext ssc : ctx.structStatements().structStatement()) {
+			statement = (Statement) this.visit(ssc);
+			
+			if (statement != null) {
+				this.container.add(statement);
+			}
+		}
+		
+		return null;
 	}
 
 	@Override
 	public Expression visitMethodDefinition(MethodDefinitionContext ctx) {
 		FunctionSymbol symbol = (FunctionSymbol) this.symbols.getMethod(ctx);
-		FunctionDefinition method = new FunctionDefinition(symbol);
+		StatementBody method = new FunctionDefinition(symbol);
 		
 		for (StatementContext statement : ctx.statements().statement()) {
 			method.add((Statement) this.visit(statement));

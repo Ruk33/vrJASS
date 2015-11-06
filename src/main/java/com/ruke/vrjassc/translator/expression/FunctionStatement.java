@@ -10,7 +10,7 @@ public class FunctionStatement extends Statement {
 		this.function = function;
 		this.function.setParent(this);
 	}
-	
+
 	@Override
 	public String translate() {
 		return "call " + this.function.translate();

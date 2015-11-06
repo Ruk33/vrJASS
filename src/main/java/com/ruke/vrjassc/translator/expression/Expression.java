@@ -14,6 +14,7 @@ public abstract class Expression {
 	public abstract String translate();
 	
 	public void setParent(Expression parent) {
+		parent.getUsedFunctions().addAll(this.getUsedFunctions());
 		this.parent = parent;
 	}
 	

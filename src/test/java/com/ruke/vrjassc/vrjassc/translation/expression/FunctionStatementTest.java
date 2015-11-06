@@ -15,8 +15,8 @@ import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.symbol.VrJassScope;
 
 public class FunctionStatementTest {
 
@@ -40,15 +40,20 @@ public class FunctionStatementTest {
 	
 	@Test
 	public void method() {
-		Scope foo = new ClassSymbol("foo", null, null);
-		FunctionSymbol bar = new MethodSymbol("bar", foo, null);
+		VrJassScope scope = new VrJassScope();
+		ClassSymbol foo = new ClassSymbol("foo", scope, null);
+		MethodSymbol bar = new MethodSymbol("bar", foo, null);
+		LocalVariableSymbol _this = new LocalVariableSymbol("this", bar, null);
+		
+		_this.setType(foo);
+		foo.define(bar);
+		scope.define(foo);
 		
 		ChainExpression chain = new ChainExpression();
 		
 		Expression function = new FunctionExpression(bar, false, new ExpressionList());
-		Expression _this = new VariableExpression(new LocalVariableSymbol("this", bar, null), null);
 		
-		chain.append(_this, null);
+		chain.append(new VariableExpression(_this, null), null);
 		chain.append(function, null);
 		
 		Statement translator = new FunctionStatement(chain);
