@@ -15,6 +15,7 @@ import com.ruke.vrjassc.translator.expression.IfStatement;
 import com.ruke.vrjassc.translator.expression.JassContainer;
 import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
+import com.ruke.vrjassc.translator.expression.MathExpression.Operator;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.ReturnStatement;
@@ -348,7 +349,27 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitSetVariableStatement(SetVariableStatementContext ctx) {
-		return new AssignmentStatement(this.visit(ctx.name), this.visit(ctx.value));
+		Expression name = this.visit(ctx.name);
+		Operator operator = null;
+		Expression value;
+		
+		if (ctx.PLUS() != null) {
+			operator = Operator.PLUS;
+		} else if (ctx.MINUS() != null) {
+			operator = Operator.MINUS;
+		} else if (ctx.TIMES() != null) {
+			operator = Operator.MULT;
+		} else if (ctx.DIV() != null) {
+			operator = Operator.DIV;
+		}
+		
+		value = this.visit(ctx.value);
+		
+		if (operator != null) {
+			value = new MathExpression(name, operator, value);
+		}
+		
+		return new AssignmentStatement(name, value);
 	}
 
 	@Override

@@ -90,7 +90,7 @@ localVariableStatement:
 	LOCAL validType ARRAY? validName (EQ value=expression)? NL;
 
 setVariableStatement: 
-	SET name=expression (EQ value=expression)? NL;
+	SET name=expression operator=(PLUS | MINUS | TIMES | DIV) EQ value=expression NL;
 
 callMethodStatement: CALL memberExpression NL;
 
