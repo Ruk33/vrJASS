@@ -2,6 +2,7 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.LinkedList;
 
+import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -9,10 +10,10 @@ import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 public class Prefix {
 
 	public static String build(Symbol symbol) {
-		boolean isMethod = symbol instanceof MethodSymbol;
-		boolean isProperty = symbol instanceof PropertySymbol;
-		
-		if (isProperty || isMethod) {
+		if (symbol instanceof LocalVariableSymbol == false) {
+			boolean isMethod = symbol instanceof MethodSymbol;
+			boolean isProperty = symbol instanceof PropertySymbol;
+			
 			LinkedList<String> e = new LinkedList<String>();
 			
 			while (symbol.getParentScope() != null) {
@@ -20,9 +21,13 @@ public class Prefix {
 				symbol = (Symbol) symbol.getParentScope();
 			}
 			
-			e.addFirst("struct");
+			if (isMethod || isProperty) {
+				e.addFirst("struct");
+			}
 			
-			return String.join("_", e);
+			if (!e.isEmpty()) {
+				return String.join("_", e);
+			}
 		}
 		
 		return symbol.getName();

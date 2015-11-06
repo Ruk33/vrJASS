@@ -41,6 +41,8 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LoopStatementContext;
@@ -70,6 +72,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 
@@ -461,6 +464,23 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		Statement global = new VariableStatement(symbol, value);
 		
 		this.container.addGlobal(global);
+		
+		return null;
+	}
+	
+	@Override
+	public Expression visitLibraryDefinition(LibraryDefinitionContext ctx) {
+		LibrarySymbol lib = (LibrarySymbol) this.symbols.getLibrary(ctx);
+		System.out.println(lib.getChilds());
+		Expression e;
+		
+		for (LibraryStatementContext statement : ctx.libraryStatements().libraryStatement()) {
+			e = this.visit(statement);
+			
+			if (e != null) {
+				this.container.add((Statement) e);
+			}
+		}
 		
 		return null;
 	}
