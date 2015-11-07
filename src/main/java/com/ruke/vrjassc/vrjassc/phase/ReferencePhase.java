@@ -14,6 +14,8 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryInitializerContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryRequirementsListContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
@@ -25,11 +27,13 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidImplementNameContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
@@ -261,6 +265,29 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.scopes.pop();
 		
 		return function;
+	}
+	
+	@Override
+	public Symbol visitLibraryRequirementsList(LibraryRequirementsListContext ctx) {
+		LibrarySymbol library = (LibrarySymbol) this.getScope();
+		LibrarySymbol requirement;
+		
+		for (ValidNameContext name : ctx.validName()) {
+			requirement = (LibrarySymbol) library.resolve(name.getText());
+			library.defineRequirement(requirement);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Symbol visitLibraryInitializer(LibraryInitializerContext ctx) {
+		Scope scope = this.getScope();
+		Symbol initializer = scope.resolve(ctx.validName().getText());
+		
+		((LibrarySymbol) scope).setInitializer(initializer);
+		
+		return null;
 	}
 	
 	@Override

@@ -1,49 +1,45 @@
 package com.ruke.vrjassc.vrjassc.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import com.ruke.vrjassc.vrjassc.symbol.InitializerContainer;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
-/**
- * @deprecated
- * @author Ruke
- *
- */
 public class InitializerHandler {
 	
-	private HashMap<Symbol, Integer> initializerOrder = new HashMap<Symbol, Integer>();
-	private LinkedList<Symbol> initializers = new LinkedList<Symbol>();
+	private Map<InitializerContainer, Integer> initializerOrder;
+	private List<InitializerContainer> initializers;
 	
-	public void add(Symbol symbol) {
-		if (symbol instanceof InitializerContainerSymbol == false) {
-			return;
-		}
-		
-		InitializerContainerSymbol initializerContainer =
-				(InitializerContainerSymbol) symbol;
-		
-		if (this.initializerOrder.containsKey(initializerContainer)) {
+	public InitializerHandler() {
+		this.initializerOrder = new HashMap<InitializerContainer, Integer>();
+		this.initializers = new ArrayList<InitializerContainer>();
+	}
+	
+	public void add(InitializerContainer init) {
+		if (this.initializerOrder.containsKey(init)) {
 			return;
 		}
 		
 		int order = this.initializers.size();
 		
-		for (Symbol loadFirst : initializerContainer.getSymbolsToLoadFirst()) {
+		for (InitializerContainer loadFirst : init.getInitializersToLoadFirst()) {
 			this.add(loadFirst);
 			order = this.initializerOrder.get(loadFirst);
 		}
 
-		this.initializerOrder.put(initializerContainer, order);
-		this.initializers.add(initializerContainer);
+		this.initializerOrder.put(init, order);
+		this.initializers.add(init);
 	}
 	
-	public LinkedList<Symbol> getInitializers() {
-		LinkedList<Symbol> result = new LinkedList<Symbol>();
+	public List<Symbol> getInitializers() {
+		List<Symbol> result = new ArrayList<Symbol>();
 		
-		for (Symbol symbol : this.initializers) {
-			if (((InitializerContainerSymbol) symbol).getInitializer() != null) {
-				result.add(symbol);
+		for (InitializerContainer init : this.initializers) {
+			if (init.getInitializer() != null) {
+				result.add(init.getInitializer());
 			}
 		}
 		

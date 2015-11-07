@@ -12,6 +12,7 @@ import com.ruke.vrjassc.translator.expression.FunctionDefinition;
 import com.ruke.vrjassc.translator.expression.FunctionExpression;
 import com.ruke.vrjassc.translator.expression.FunctionStatement;
 import com.ruke.vrjassc.translator.expression.IfStatement;
+import com.ruke.vrjassc.translator.expression.InitializerList;
 import com.ruke.vrjassc.translator.expression.JassContainer;
 import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
@@ -74,11 +75,14 @@ import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.util.InitializerHandler;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 
 public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	protected TokenSymbolBag symbols;
+	
+	protected InitializerHandler initializerHandler;
 	
 	protected JassContainer container;
 
@@ -93,12 +97,19 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	@Override
 	public Expression visitInit(InitContext ctx) {
 		this.container = new JassContainer();
+		this.initializerHandler = new InitializerHandler();
+		
+		InitializerList initList = new InitializerList(this.initializerHandler);
 		Expression e;
 		
 		for (TopDeclarationContext stat : ctx.topDeclaration()) {
 			e = this.visit(stat);
 			
 			if (e!= null) {
+				if (e.getSymbol().getName().equals("main")) {
+					((StatementBody) e).add(initList);
+				}
+				
 				this.container.add((Statement) e);
 			}
 		}
@@ -467,12 +478,13 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		return null;
 	}
-	
+		
 	@Override
 	public Expression visitLibraryDefinition(LibraryDefinitionContext ctx) {
 		LibrarySymbol lib = (LibrarySymbol) this.symbols.getLibrary(ctx);
-		System.out.println(lib.getChilds());
 		Expression e;
+		
+		this.initializerHandler.add(lib);
 		
 		for (LibraryStatementContext statement : ctx.libraryStatements().libraryStatement()) {
 			e = this.visit(statement);
