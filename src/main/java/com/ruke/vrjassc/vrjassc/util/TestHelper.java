@@ -19,7 +19,14 @@ public abstract class TestHelper {
 	}
 	
 	protected String run(String code) throws CompileException {
-		return this.compile.run(code);
+		try {
+			return this.compile.run(code);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return code;
 	}
 	
 }

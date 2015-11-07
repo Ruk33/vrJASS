@@ -10,6 +10,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementConte
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
@@ -83,7 +84,6 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		Token token = ctx.validName().getStart();
 		
 		Symbol variable = new LocalVariableSymbol(name, scope, token);
-		
 		variable.setType((Type) scope.resolve(type));
 		
 		((FunctionSymbol) scope).defineParam(variable);
@@ -117,6 +117,23 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		
 		this.scopes.push(function);
 		super.visitFunctionDefinition(ctx);
+		this.scopes.pop();
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitNativeDefinition(NativeDefinitionContext ctx) {
+		Scope scope = this.getScope();
+		String name = ctx.validName().getText();
+		Token token = ctx.validName().getStart();
+		
+		FunctionSymbol function = new FunctionSymbol(name, scope, token);
+		
+		scope.define(function);
+		
+		this.scopes.push(function);
+		super.visitNativeDefinition(ctx);
 		this.scopes.pop();
 		
 		return null;

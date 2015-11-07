@@ -25,7 +25,7 @@ public class Compile {
 		return this;
 	}
 
-	public String run(String code) throws CompileException {
+	public String run(String code) throws CompileException, IOException {
 		String replacedTabs = code.replace("\t", "    ");
 		ANTLRInputStream is = new ANTLRInputStream(replacedTabs + "\n");
 		

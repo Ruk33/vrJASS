@@ -43,6 +43,10 @@ public class JassContainer extends StatementList {
 			index = this.pos.get(def.getSymbol());
 			
 			for (Symbol fun : def.getUsedFunctions()) {
+				if (!this.pos.containsKey(fun)) {
+					continue;
+				}
+				
 				if (index < this.pos.get(fun)) {
 					funDef = this.statements.get(this.pos.get(fun));
 					
