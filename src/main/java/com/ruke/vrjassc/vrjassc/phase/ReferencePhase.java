@@ -273,7 +273,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		LibrarySymbol requirement;
 		
 		for (ValidNameContext name : ctx.validName()) {
-			requirement = (LibrarySymbol) library.resolve(name.getText());
+			if (!this.validator.mustBeDefined(library, name.getText(), name.getStart())) {
+				throw this.validator.getException();
+			}
+			
+			requirement = (LibrarySymbol) this.validator.getValidatedSymbol();
 			library.defineRequirement(requirement);
 		}
 		

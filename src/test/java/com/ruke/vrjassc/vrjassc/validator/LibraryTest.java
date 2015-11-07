@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
+import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class LibraryTest extends TestHelper {
@@ -105,6 +106,14 @@ public class LibraryTest extends TestHelper {
 					+ "function bar takes nothing returns nothing\n"
 						+ "local integer pi\n"
 					+ "endfunction\n"
+				+ "endlibrary");
+	}
+	
+	@Test
+	public void requirements() {
+		this.expectedEx.expect(UndefinedSymbolException.class);
+		this.expectedEx.expectMessage("1:21 Element <bar> is not defined");
+		this.run("library foo requires bar\n"
 				+ "endlibrary");
 	}
 
