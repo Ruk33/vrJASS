@@ -86,5 +86,27 @@ public class ClassTest extends TestHelper {
 		
 		assertEquals(expected, this.run(code));
 	}
+	
+	@Test
+	public void array() {
+		String code =
+			"struct foo\n"
+				+ "integer array bar\n"
+				+ "method baz takes nothing returns nothing\n"
+					+ "set this.bar[2] = 1\n"
+				+ "endmethod\n"
+			+ "endstruct";
+		
+		String expected =
+			"globals\n"
+				+ "integer struct_foo_bar=1\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+			+ "endglobals\n"
+			+ "function struct_foo_baz takes integer this returns nothing\n"
+				+ "call SaveInteger(vrjass_structs,this,struct_foo_bar*8191-IMinBJ(2,8191),1)\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
 
 }

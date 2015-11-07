@@ -49,10 +49,20 @@ public class ChainExpression extends Expression {
 			}
 		}
 		
+		String index;
+		
 		for (Expression expression : this.expressions) {
+			index = null;
+			
+			if (expression instanceof VariableExpression) {
+				if (((VariableExpression) expression).getIndex() != null) {
+					index = ((VariableExpression) expression).getIndex().translate();
+				}
+			}
+			
 			this.chainTranslator.append(
 				expression.getSymbol(),
-				null,
+				index,
 				Prefix.build(expression.getSymbol())
 			);
 		}
