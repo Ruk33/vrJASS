@@ -286,15 +286,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitLibraryInitializer(LibraryInitializerContext ctx) {
-		if (ctx.validName() == null) {
-			return null;
-		}
-		
-		LibrarySymbol library = (LibrarySymbol) this.getScope();
-		Symbol initializer = library.resolve(ctx.validName().getText());
-		
-		if (initializer != null) {
-			library.setInitializer(initializer);
+		if (ctx.validName() != null) {
+			LibrarySymbol library = (LibrarySymbol) this.getScope();
+			String name = ctx.validName().getText();
+			Token token = ctx.validName().getStart();
+			
+			if (!this.validator.mustBeDefined(library, name, token)) {
+				throw this.validator.getException();
+			}
+			
+			library.setInitializer(this.validator.getValidatedSymbol());
 		}
 		
 		return null;

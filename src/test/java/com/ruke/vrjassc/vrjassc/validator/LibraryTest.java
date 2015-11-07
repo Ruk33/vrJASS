@@ -116,5 +116,13 @@ public class LibraryTest extends TestHelper {
 		this.run("library foo requires bar\n"
 				+ "endlibrary");
 	}
+	
+	@Test
+	public void initializer() {
+		this.expectedEx.expect(UndefinedSymbolException.class);
+		this.expectedEx.expectMessage("1:24 Element <bar> is not defined");
+		this.run("library foo initializer bar\n"
+				+ "endlibrary");
+	}
 
 }
