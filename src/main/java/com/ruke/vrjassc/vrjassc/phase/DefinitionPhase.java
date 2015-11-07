@@ -14,6 +14,8 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
+import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.GlobalVariableSymbol;
@@ -129,12 +131,26 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		Token token = ctx.validName().getStart();
 		
 		FunctionSymbol function = new FunctionSymbol(name, scope, token);
+		function.setType((Type) scope.resolve(ctx.returnType().getText()));
 		
 		scope.define(function);
 		
 		this.scopes.push(function);
 		super.visitNativeDefinition(ctx);
 		this.scopes.pop();
+		
+		return null;
+	}
+	
+	@Override
+	public Void visitTypeDefinition(TypeDefinitionContext ctx) {
+		Scope scope = this.getScope();
+		
+		String name = ctx.validName().getText();
+		Token token = ctx.validName().getStart();
+		
+		Symbol type = new BuiltInTypeSymbol(name, scope, token);
+		scope.define(type);
 		
 		return null;
 	}
