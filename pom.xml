@@ -62,7 +62,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.ruke.vrjassc.vrjassc.util.vrjassc</mainClass>
+							<mainClass>com.ruke.vrjassc.Main</mainClass>
 						</manifest>
 					</archive>
 				

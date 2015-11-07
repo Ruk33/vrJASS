@@ -11,20 +11,6 @@ public class Compile {
 
 	private CompilerFacade compiler = new CompilerFacade();
 	
-	protected String commonPath;
-	protected String blizzardPath;
-	protected String compiled;
-	
-	public Compile setCommonPath(String path) {
-		this.commonPath = path;
-		return this;
-	}
-
-	public Compile setBlizzardPath(String path) {
-		this.blizzardPath = path;
-		return this;
-	}
-
 	public String run(String code) throws CompileException, IOException {
 		String replacedTabs = code.replace("\t", "    ");
 		ANTLRInputStream is = new ANTLRInputStream(replacedTabs + "\n");
@@ -32,7 +18,7 @@ public class Compile {
 		return this.compiler.compile(is);
 	}
 
-	public String runFromFile(String path) throws IOException {
+	public String runFromFile(String path) throws CompileException, IOException {
 		return this.run(
 			String.join(
 				System.lineSeparator(),

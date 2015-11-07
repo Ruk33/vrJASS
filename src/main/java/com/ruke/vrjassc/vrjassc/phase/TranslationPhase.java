@@ -391,7 +391,8 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		value = this.visit(ctx.value);
 		
 		if (operator != null) {
-			value = new MathExpression(name, operator, value);
+			// avoid mutual recursion
+			value = new MathExpression(new RawExpression(name.translate()), operator, value);
 		}
 		
 		return new AssignmentStatement(name, value);
