@@ -9,6 +9,30 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class InitializatorTest extends TestHelper {
 
 	@Test
+	public void autoDeleteInitTrig() {
+		String code =
+			"function InitTrig_bar takes nothing returns nothing\n"
+				+ "call InitTrig_bar()\n"
+			+ "endfunction\n"
+			+ "function main takes nothing returns nothing\n"
+				+ "call InitTrig_bar()\n"
+				+ "call InitTrig_foo()\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function InitTrig_bar takes nothing returns nothing\n"
+				+ "call InitTrig_bar()\n"
+			+ "endfunction\n"
+			+ "function main takes nothing returns nothing\n"
+				+ "call InitTrig_bar()\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void order() {
 		String code =
 			"library foo initializer b requires bar\n"

@@ -35,6 +35,7 @@ import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InitTrigSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -208,11 +209,17 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitFunctionExpression(FunctionExpressionContext ctx) {
+		Scope scope = this.getScope();
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustBeDefined(this.getScope(), name, token)) {
-			throw this.validator.getException();
+				
+		if (!this.validator.mustBeDefined(scope, name, token)) {
+			if (name.startsWith("InitTrig_")) {
+				scope.getEnclosingScope().define(new InitTrigSymbol(name, null));
+				this.validator.mustBeDefined(scope, name, token);
+			} else {
+				throw this.validator.getException();
+			}
 		}
 		
 		if (this.validator.getValidatedSymbol() instanceof FunctionSymbol == false) {
