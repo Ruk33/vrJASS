@@ -345,8 +345,19 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Symbol variable = this.symbols.getGlobalVariable(ctx);
+		
+		Statement global;
+		Expression value = null;
+		
+		if (ctx.value != null) {
+			value = this.visit(ctx.value);
+		}
+		
+		global = new VariableStatement(variable, value);
+		this.container.addGlobal(global);
+		
+		return global;
 	}
 
 	@Override

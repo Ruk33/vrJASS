@@ -12,6 +12,14 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 
 	@Test
+	public void _native() {
+		this.expectedEx.none();
+		this.run("function foo takes nothing returns nothing\n"
+					+ "call GetLocalPlayer()\n"
+				+ "endfunction");
+	}
+	
+	@Test
 	public void useUndefinedVariable() {
 		this.expectedEx.expect(UndefinedSymbolException.class);
 		this.expectedEx.expectMessage("2:20 Element <x> is not defined");
