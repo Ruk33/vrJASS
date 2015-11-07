@@ -108,5 +108,28 @@ public class ClassTest extends TestHelper {
 		
 		assertEquals(expected, this.run(code));
 	}
+	
+	@Test
+	public void onInit() {
+		String code =
+			"struct foo\n"
+				+ "static method onInit takes nothing returns nothing\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "function main takes nothing returns nothing\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+			+ "endglobals\n"
+			+ "function struct_foo_onInit takes nothing returns nothing\n"
+			+ "endfunction\n"
+			+ "function main takes nothing returns nothing\n"
+				+ "call ExecuteFunc(\"struct_foo_onInit\")\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
 
 }

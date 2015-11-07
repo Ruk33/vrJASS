@@ -1,10 +1,14 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.antlr.v4.runtime.Token;
 
-public class ClassSymbol extends ScopeSymbol implements Type {
+public class ClassSymbol extends ScopeSymbol implements Type, InitializerContainer {
 
 	private ClassSymbol _super;
+	protected Symbol onInit;
 	
 	public ClassSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
@@ -13,6 +17,15 @@ public class ClassSymbol extends ScopeSymbol implements Type {
 	@Override
 	public Type getType() {
 		return this;
+	}
+	
+	@Override
+	public Symbol define(Symbol symbol) {
+		if (symbol.getName().equals("onInit")) {
+			this.setInitializer(symbol);
+		}
+		
+		return super.define(symbol);
 	}
 	
 	@Override
@@ -83,6 +96,21 @@ public class ClassSymbol extends ScopeSymbol implements Type {
 		}
 		
 		return false;
+	}
+
+	@Override
+	public void setInitializer(Symbol initializer) {
+		this.onInit = initializer;
+	}
+
+	@Override
+	public Symbol getInitializer() {
+		return this.onInit;
+	}
+
+	@Override
+	public Collection<InitializerContainer> getInitializersToLoadFirst() {
+		return new ArrayList<InitializerContainer>();
 	}
 
 }

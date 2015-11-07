@@ -72,6 +72,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -430,6 +431,9 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		Statement statement;
 		
 		this.classEnum++;
+		
+		ClassSymbol _class = (ClassSymbol) this.symbols.getClass(ctx);
+		this.initializerHandler.add(_class);
 		
 		for (StructStatementContext ssc : ctx.structStatements().structStatement()) {
 			statement = (Statement) this.visit(ssc);
