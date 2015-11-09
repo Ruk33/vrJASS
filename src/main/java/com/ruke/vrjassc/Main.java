@@ -1,5 +1,6 @@
 package com.ruke.vrjassc;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class Main {
 		String toCompile = "";
 		String resultPath = "compiled-vrjass.j";
 		String logPath = "log-vrjass.txt";
+		boolean error = false;
 		
 		for (String arg : args) {
 			if (arg.startsWith("-help")) {
@@ -76,6 +78,7 @@ public class Main {
 					editor.close();
 				}
 			} catch (IOException io) {
+				error = true;
 				logWriter.write(io.getMessage());
 			}
 		}
@@ -95,14 +98,25 @@ public class Main {
 				Files.copy(tmpFile.toPath(), new File(resultPath).toPath());
 			}
 		} catch (CompileException ce) {
+			error = true;
 			logWriter.write(ce.getMessage());
 		} catch (JmpqError jmpqe) {
+			error = true;
 			logWriter.write(jmpqe.getMessage());
 		} catch (IOException e) {
+			error = true;
 			logWriter.write("Could not load blizzard.j or common.j");
 		}
 		
 		logWriter.close();
+		
+		try {
+			if (error) {
+				Desktop.getDesktop().edit(logFile);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
