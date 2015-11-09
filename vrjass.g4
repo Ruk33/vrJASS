@@ -34,6 +34,7 @@ expression:
 	|functionExpression #Function
 	|memberExpression #Member
 	|variableExpression #Variable
+	|expression CAST validName #Cast
 	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
 	;
 
@@ -222,6 +223,7 @@ validName: ID;
 
 visibility: (PRIVATE | PUBLIC)?;
 
+CAST: 'cast';
 LIBRARY: 'library';
 ENDLIBRARY: 'endlibrary';
 INITIALIZER: 'initializer';

@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExtendValidNameContext;
@@ -73,6 +74,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	public Scope getScope() {
 		return this.scopes.peek();
+	}
+	
+	@Override
+	public Symbol visitCast(CastContext ctx) {
+		return this.getScope().resolve(ctx.validName().getText());
 	}
 	
 	@Override

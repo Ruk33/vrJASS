@@ -14,6 +14,17 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void usingInteger() {
+		this.expectedEx.none();
+		this.run("struct foo\n"
+					+ "public static method allocate takes nothing returns foo\n"
+						+ "local integer i = 1\n"
+						+ "return i cast foo\n"
+					+ "endmethod\n"
+				+ "endstruct");
+	}
+	
+	@Test
 	public void usingStaticIncorrectly() {
 		this.expectedEx.expect(StaticNonStaticTypeException.class);
 		this.expectedEx.expectMessage("6:9 Element <s_bar> is static");
