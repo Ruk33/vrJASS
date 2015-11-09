@@ -13,6 +13,7 @@ import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import com.ruke.vrjassc.vrjassc.util.Compile;
 
 import de.peeeq.jmpq.JmpqEditor;
+import de.peeeq.jmpq.JmpqError;
 
 public class Main {
 
@@ -80,7 +81,7 @@ public class Main {
 		}
 		
 		try {
-			tmpFile = new File(resultPath);
+			tmpFile = File.createTempFile("vrjass-compiled", null);
 			writer = new PrintWriter(tmpFile, "UTF-8");
 			
 			writer.write(compile.run(toCompile));
@@ -90,9 +91,13 @@ public class Main {
 				editor = new JmpqEditor(new File(resultPath));
 				editor.injectFile(tmpFile, "war3map.j");
 				editor.close();
+			} else {
+				Files.copy(tmpFile.toPath(), new File(resultPath).toPath());
 			}
 		} catch (CompileException ce) {
 			logWriter.write(ce.getMessage());
+		} catch (JmpqError jmpqe) {
+			logWriter.write(jmpqe.getMessage());
 		} catch (IOException e) {
 			logWriter.write("Could not load blizzard.j or common.j");
 		}
