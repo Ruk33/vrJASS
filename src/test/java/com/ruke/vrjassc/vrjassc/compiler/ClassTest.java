@@ -9,6 +9,30 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void cast() {
+		String code =
+			"struct foo\n"
+				+ "static integer instances\n"
+				+ "static method allocate takes nothing returns foo\n"
+					+ "set foo.instances += 1\n"
+					+ "return foo.instances cast foo\n"
+				+ "endmethod\n"
+			+ "endstruct";
+		
+		String expected =
+			"globals\n"
+				+ "integer struct_foo_instances\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+			+ "endglobals\n"
+			+ "function struct_foo_allocate takes nothing returns integer\n"
+				+ "set struct_foo_instances=struct_foo_instances+1\n"
+				+ "return struct_foo_instances\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void _extends() {
 		String code =
 			"struct foo\n"

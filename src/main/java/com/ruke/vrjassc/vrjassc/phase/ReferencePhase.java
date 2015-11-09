@@ -78,7 +78,13 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitCast(CastContext ctx) {
-		return this.getScope().resolve(ctx.validName().getText());
+		Symbol e = this.visit(ctx.expression());
+		Symbol cast = this.getScope().resolve(ctx.validName().getText());
+		
+		Symbol c = new Symbol(e.getName(), e.getParentScope(), ctx.getStart());
+		c.setType((Type) cast);
+		
+		return c;
 	}
 	
 	@Override

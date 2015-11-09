@@ -31,6 +31,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CallFunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CallMethodStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
@@ -126,6 +127,11 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		}
 
 		return this.container;
+	}
+	
+	@Override
+	public Expression visitCast(CastContext ctx) {
+		return this.visit(ctx.expression());
 	}
 
 	@Override
