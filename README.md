@@ -32,7 +32,16 @@ Pick the one you like the most:
 ##How to use the compiled vrjass?
 ```bash
 $ cd path/to/vrjassc-jar-with-dependencies.jar
-$ java -jar vrjassc-jar-with-dependencies.jar path/to/common.j path/to/blizzard.j path/to/map.w3x (or w3m)
+$ java -jar vrjassc-jar-with-dependencies.jar file1.j [file2.j file3.w3x file4.w3m]
 ```
 
-This WILL change the source code of the map and will transform any vrJASS code to raw JASS.
+You can pass .j files as well as entire maps.
+If you want the compiled source code to be applied in the map, just use the -result option
+
+```bash
+$ java -jar vrjassc-jar-with-dependencies.jar file1.j file2.j -result=map.w3x
+```
+
+If no -result is passed the compiled output will be writen in compiled-vrjass.j (which is going to be created on the folder where you are).
+
+Errors are going to be writen in the log-vrjass.j file (you can change it by using the -log option, same as the -result option).
