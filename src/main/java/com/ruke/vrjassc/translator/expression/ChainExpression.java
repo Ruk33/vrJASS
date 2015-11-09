@@ -3,6 +3,7 @@ package com.ruke.vrjassc.translator.expression;
 import java.util.LinkedList;
 
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 
@@ -35,11 +36,17 @@ public class ChainExpression extends Expression {
 		
 		if (last instanceof FunctionExpression) {
 			this.expressions.removeLast();
-			((FunctionExpression) last).getArguments().getList().addFirst(this);
+			
+			if (last.getSymbol().hasModifier(Modifier.STATIC) == false) {
+				((FunctionExpression) last).getArguments().getList().addFirst(this);
+			}
 			
 			String result = last.translate();
 			
-			((FunctionExpression) last).getArguments().getList().removeFirst();
+			if (last.getSymbol().hasModifier(Modifier.STATIC) == false) {
+				((FunctionExpression) last).getArguments().getList().removeFirst();
+			}
+			
 			this.expressions.add(last);
 			
 			return result;

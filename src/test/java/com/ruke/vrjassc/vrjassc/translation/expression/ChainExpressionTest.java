@@ -11,6 +11,7 @@ import com.ruke.vrjassc.translator.expression.VariableExpression;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.VrJassScope;
@@ -40,6 +41,14 @@ public class ChainExpressionTest {
 		translator.setValue(new VariableExpression(new LocalVariableSymbol("bar", null, null), null));
 		
 		assertEquals("SaveInteger(null,this,struct_foo_baz,bar)", translator.translate());
+		
+		translator = new ChainExpression();
+		property.setModifier(Modifier.STATIC, true);
+		
+		translator.append(new VariableExpression(_class, null), null);
+		translator.append(new VariableExpression(property, null), null);
+		
+		assertEquals("struct_foo_baz", translator.translate());
 	}
 	
 	@Test
@@ -63,6 +72,14 @@ public class ChainExpressionTest {
 		args.add(new VariableExpression(new LocalVariableSymbol("baz", null, null), null));
 		
 		assertEquals("struct_foo_bar(this,baz)", chainExpression.translate());
+		
+		chainExpression = new ChainExpression();
+		bar.setModifier(Modifier.STATIC, true);
+		
+		chainExpression.append(new VariableExpression(foo, null), null);
+		chainExpression.append(new FunctionExpression(bar, false, args), null);
+		
+		assertEquals("struct_foo_bar(baz)", chainExpression.translate());
 	}
 
 }

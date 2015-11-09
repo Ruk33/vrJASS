@@ -2,6 +2,7 @@ package com.ruke.vrjassc.translator;
 
 import java.util.Stack;
 
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
 import com.ruke.vrjassc.vrjassc.util.HashtableFunctionGetter;
@@ -78,6 +79,10 @@ public class ChainExpressionTranslator {
 		Chainable property = this.chain.pop();
 		Chainable ch;
 		
+		if (property.getSymbol().hasModifier(Modifier.STATIC)) {
+			return property.getKey();
+		}
+		
 		args.push(this.getHashtableName());
 		
 		while (this.chain.size() != 0) {
@@ -89,6 +94,7 @@ public class ChainExpressionTranslator {
 			}
 			
 			args.push(ch.getKey());
+			
 			this.chain.pop();
 		}
 		
