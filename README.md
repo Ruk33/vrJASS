@@ -42,6 +42,6 @@ If you want the compiled source code to be applied in the map, just use the -res
 $ java -jar vrjassc-jar-with-dependencies.jar file1.j file2.j -result=map.w3x
 ```
 
-If no -result is passed the compiled output will be writen in compiled-vrjass.j (which is going to be created on the folder where you are).
+If no -result is passed the compiled output will be written in compiled-vrjass.j (which is going to be created on the folder where you are).
 
-Errors are going to be writen in the log-vrjass.j file (you can change it by using the -log option, same as the -result option).
+Errors are going to be written in the log-vrjass.j file (you can change it by using the -log option, same as the -result option).
