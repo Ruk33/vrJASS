@@ -24,6 +24,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
@@ -87,6 +88,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitReal(RealContext ctx) {
 		return this.getScope().resolve("real");
+	}
+	
+	@Override
+	public Symbol visitString(StringContext ctx) {
+		return this.getScope().resolve("string");
 	}
 	
 	@Override

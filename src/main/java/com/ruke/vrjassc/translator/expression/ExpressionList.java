@@ -13,6 +13,7 @@ public class ExpressionList extends Expression {
 	}
 	
 	public void add(Expression expression) {
+		expression.setParent(this);
 		this.getList().add(expression);
 	}
 	

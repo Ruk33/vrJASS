@@ -12,6 +12,7 @@ public class StatementList extends Statement {
 	}
 	
 	public void add(Statement e) {
+		e.setParent(this);
 		this.statements.add(e);
 	}
 	

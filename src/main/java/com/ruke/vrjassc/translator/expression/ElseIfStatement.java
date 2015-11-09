@@ -6,6 +6,7 @@ public class ElseIfStatement extends StatementBody {
 	
 	public ElseIfStatement(Expression condition) {
 		this.condition = condition;
+		this.condition.setParent(this);
 	}
 	
 	@Override

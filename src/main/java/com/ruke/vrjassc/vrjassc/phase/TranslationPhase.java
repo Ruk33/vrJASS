@@ -17,6 +17,7 @@ import com.ruke.vrjassc.translator.expression.JassContainer;
 import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
 import com.ruke.vrjassc.translator.expression.MathExpression.Operator;
+import com.ruke.vrjassc.translator.expression.NegativeExpression;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.ReturnStatement;
@@ -133,7 +134,6 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitLogical(LogicalContext ctx) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -173,8 +173,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitNegative(NegativeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return new NegativeExpression(this.visit(ctx.expression()));
 	}
 
 	@Override
@@ -462,9 +461,14 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitFunctionDefinition(FunctionDefinitionContext ctx) {
 		FunctionSymbol symbol = (FunctionSymbol) this.symbols.getFunction(ctx);
 		StatementBody function = new FunctionDefinition(symbol);
+		Expression e;
 		
 		for (StatementContext statement : ctx.statements().statement()) {
-			function.add((Statement) this.visit(statement));
+			e = this.visit(statement);
+			
+			if (e != null) {
+				function.add((Statement) e);
+			}
 		}
 		
 		return function;

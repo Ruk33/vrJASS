@@ -21,6 +21,12 @@ public class BooleanExpression extends Expression {
 		this.a = a;
 		this.operator = operator;
 		this.b = b;
+		
+		this.a.setParent(this);
+		
+		if (this.b != null) {
+			this.b.setParent(this);
+		}
 	}
 	
 	public BooleanExpression(Expression a) {

@@ -11,6 +11,10 @@ public class VariableExpression extends Expression {
 	public VariableExpression(Symbol variable, Expression index) {
 		this.variable = variable;
 		this.index = index;
+		
+		if (this.index != null) {
+			this.index.setParent(this);
+		}
 	}
 	
 	public Expression getIndex() {
@@ -19,7 +23,6 @@ public class VariableExpression extends Expression {
 	
 	@Override
 	public String translate() {
-		//String name = this.variable.getName();
 		String name = Prefix.build(this.getSymbol());
 		
 		if (this.index != null) {

@@ -6,6 +6,7 @@ public class ExitWhenStatement extends Statement {
 	
 	public ExitWhenStatement(Expression condition) {
 		this.condition = condition;
+		this.condition.setParent(this);
 	}
 	
 	@Override

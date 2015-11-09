@@ -17,6 +17,9 @@ public class MathExpression extends Expression {
 		this.a = a;
 		this.operator = operator;
 		this.b = b;
+		
+		this.a.setParent(this);
+		this.b.setParent(this);
 	}
 	
 	@Override

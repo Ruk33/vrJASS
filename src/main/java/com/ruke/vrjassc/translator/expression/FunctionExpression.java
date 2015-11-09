@@ -14,6 +14,7 @@ public class FunctionExpression extends Expression {
 		this.function = function;
 		this.isCode = isCode;
 		this.args = args;
+		this.args.setParent(this);
 	}
 	
 	@Override

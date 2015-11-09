@@ -59,6 +59,7 @@ public class FunctionDefinition extends StatementBody {
 		this.body = new StatementBody();
 		
 		this.body.setParent(this);
+		this.params.setParent(this);
 	}
 
 	@Override

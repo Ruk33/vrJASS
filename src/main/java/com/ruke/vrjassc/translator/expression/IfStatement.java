@@ -6,6 +6,7 @@ public class IfStatement extends StatementBody {
 	
 	public IfStatement(Expression condition) {
 		this.condition = condition;
+		this.condition.setParent(this);
 	}
 	
 	@Override

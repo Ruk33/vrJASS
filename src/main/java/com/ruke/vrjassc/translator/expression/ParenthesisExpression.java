@@ -8,6 +8,7 @@ public class ParenthesisExpression extends Expression {
 	
 	public ParenthesisExpression(Expression expression) {
 		this.expression = expression;
+		this.expression.setParent(this);
 	}
 	
 	@Override
