@@ -48,6 +48,8 @@ public class ClassTest extends TestHelper {
 	public void test() {
 		String code =
 				"struct foo\n"
+					+ "private static integer a=1\n"
+					+ "private static integer b\n"
 					+ "private integer bar\n"
 					+ "private foo that\n"
 					+ "private method baz takes nothing returns nothing\n"
@@ -58,6 +60,8 @@ public class ClassTest extends TestHelper {
 		
 		String expected =
 				"globals\n"
+					+ "integer struct_foo_a\n"
+					+ "integer struct_foo_b\n"
 					+ "integer struct_foo_bar=1\n"
 					+ "integer struct_foo_that=2\n"
 					+ "hashtable vrjass_structs=InitHashtable()\n"

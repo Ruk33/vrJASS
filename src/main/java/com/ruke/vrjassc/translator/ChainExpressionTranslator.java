@@ -80,6 +80,7 @@ public class ChainExpressionTranslator {
 		Chainable ch;
 		
 		if (property.getSymbol().hasModifier(Modifier.STATIC)) {
+			this.chain.clear();
 			return property.getKey();
 		}
 		
@@ -104,8 +105,17 @@ public class ChainExpressionTranslator {
 	}
 	
 	protected String buildSetter() {
-		String result = this.buildGetter().replaceFirst("Load", "Save");
-		return result.substring(0, result.length()-1)+","+this.value+")";
+		Chainable last = this.chain.peek();
+		String result = this.buildGetter();
+		
+		if (last.getSymbol().hasModifier(Modifier.STATIC)) {
+			result += "=" + this.value;
+		} else {
+			result = result.replaceFirst("Load", "Save");
+			result = result.substring(0, result.length()-1)+","+this.value+")";
+		}
+		
+		return result;
 	}
 	
 	public String getHashtableName() {

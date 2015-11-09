@@ -1,5 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
+
 public class AssignmentStatement extends Statement {
 
 	protected Expression name;
@@ -17,7 +19,12 @@ public class AssignmentStatement extends Statement {
 	public String translate() {
 		if (this.name instanceof ChainExpression) {
 			((ChainExpression) this.name).setValue(this.value);
-			return "call " + this.name.translate();
+			
+			if (this.name.getSymbol().hasModifier(Modifier.STATIC)) {
+				return "set " + this.name.translate();
+			} else {
+				return "call " + this.name.translate();
+			}
 		}
 		
 		return "set " + this.name.translate() + "=" + this.value.translate();

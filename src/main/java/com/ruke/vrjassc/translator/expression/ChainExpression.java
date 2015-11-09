@@ -37,14 +37,17 @@ public class ChainExpression extends Expression {
 		if (last instanceof FunctionExpression) {
 			this.expressions.removeLast();
 			
-			if (last.getSymbol().hasModifier(Modifier.STATIC) == false) {
-				((FunctionExpression) last).getArguments().getList().addFirst(this);
+			boolean isStatic = last.getSymbol().hasModifier(Modifier.STATIC);
+			FunctionExpression func = ((FunctionExpression) last);
+			
+			if (!isStatic) {
+				func.getArguments().getList().addFirst(this);
 			}
 			
 			String result = last.translate();
 			
-			if (last.getSymbol().hasModifier(Modifier.STATIC) == false) {
-				((FunctionExpression) last).getArguments().getList().removeFirst();
+			if (!isStatic) {
+				func.getArguments().getList().removeFirst();
 			}
 			
 			this.expressions.add(last);
@@ -56,14 +59,17 @@ public class ChainExpression extends Expression {
 			}
 		}
 		
+		VariableExpression varExpr;
 		String index;
 		
 		for (Expression expression : this.expressions) {
 			index = null;
 			
 			if (expression instanceof VariableExpression) {
-				if (((VariableExpression) expression).getIndex() != null) {
-					index = ((VariableExpression) expression).getIndex().translate();
+				varExpr = ((VariableExpression) expression);
+				
+				if (varExpr.getIndex() != null) {
+					index = varExpr.getIndex().translate();
 				}
 			}
 			

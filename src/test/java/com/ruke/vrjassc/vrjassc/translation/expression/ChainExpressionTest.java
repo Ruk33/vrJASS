@@ -49,6 +49,10 @@ public class ChainExpressionTest {
 		translator.append(new VariableExpression(property, null), null);
 		
 		assertEquals("struct_foo_baz", translator.translate());
+		
+		translator.setValue(new VariableExpression(new LocalVariableSymbol("bar", null, null), null));
+		
+		assertEquals("struct_foo_baz=bar", translator.translate());
 	}
 	
 	@Test
