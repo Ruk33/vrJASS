@@ -19,6 +19,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryRequirementsListConte
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
@@ -392,6 +393,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.scopes.pop();
 		
 		return method;
+	}
+	
+	@Override
+	public Symbol visitParenthesis(ParenthesisContext ctx) {
+		return this.visit(ctx.expression());
 	}
 	
 	@Override

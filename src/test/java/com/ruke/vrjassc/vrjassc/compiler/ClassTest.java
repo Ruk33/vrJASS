@@ -16,6 +16,7 @@ public class ClassTest extends TestHelper {
 				+ "static method allocate takes nothing returns foo\n"
 					+ "set foo.instances += 1\n"
 					+ "call 0 cast foo.bar()\n"
+					+ "call (1 cast foo).bar()\n"
 					+ "return foo.instances cast foo\n"
 				+ "endmethod\n"
 				+ "method bar takes nothing returns nothing\n"
@@ -32,6 +33,7 @@ public class ClassTest extends TestHelper {
 			+ "function struct_foo_allocate takes nothing returns integer\n"
 				+ "set struct_foo_instances=struct_foo_instances+1\n"
 				+ "call struct_foo_bar(0)\n"
+				+ "call struct_foo_bar((1))\n" // <-- the power
 				+ "return struct_foo_instances\n"
 			+ "endfunction";
 		
