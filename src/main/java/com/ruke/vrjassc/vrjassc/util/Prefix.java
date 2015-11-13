@@ -2,26 +2,26 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.LinkedList;
 
+import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
 public class Prefix {
 
 	public static String build(Symbol symbol) {
-		if (symbol instanceof LocalVariableSymbol == false) {
-			boolean isMethod = symbol instanceof MethodSymbol;
-			boolean isProperty = symbol instanceof PropertySymbol;
-			
+		if (!symbol.hasModifier(Modifier.LOCAL)) {
 			LinkedList<String> e = new LinkedList<String>();
+			Symbol parent = symbol;
 			
-			while (symbol.getParentScope() != null) {
-				e.addFirst(symbol.getName());
-				symbol = (Symbol) symbol.getParentScope();
+			while (parent.getParentScope() != null) {
+				e.addFirst(parent.getName());
+				parent = (Symbol) parent.getParentScope();
 			}
 			
-			if (isMethod || isProperty) {
+			if (symbol.hasModifier(Modifier.MEMBER)) {
 				e.addFirst("struct");
 			}
 			

@@ -68,7 +68,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		variable.setType((Type) scope.resolve(type));
 		
 		scope.define(variable);
-		this.symbols.saveVariable(ctx, variable);
+		this.symbols.put(ctx, variable);
 		
 		if (ctx.value != null) {
 			this.visit(ctx.value);
@@ -89,7 +89,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		variable.setType((Type) scope.resolve(type));
 		
 		((FunctionSymbol) scope).defineParam(variable);
-		this.symbols.saveParameter(ctx, variable);
+		this.symbols.put(ctx, variable);
 		
 		return null;
 	}
@@ -115,7 +115,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		}
 		
 		scope.define(function);
-		this.symbols.saveFunction(ctx, function);
+		this.symbols.put(ctx, function);
 		
 		this.scopes.push(function);
 		super.visitFunctionDefinition(ctx);
@@ -169,7 +169,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		LibrarySymbol library = new LibrarySymbol(name, scope, token);
 		
 		scope.define(library);
-		this.symbols.saveLibrary(ctx, library);
+		this.symbols.put(ctx, library);
 		
 		this.scopes.push(library);
 		super.visitLibraryDefinition(ctx);
@@ -204,7 +204,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		variable.setType((Type) scope.resolve(type));
 		
 		scope.define(variable);
-		this.symbols.saveGlobalVariable(ctx, variable);
+		this.symbols.put(ctx, variable);
 		
 		if (ctx.value != null) {
 			this.visit(ctx.value);
@@ -232,7 +232,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		_class.setModifier(Modifier.PUBLIC, true);
 		
 		scope.define(_class);
-		this.symbols.saveClass(ctx, _class);
+		this.symbols.put(ctx, _class);
 		
 		this.scopes.push(_class);
 		super.visitStructDefinition(ctx);
@@ -265,7 +265,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		method.setType((Type) scope.resolve(type));
 		
 		scope.define(method);
-		this.symbols.saveMethod(ctx, method);
+		this.symbols.put(ctx, method);
 		
 		this.scopes.push(method);
 		super.visitMethodDefinition(ctx);
@@ -297,7 +297,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Void> {
 		property.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		
 		scope.define(property);
-		this.symbols.saveProperty(ctx, property);
+		this.symbols.put(ctx, property);
 		
 		return null;
 	}

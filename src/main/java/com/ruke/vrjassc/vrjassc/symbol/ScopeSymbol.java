@@ -73,7 +73,7 @@ public class ScopeSymbol extends Symbol implements Scope {
 	}
 	
 	@Override
-	public Symbol resolve(Scope requesting, String name) {
+	public Symbol resolve(Scope requesting, String name) {		
 		Symbol resolved = this.childs.getOrDefault(name, this.childsAliases.get(name));
 		
 		if (resolved == null || !requesting.hasAccess(resolved)) {
@@ -82,6 +82,10 @@ public class ScopeSymbol extends Symbol implements Scope {
 			if (this.getParentScope() != null) {
 				return this.getParentScope().resolve(requesting, name);
 			}
+		}
+		
+		if (resolved == null && name.equals(this.getName())) {
+			resolved = this;
 		}
 		
 		return resolved;

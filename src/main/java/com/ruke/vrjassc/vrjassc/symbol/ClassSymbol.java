@@ -12,6 +12,7 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 	
 	public ClassSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
+		this.setModifier(Modifier.MEMBER, true);
 	}
 	
 	@Override

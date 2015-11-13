@@ -6,6 +6,7 @@ public class PropertySymbol extends Symbol {
 
 	public PropertySymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
+		this.setModifier(Modifier.MEMBER, true);
 	}
 
 }

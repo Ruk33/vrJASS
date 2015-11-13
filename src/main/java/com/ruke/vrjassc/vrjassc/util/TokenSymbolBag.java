@@ -2,11 +2,14 @@ package com.ruke.vrjassc.vrjassc.util;
 
 import java.util.Hashtable;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
@@ -29,6 +32,18 @@ public class TokenSymbolBag {
 
 	private Hashtable<Token, Symbol> bag = new Hashtable<Token, Symbol>();
 	
+	public void put(ParserRuleContext ctx, Symbol symbol) {
+		if (this.get(ctx) != null) {
+			return;
+		}
+		this.bag.put(ctx.getStart(), symbol);
+	}
+	
+	public Symbol get(ParserRuleContext ctx) {
+		return this.bag.get(ctx.getStart());
+	}
+	
+	/*
 	public void saveVariable(LocalVariableStatementContext ctx, Symbol variable) {
 		this.bag.put(ctx.getStart(), variable);
 	}
@@ -117,11 +132,11 @@ public class TokenSymbolBag {
 		return this.bag.get(ctx.getStart());
 	}
 	
-	public void saveFromChainExpression(FunctionOrVariableContext ctx, Symbol s) {
+	public void saveFromChainExpression(ExpressionContext ctx, Symbol s) {
 		this.bag.put(ctx.getStart(), s);
 	}
 	
-	public Symbol getFromChainExpression(FunctionOrVariableContext ctx) {
+	public Symbol getFromChainExpression(ExpressionContext ctx) {
 		return this.bag.get(ctx.getStart());
 	}
 
@@ -140,5 +155,5 @@ public class TokenSymbolBag {
 	public Symbol getVariable(ThisExpressionContext ctx) {
 		return this.bag.get(ctx.getStart());
 	}
-	
+	*/
 }

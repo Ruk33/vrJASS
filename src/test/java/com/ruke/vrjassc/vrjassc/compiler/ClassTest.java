@@ -15,7 +15,10 @@ public class ClassTest extends TestHelper {
 				+ "static integer instances\n"
 				+ "static method allocate takes nothing returns foo\n"
 					+ "set foo.instances += 1\n"
+					+ "call 0 cast foo.bar()\n"
 					+ "return foo.instances cast foo\n"
+				+ "endmethod\n"
+				+ "method bar takes nothing returns nothing\n"
 				+ "endmethod\n"
 			+ "endstruct";
 		
@@ -24,8 +27,11 @@ public class ClassTest extends TestHelper {
 				+ "integer struct_foo_instances\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
 			+ "endglobals\n"
+			+ "function struct_foo_bar takes integer this returns nothing\n"
+			+ "endfunction\n"
 			+ "function struct_foo_allocate takes nothing returns integer\n"
 				+ "set struct_foo_instances=struct_foo_instances+1\n"
+				+ "call struct_foo_bar(0)\n"
 				+ "return struct_foo_instances\n"
 			+ "endfunction";
 		

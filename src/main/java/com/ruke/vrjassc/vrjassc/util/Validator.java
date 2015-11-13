@@ -18,6 +18,7 @@ import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
 import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
+import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
@@ -135,7 +136,7 @@ public class Validator {
 	public boolean mustHaveAccess(Scope scope, Symbol symbol, Token token) {
 		this.validated = symbol;
 		
-		if (!scope.hasAccess(symbol)) {
+		if (symbol instanceof CastSymbol == false && !scope.hasAccess(symbol)) {
 			this.exception = new NoAccessException(token, scope, symbol);
 			return false;
 		}

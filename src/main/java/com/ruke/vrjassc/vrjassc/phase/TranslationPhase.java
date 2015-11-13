@@ -68,7 +68,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TopDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
@@ -224,12 +223,6 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitThis(ThisContext ctx) {
-		Symbol symbol = this.symbols.getVariable(ctx);
-		return new VariableExpression(symbol, null);
-	}
-
-	@Override
 	public Expression visitBoolean(BooleanContext ctx) {
 		return new RawExpression(ctx.getText());
 	}
@@ -258,7 +251,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitFunctionExpression(FunctionExpressionContext ctx) {
-		Symbol symbol = this.symbols.getFunction(ctx);
+		Symbol symbol = this.symbols.get(ctx);
 		ExpressionList args = null;
 		
 		if (ctx.arguments() == null) {
@@ -272,7 +265,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitVariableExpression(VariableExpressionContext ctx) {
-		Symbol symbol = this.symbols.getVariable(ctx);
+		Symbol symbol = this.symbols.get(ctx);
 		Expression index = null;
 		
 		if (ctx.index != null) {
@@ -289,7 +282,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitThisExpression(ThisExpressionContext ctx) {
-		Symbol symbol = this.symbols.getVariable(ctx);
+		Symbol symbol = this.symbols.get(ctx);
 		return new VariableExpression(symbol, null);
 	}
 
@@ -299,8 +292,9 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		chain.setHashtableName("vrjass_structs");
 		
-		for (FunctionOrVariableContext expr : ctx.functionOrVariable()) {
-			chain.append(this.visit(expr), null);
+		for (ExpressionContext expr : ctx.expression()) {
+			Expression e = this.visit(expr);			
+			chain.append(e, null);
 		}
 		
 		return chain;
@@ -352,7 +346,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
-		Symbol variable = this.symbols.getGlobalVariable(ctx);
+		Symbol variable = this.symbols.get(ctx);
 		
 		Statement global;
 		Expression value = null;
@@ -369,7 +363,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitLocalVariableStatement(LocalVariableStatementContext ctx) {
-		Symbol symbol = this.symbols.getVariable(ctx);
+		Symbol symbol = this.symbols.get(ctx);
 		Expression value = null;
 		
 		if (ctx.value != null) {
@@ -438,7 +432,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		this.classEnum++;
 		
-		ClassSymbol _class = (ClassSymbol) this.symbols.getClass(ctx);
+		ClassSymbol _class = (ClassSymbol) this.symbols.get(ctx);
 		this.initializerHandler.add(_class);
 		
 		for (StructStatementContext ssc : ctx.structStatements().structStatement()) {
@@ -454,7 +448,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitMethodDefinition(MethodDefinitionContext ctx) {
-		FunctionSymbol symbol = (FunctionSymbol) this.symbols.getMethod(ctx);
+		FunctionSymbol symbol = (FunctionSymbol) this.symbols.get(ctx);
 		StatementBody method = new FunctionDefinition(symbol);
 		
 		for (StatementContext statement : ctx.statements().statement()) {
@@ -466,7 +460,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitFunctionDefinition(FunctionDefinitionContext ctx) {
-		FunctionSymbol symbol = (FunctionSymbol) this.symbols.getFunction(ctx);
+		FunctionSymbol symbol = (FunctionSymbol) this.symbols.get(ctx);
 		StatementBody function = new FunctionDefinition(symbol);
 		Expression e;
 		
@@ -494,7 +488,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	@Override
 	public Expression visitPropertyStatement(PropertyStatementContext ctx) {
-		Symbol symbol = this.symbols.getProperty(ctx);
+		Symbol symbol = this.symbols.get(ctx);
 		Expression value = null;
 		Statement global;
 		
@@ -511,7 +505,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 	@Override
 	public Expression visitLibraryDefinition(LibraryDefinitionContext ctx) {
-		LibrarySymbol lib = (LibrarySymbol) this.symbols.getLibrary(ctx);
+		LibrarySymbol lib = (LibrarySymbol) this.symbols.get(ctx);
 		Expression e;
 		
 		this.initializerHandler.add(lib);

@@ -8,7 +8,10 @@ public class MethodSymbol extends FunctionSymbol {
 	
 	public MethodSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
+		
 		this._this = new LocalVariableSymbol("this", this, null);
+		
+		this.setModifier(Modifier.MEMBER, true);
 	}
 	
 	@Override

@@ -12,7 +12,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExtendValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionOrVariableContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryInitializerContext;
@@ -35,6 +34,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
+import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InitTrigSymbol;
@@ -78,13 +78,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitCast(CastContext ctx) {
-		Symbol e = this.visit(ctx.expression());
+		Symbol original = this.visit(ctx.expression());
 		Symbol cast = this.getScope().resolve(ctx.validName().getText());
 		
-		Symbol c = new Symbol(e.getName(), e.getParentScope(), ctx.getStart());
-		c.setType((Type) cast);
-		
-		return c;
+		return new CastSymbol(original, cast, ctx.getStart());
 	}
 	
 	@Override
@@ -220,7 +217,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			this.visit(ctx.index);
 		}
 		
-		this.symbols.saveVariable(ctx, variable);
+		this.symbols.put(ctx, variable);
 		
 		return variable;
 	}
@@ -257,7 +254,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			throw this.validator.getException();
 		}
 		
-		this.symbols.saveFunction(ctx, function);
+		this.symbols.put(ctx, function);
 		
 		return function;
 	}
@@ -351,27 +348,13 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitThis(ThisContext ctx) {
-		if (!this.validator.mustBeDefined(this.getScope(), "this", ctx.getStart())) {
-			throw this.validator.getException();
-		}
-		
-		Symbol _this = this.validator.getValidatedSymbol();
-		
-		this.symbols.saveVariable(ctx, _this);
-		
-		return _this;
-	}
-	
-	@Override
 	public Symbol visitThisExpression(ThisExpressionContext ctx) {
 		if (!this.validator.mustBeDefined(this.getScope(), "this", ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
 		Symbol _this = this.validator.getValidatedSymbol();
-		
-		this.symbols.saveVariable(ctx, _this);
+		this.symbols.put(ctx, _this);
 		
 		return _this;
 	}
@@ -419,9 +402,9 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol symbol = null;
 		int pushed = 0;
 		
-		for (FunctionOrVariableContext expr : ctx.functionOrVariable()) {
+		for (ExpressionContext expr : ctx.expression()) {
 			symbol = this.visit(expr);
-			this.symbols.saveFromChainExpression(expr, symbol);
+			this.symbols.put(expr, symbol);
 			
 			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {
 				if (symbol.getType() instanceof Scope) { // class

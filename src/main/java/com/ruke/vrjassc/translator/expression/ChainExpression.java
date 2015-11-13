@@ -23,6 +23,14 @@ public class ChainExpression extends Expression {
 	}
 		
 	public void append(Expression expression, String key) {
+		if (expression instanceof ChainExpression) {
+			for (Expression ch : ((ChainExpression) expression).expressions) {
+				this.append(ch, null);
+			}
+			
+			return;
+		}
+		
 		expression.setParent(this);
 		this.expressions.add(expression);
 	}
@@ -60,6 +68,7 @@ public class ChainExpression extends Expression {
 		}
 		
 		VariableExpression varExpr;
+		String name;
 		String index;
 		
 		for (Expression expression : this.expressions) {
@@ -73,10 +82,16 @@ public class ChainExpression extends Expression {
 				}
 			}
 			
+			if (expression.getSymbol() == null) {
+				name = expression.translate();
+			} else {
+				name = Prefix.build(expression.getSymbol());
+			}
+			
 			this.chainTranslator.append(
 				expression.getSymbol(),
 				index,
-				Prefix.build(expression.getSymbol())
+				name
 			);
 		}
 		

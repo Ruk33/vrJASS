@@ -28,14 +28,14 @@ expression:
 	|(TRUE | FALSE) #Boolean	
 	|NULL #Null
 	|FUNCTION expression #Code
-	|THIS #This
+	|thisExpression #This
 	//|THISTYPE #Thistype
 	//|SUPER #Super
 	|functionExpression #Function
-	|memberExpression #Member
 	|variableExpression #Variable
 	|expression CAST validName #Cast
 	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
+	|expression DOT expression #ChainExpression
 	;
 
 superThistypeThis: SUPER | THISTYPE | THIS; 
@@ -46,13 +46,11 @@ variableExpression: validName (BRACKET_LEFT index=integerExpression BRACKET_RIGH
 
 thisExpression: THIS;
 
-functionOrVariable: functionExpression | variableExpression | thisExpression;
+//functionOrVariable: expression;
 
 //primaryChainExpression: left=superThistypeThis (DOT functionOrVariable)+;
 
-chainExpression: functionOrVariable (DOT functionOrVariable)+;
-
-memberExpression: chainExpression;
+memberExpression: expression;
 
 integerExpression: expression;
 
