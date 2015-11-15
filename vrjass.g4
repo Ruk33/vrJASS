@@ -4,14 +4,21 @@ init: topDeclaration* EOF;
 
 topDeclaration:
 	NL
-	|globalDefinition
-	|functionDefinition
-	|nativeDefinition
 	|typeDefinition
-	|structDefinition
-	|interfaceDefinition
+	|nativeDefinition
+	|globalDefinition
 	|libraryDefinition
+	|interfaceDefinition
+	|structDefinition
+	|functionDefinition
 	;
+
+// Refers to a valid variable type, like integer, reals, etc.
+validType: ID;
+validName: ID;
+
+variableDeclaration: 
+	type=validType ARRAY? name=validName (EQ value=expression)?;
 
 expression:
 	left=expression DIV right=expression #Div
@@ -28,90 +35,27 @@ expression:
 	|(TRUE | FALSE) #Boolean	
 	|NULL #Null
 	|FUNCTION expression #Code
-	|thisExpression #This
-	//|THISTYPE #Thistype
-	//|SUPER #Super
-	|functionExpression #Function
-	|variableExpression #Variable
+	|THIS #This
+	|validName PAREN_LEFT arguments? PAREN_RIGHT #FunctionExpression
+	|validName (BRACKET_LEFT index=expression BRACKET_RIGHT)? #VariableExpression
 	|expression CAST validName #Cast
 	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
 	|expression DOT expression #ChainExpression
 	;
 
-superThistypeThis: SUPER | THISTYPE | THIS; 
+typeDefinition: 
+	TYPE validName (EXTENDS validType)? NL;
 
-functionExpression: validName PAREN_LEFT arguments? PAREN_RIGHT;
+nativeDefinition: 
+	CONSTANT? NATIVE validName TAKES parameters RETURNS returnType NL;
 
-variableExpression: validName (BRACKET_LEFT index=integerExpression BRACKET_RIGHT)?;
-
-thisExpression: THIS;
-
-//functionOrVariable: expression;
-
-//primaryChainExpression: left=superThistypeThis (DOT functionOrVariable)+;
-
-memberExpression: expression;
-
-integerExpression: expression;
-
-booleanExpression: expression;
-
-statements: statement*;
-
-elseIfStatement: 
-	ELSEIF booleanExpression THEN NL statements;
-	
-elseIfStatements: elseIfStatement*;
-
-elseStatement: 
-	(ELSE NL statements)?;
-
-ifStatement: 
-	IF booleanExpression THEN NL 
-		statements
-		elseIfStatements
-		elseStatement
-	ENDIF NL
-	;
-
-loopStatement:
-	LOOP NL
-		statements
-	ENDLOOP NL
-	;
-
-publicPrivate: PUBLIC | PRIVATE;
-
+/* 
+ * ---------------------------------------------------------------------------
+ * Globals
+ * ---------------------------------------------------------------------------
+ */	
 globalVariableStatement: 
-	publicPrivate? CONSTANT? validType ARRAY? validName (EQ value=expression)? NL;
-
-localVariableStatement: 
-	LOCAL validType ARRAY? validName (EQ value=expression)? NL;
-
-setVariableStatement: 
-	SET name=expression operator=(PLUS | MINUS | TIMES | DIV)? EQ value=expression NL;
-
-callMethodStatement: CALL memberExpression NL;
-
-callFunctionStatement: CALL functionExpression NL;
-
-exitwhenStatement: 
-	EXITWHEN booleanExpression NL;
-
-returnStatement: 
-	RETURN (expression)? NL;
-
-statement:
-	NL
-	|localVariableStatement
-	|setVariableStatement
-	|callFunctionStatement
-	|callMethodStatement
-	|exitwhenStatement
-	|loopStatement
-	|ifStatement
-	|returnStatement
-	;
+	PUBLIC? CONSTANT? variableDeclaration NL;
 
 globalStatements: 
 	(NL | globalVariableStatement)*;
@@ -122,58 +66,12 @@ globalDefinition:
 	ENDGLOBALS NL
 	;
 
-typeDefinition: 
-	TYPE validName (EXTENDS validType)? NL;
 
-nativeDefinition: 
-	CONSTANT? NATIVE validName TAKES parameters RETURNS returnType NL;
-
-propertyStatement:
-	visibility STATIC? validType ARRAY? validName (EQ value=expression)? NL;
-
-structStatement:
-	NL
-	|propertyStatement
-	|methodDefinition
-	;
-	
-structStatements: structStatement*;
-
-validImplementName: validName;
-
-implementsList: validImplementName (COMMA validImplementName)*;
-
-extendValidName: validName;
-
-structDefinition:
-	visibility STRUCT name=validName (EXTENDS extendValidName)? (IMPLEMENTS implementsList)? NL
-		structStatements
-	ENDSTRUCT NL
-	;
-
-methodDefinition:
-	visibility STATIC? METHOD validName TAKES parameters RETURNS returnType NL
-		statements
-	ENDMETHOD NL
-	;
-
-interfaceStatement:
-	visibility STATIC? METHOD validName TAKES parameters RETURNS returnType NL;
-
-interfaceStatements: interfaceStatement*;
-
-interfaceDefinition:
-	visibility INTERFACE validName NL
-		interfaceStatements
-	ENDINTERFACE NL
-	;
-
-functionDefinition: 
-	visibility CONSTANT? FUNCTION validName TAKES parameters RETURNS returnType NL
-		statements
-	ENDFUNCTION NL
-	;
-
+/* 
+ * ---------------------------------------------------------------------------
+ * Libraries
+ * ---------------------------------------------------------------------------
+ */	
 libraryInitializer: 
 	(INITIALIZER validName)?;
 
@@ -185,20 +83,62 @@ libraryRequirements:
 
 libraryStatement:
 	NL
-	|functionDefinition
-	|structDefinition
-	|interfaceDefinition
 	|globalDefinition
+	|interfaceDefinition
+	|structDefinition
+	|functionDefinition
 	;
-	
-libraryStatements: libraryStatement*;
 
 libraryDefinition:
 	LIBRARY validName libraryInitializer libraryRequirements NL
-		libraryStatements
+		libraryStatement*
 	ENDLIBRARY NL
 	;
 
+ 
+ /* 
+ * ---------------------------------------------------------------------------
+ * Interfaces
+ * ---------------------------------------------------------------------------
+ */
+ interfaceStatement:
+	PUBLIC? STATIC? METHOD validName TAKES parameters RETURNS returnType NL;
+
+interfaceDefinition:
+	PUBLIC? INTERFACE validName NL
+		interfaceStatement*
+	ENDINTERFACE NL
+	;
+
+
+/* 
+ * ---------------------------------------------------------------------------
+ * Structs
+ * ---------------------------------------------------------------------------
+ */
+propertyStatement:
+	PUBLIC? STATIC? variableDeclaration NL;
+
+structStatement:
+	NL
+	|propertyStatement
+	|functionDefinition
+	;
+
+implementsList: validName (COMMA validName)*;
+
+structDefinition:
+	PUBLIC? STRUCT name=validName (EXTENDS extends=validName)? (IMPLEMENTS implementsList)? NL
+		structStatement*
+	ENDSTRUCT NL
+	;
+
+
+/* 
+ * ---------------------------------------------------------------------------
+ * Functions
+ * ---------------------------------------------------------------------------
+ */
 returnType: 
 	validType | NOTHING;
 
@@ -206,20 +146,66 @@ parameter:
 	validType validName;
 
 parameters: 
-	(
-		parameter (COMMA parameter)*
-	)
+	(parameter (COMMA parameter)*)
 	|NOTHING
 	;
-	
+
 arguments: 
 	expression (COMMA expression)*;
 
-validType: ID;
+functionDefinition: 
+	PUBLIC? CONSTANT? STATIC? (FUNCTION | METHOD) validName TAKES parameters RETURNS returnType NL
+		statement*
+	(ENDFUNCTION | ENDMETHOD) NL
+	;
 
-validName: ID;
 
-visibility: (PRIVATE | PUBLIC)?;
+statement:
+	NL
+	|localVariableStatement
+	|assignmentStatement
+	|functionStatement
+	|loopStatement
+	|exitWhenStatement
+	|ifStatement
+	|returnStatement
+	;
+
+localVariableStatement: 
+	LOCAL variableDeclaration NL;
+
+assignmentStatement: 
+	SET name=expression operator=(PLUS | MINUS | TIMES | DIV)? EQ value=expression NL;
+
+functionStatement:
+	CALL expression NL;
+
+exitWhenStatement:
+	EXITWHEN expression NL;
+
+loopStatement:
+	LOOP NL
+		statement*
+	ENDLOOP NL
+	;
+
+ifStatement: 
+	IF expression THEN NL 
+		statement*
+		elseIfStatement*
+		elseStatement
+	ENDIF NL
+	;
+
+elseIfStatement: 
+	ELSEIF expression THEN NL statement*;
+
+elseStatement: 
+	(ELSE NL statement*)?;
+
+returnStatement:
+	RETURN (expression)? NL;
+
 
 CAST: 'cast';
 LIBRARY: 'library';

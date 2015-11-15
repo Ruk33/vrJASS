@@ -9,6 +9,24 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class GlobalsTest extends TestHelper {
 
 	@Test
+	public void usingStructInstances() {
+		String code = 
+			"struct foo\n"
+			+ "endstruct\n"
+			+ "globals\n"
+				+ "foo f\n"
+			+ "endglobals";
+		
+		String expected =
+			"globals\n"
+				+ "integer f=0\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+			+ "endglobals";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void test() {
 		String code =
 			"globals\n"

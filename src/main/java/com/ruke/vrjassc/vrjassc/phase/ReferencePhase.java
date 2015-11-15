@@ -12,6 +12,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExtendValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryInitializerContext;
@@ -76,7 +77,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	public Scope getScope() {
 		return this.scopes.peek();
 	}
-	
+	/*
+	@Override
+	public Symbol visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
+		Symbol global = this.symbols.get(ctx);
+		
+		global.setType((Type) this.getScope().resolve(ctx.validType().getText()));
+		
+		return global;
+	}
+	*/
 	@Override
 	public Symbol visitCast(CastContext ctx) {
 		Symbol original = this.visit(ctx.expression());
