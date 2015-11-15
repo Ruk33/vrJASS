@@ -31,7 +31,7 @@ public class StatementBody extends StatementList {
 		if (this.canDeclareVariables()) {
 			super.add(e);
 		} else {
-			if (e.value == null) {
+			if (e.value == null || e.value instanceof DefaultValue) {
 				this.getDeclarations().add(e);
 			} else {
 				Symbol s = e.getSymbol();

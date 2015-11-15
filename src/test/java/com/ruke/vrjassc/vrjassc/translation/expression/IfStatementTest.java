@@ -52,7 +52,7 @@ public class IfStatementTest {
 		
 		assertEquals(
 			"function foo takes nothing returns nothing\n"
-				+ "local integer bar\n"
+				+ "local integer bar=0\n"
 				+ "if false then\n"
 					+ ""
 				+ "elseif true then\n"
@@ -82,7 +82,7 @@ public class IfStatementTest {
 		
 		assertEquals(
 			"function foo takes nothing returns nothing\n"
-				+ "local integer baz\n"
+				+ "local integer baz=0\n"
 				+ "if true then\n"
 					+ "call foo()\n"
 					+ "set baz=bar\n"

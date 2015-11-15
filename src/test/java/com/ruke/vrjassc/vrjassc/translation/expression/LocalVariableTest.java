@@ -20,7 +20,7 @@ public class LocalVariableTest {
 		
 		Statement translator = new VariableStatement(variable, null);
 		
-		assertEquals("local integer i", translator.translate());
+		assertEquals("local integer i=0", translator.translate());
 		
 		translator = new VariableStatement(variable, new VariableExpression(variable, null));
 		

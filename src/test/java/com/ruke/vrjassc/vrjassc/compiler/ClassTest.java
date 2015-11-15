@@ -25,7 +25,7 @@ public class ClassTest extends TestHelper {
 		
 		String expected =
 			"globals\n"
-				+ "integer struct_foo_instances\n"
+				+ "integer struct_foo_instances=0\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
 			+ "endglobals\n"
 			+ "function struct_foo_bar takes integer this returns nothing\n"
@@ -92,8 +92,8 @@ public class ClassTest extends TestHelper {
 		
 		String expected =
 				"globals\n"
-					+ "integer struct_foo_a\n"
-					+ "integer struct_foo_b\n"
+					+ "integer struct_foo_a=0\n"
+					+ "integer struct_foo_b=0\n"
 					+ "integer struct_foo_bar=1\n"
 					+ "integer struct_foo_that=2\n"
 					+ "hashtable vrjass_structs=InitHashtable()\n"

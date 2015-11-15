@@ -23,7 +23,7 @@ public class GlobalsTest extends TestHelper {
 		String expected =
 			"globals\n"
 				+ "integer bar=1\n"
-				+ "integer baz\n"
+				+ "integer baz=0\n"
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
 			+ "endfunction";

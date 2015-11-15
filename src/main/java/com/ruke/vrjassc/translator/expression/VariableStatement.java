@@ -2,6 +2,7 @@ package com.ruke.vrjassc.translator.expression;
 
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.symbol.Type;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
@@ -10,11 +11,15 @@ public class VariableStatement extends Statement {
 	protected Symbol variable;
 	protected Expression value;
 	
-	public VariableStatement(Symbol variable, Expression value) {
+	public VariableStatement(Symbol variable, Expression value) {		
 		this.variable = variable;
-		this.value = value;
 		
-		if (this.value != null) {
+		if (value == null && variable.getType() != null) {
+			value = new DefaultValue(variable.getType());
+		}
+		
+		if (value != null) {
+			this.value = value;
 			this.value.setParent(this);
 		}
 	}

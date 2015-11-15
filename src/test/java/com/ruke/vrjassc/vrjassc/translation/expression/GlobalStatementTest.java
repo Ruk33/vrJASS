@@ -37,7 +37,7 @@ public class GlobalStatementTest {
 		
 		assertEquals(
 			"globals\n"
-			+ "integer foo\n"
+			+ "integer foo=0\n"
 			+ "integer bar=baz\n"
 			+ "endglobals",
 			globals.translate()

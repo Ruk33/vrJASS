@@ -57,9 +57,9 @@ public class StatementOrderTest {
 			"globals\n"
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
-			+ "local integer bar\n"
-			+ "set bar=2\n"
-			+ "set bar=1\n"
+				+ "local integer bar=0\n"
+				+ "set bar=2\n"
+				+ "set bar=1\n"
 			+ "endfunction",
 			container.translate()
 		);
@@ -135,8 +135,8 @@ public class StatementOrderTest {
 
 		assertEquals(
 			"globals\n"
-				+ "integer vrjass_c_bar_i\n"
-				+ "integer vrjass_c_bar_return\n"
+				+ "integer vrjass_c_bar_i=0\n"
+				+ "integer vrjass_c_bar_return=0\n"
 			+ "endglobals\n"
 			+ "function vrjass_c_bar takes integer i returns integer\n"
 				+ "set vrjass_c_bar_i=i\n"
