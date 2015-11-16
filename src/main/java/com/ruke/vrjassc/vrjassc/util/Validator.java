@@ -1,12 +1,12 @@
 package com.ruke.vrjassc.vrjassc.util;
 
+import java.util.List;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementsContext;
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
@@ -137,8 +137,10 @@ public class Validator {
 		this.validated = symbol;
 		
 		if (symbol instanceof CastSymbol == false && !scope.hasAccess(symbol)) {
-			this.exception = new NoAccessException(token, scope, symbol);
-			return false;
+			if (!symbol.getName().equals("allocate")) {
+				this.exception = new NoAccessException(token, scope, symbol);
+				return false;
+			}
 		}
 		
 		return true;
@@ -195,20 +197,20 @@ public class Validator {
 		return true;
 	}
 	
-	public boolean mustReturn(Symbol function, StatementsContext ctx) {
+	public boolean mustReturn(Symbol function, List<StatementContext> statements) {
 		this.validated = function;
 		
-		for (StatementContext stat : ctx.statement()) {
+		for (StatementContext stat : statements) {
 			if (stat.returnStatement() != null) {
 				return true;
 			} else if (stat.ifStatement() != null) {
 				if (stat.ifStatement().elseStatement() != null) {
-					boolean ifReturns = this.mustReturn(function, stat.ifStatement().statements());
+					boolean ifReturns = this.mustReturn(function, stat.ifStatement().statement());
 					boolean elseIfReturns = true;
-					boolean elseReturns = this.mustReturn(function, stat.ifStatement().elseStatement().statements());
+					boolean elseReturns = this.mustReturn(function, stat.ifStatement().elseStatement().statement());
 					
-					for (ElseIfStatementContext elseif : stat.ifStatement().elseIfStatements().elseIfStatement()) {
-						if (!this.mustReturn(function, elseif.statements())) {
+					for (ElseIfStatementContext elseif : stat.ifStatement().elseIfStatement()) {
+						if (!this.mustReturn(function, elseif.statement())) {
 							elseIfReturns = false;
 							break;
 						}

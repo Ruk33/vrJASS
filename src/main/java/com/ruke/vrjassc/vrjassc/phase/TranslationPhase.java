@@ -27,20 +27,19 @@ import com.ruke.vrjassc.translator.expression.VariableExpression;
 import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ArgumentsContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CallFunctionStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CallMethodStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitwhenStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitWhenStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
@@ -62,16 +61,12 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SuperThistypeThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TopDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
@@ -231,7 +226,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitPlus(PlusContext ctx) {
 		Expression a = this.visit(ctx.left);
 		Expression b = this.visit(ctx.right);
-		
+
 		return new MathExpression(a, MathExpression.Operator.PLUS, b);
 	}
 
@@ -244,15 +239,13 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitSuperThistypeThis(SuperThistypeThisContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Expression visitFunctionExpression(FunctionExpressionContext ctx) {
 		Symbol symbol = this.symbols.get(ctx);
 		ExpressionList args = null;
+		
+		if (symbol == null) {
+			System.out.println(ctx.getText());
+		}
 		
 		if (ctx.arguments() == null) {
 			args = new ExpressionList();
@@ -274,18 +267,12 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		return new VariableExpression(symbol, index);
 	}
+
+	@Override
+	public Expression visitThis(ThisContext ctx) {
+		return new VariableExpression(this.symbols.get(ctx), null);
+	}
 	
-	@Override
-	public Expression visitBooleanExpression(BooleanExpressionContext ctx) {
-		return new BooleanExpression(this.visit(ctx.expression()));
-	}
-
-	@Override
-	public Expression visitThisExpression(ThisExpressionContext ctx) {
-		Symbol symbol = this.symbols.get(ctx);
-		return new VariableExpression(symbol, null);
-	}
-
 	@Override
 	public Expression visitChainExpression(ChainExpressionContext ctx) {
 		ChainExpression chain = new ChainExpression();
@@ -293,7 +280,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		chain.setHashtableName("vrjass_structs");
 		
 		for (ExpressionContext expr : ctx.expression()) {
-			Expression e = this.visit(expr);			
+			Expression e = this.visit(expr);
 			chain.append(e, null);
 		}
 		
@@ -302,9 +289,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitElseIfStatement(ElseIfStatementContext ctx) {
-		ElseIfStatement elif = new ElseIfStatement(this.visit(ctx.booleanExpression()));
+		BooleanExpression condition = new BooleanExpression(this.visit(ctx.expression()));
+		ElseIfStatement elif = new ElseIfStatement(condition);
 		
-		for (StatementContext statement : ctx.statements().statement()) {
+		for (StatementContext statement : ctx.statement()) {
 			elif.add((Statement) this.visit(statement));
 		}
 		
@@ -315,7 +303,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitElseStatement(ElseStatementContext ctx) {
 		ElseStatement _else = new ElseStatement();
 		
-		for (StatementContext statement : ctx.statements().statement()) {
+		for (StatementContext statement : ctx.statement()) {
 			_else.add((Statement) this.visit(statement));
 		}
 		
@@ -324,9 +312,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitIfStatement(IfStatementContext ctx) {
-		IfStatement _if = new IfStatement(this.visit(ctx.booleanExpression()));
+		BooleanExpression condition = new BooleanExpression(this.visit(ctx.expression()));
+		IfStatement _if = new IfStatement(condition);
 
-		for (StatementContext stat : ctx.statements().statement()) {
+		for (StatementContext stat : ctx.statement()) {
 			_if.add((Statement) this.visit(stat));
 		}
 		
@@ -337,25 +326,23 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitLoopStatement(LoopStatementContext ctx) {
 		LoopStatement loop = new LoopStatement();
 		
-		for (StatementContext statement : ctx.statements().statement()) {
+		for (StatementContext statement : ctx.statement()) {
 			loop.add((Statement) this.visit(statement));
 		}
 		
 		return loop;
 	}
-
+	
 	@Override
 	public Expression visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
 		Symbol variable = this.symbols.get(ctx);
-		
-		Statement global;
 		Expression value = null;
 		
-		if (ctx.value != null) {
-			value = this.visit(ctx.value);
+		if (ctx.variableDeclaration().value != null) {
+			value = this.visit(ctx.variableDeclaration().value);
 		}
 		
-		global = new VariableStatement(variable, value);
+		Statement global = new VariableStatement(variable, value);
 		this.container.addGlobal(global);
 		
 		return global;
@@ -366,15 +353,15 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		Symbol symbol = this.symbols.get(ctx);
 		Expression value = null;
 		
-		if (ctx.value != null) {
-			value = this.visit(ctx.value);
+		if (ctx.variableDeclaration().value != null) {
+			value = this.visit(ctx.variableDeclaration().value);
 		}
 		
 		return new VariableStatement(symbol, value);
 	}
 
 	@Override
-	public Expression visitSetVariableStatement(SetVariableStatementContext ctx) {
+	public Expression visitAssignmentStatement(AssignmentStatementContext ctx) {
 		Expression name = this.visit(ctx.name);
 		Operator operator = null;
 		Expression value;
@@ -400,19 +387,14 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitCallMethodStatement(CallMethodStatementContext ctx) {
-		Expression method = this.visit(ctx.memberExpression());
-		return new FunctionStatement(method);
+	public Expression visitFunctionStatement(FunctionStatementContext ctx) {
+		return new FunctionStatement(this.visit(ctx.expression()));
 	}
 
 	@Override
-	public Expression visitCallFunctionStatement(CallFunctionStatementContext ctx) {
-		return new FunctionStatement(this.visit(ctx.functionExpression()));
-	}
-
-	@Override
-	public Expression visitExitwhenStatement(ExitwhenStatementContext ctx) {
-		return new ExitWhenStatement(this.visit(ctx.booleanExpression()));
+	public Expression visitExitWhenStatement(ExitWhenStatementContext ctx) {
+		BooleanExpression condition = new BooleanExpression(this.visit(ctx.expression()));
+		return new ExitWhenStatement(condition);
 	}
 
 	@Override
@@ -435,7 +417,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		ClassSymbol _class = (ClassSymbol) this.symbols.get(ctx);
 		this.initializerHandler.add(_class);
 		
-		for (StructStatementContext ssc : ctx.structStatements().structStatement()) {
+		for (StructStatementContext ssc : ctx.structStatement()) {
 			statement = (Statement) this.visit(ssc);
 			
 			if (statement != null) {
@@ -447,24 +429,12 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitMethodDefinition(MethodDefinitionContext ctx) {
-		FunctionSymbol symbol = (FunctionSymbol) this.symbols.get(ctx);
-		StatementBody method = new FunctionDefinition(symbol);
-		
-		for (StatementContext statement : ctx.statements().statement()) {
-			method.add((Statement) this.visit(statement));
-		}
-		
-		return method;
-	}
-
-	@Override
 	public Expression visitFunctionDefinition(FunctionDefinitionContext ctx) {
 		FunctionSymbol symbol = (FunctionSymbol) this.symbols.get(ctx);
 		StatementBody function = new FunctionDefinition(symbol);
 		Expression e;
 		
-		for (StatementContext statement : ctx.statements().statement()) {
+		for (StatementContext statement : ctx.statement()) {
 			e = this.visit(statement);
 			
 			if (e != null) {
@@ -510,7 +480,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		this.initializerHandler.add(lib);
 		
-		for (LibraryStatementContext statement : ctx.libraryStatements().libraryStatement()) {
+		for (LibraryStatementContext statement : ctx.libraryStatement()) {
 			e = this.visit(statement);
 			
 			if (e != null) {

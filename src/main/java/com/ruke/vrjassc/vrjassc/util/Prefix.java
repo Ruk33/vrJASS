@@ -21,7 +21,7 @@ public class Prefix {
 				parent = (Symbol) parent.getParentScope();
 			}
 			
-			if (symbol.hasModifier(Modifier.MEMBER)) {
+			if (symbol.getParentScope() instanceof ClassSymbol) {
 				e.addFirst("struct");
 			}
 			

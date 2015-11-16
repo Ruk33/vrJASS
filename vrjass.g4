@@ -55,7 +55,7 @@ nativeDefinition:
  * ---------------------------------------------------------------------------
  */	
 globalVariableStatement: 
-	PUBLIC? CONSTANT? variableDeclaration NL;
+	(PRIVATE|PUBLIC)? CONSTANT? variableDeclaration NL;
 
 globalStatements: 
 	(NL | globalVariableStatement)*;
@@ -71,15 +71,10 @@ globalDefinition:
  * ---------------------------------------------------------------------------
  * Libraries
  * ---------------------------------------------------------------------------
- */	
-libraryInitializer: 
-	(INITIALIZER validName)?;
-
-libraryRequirementsList: 
-	validName (COMMA validName)*;
+ */
 
 libraryRequirements: 
-	(REQUIRES libraryRequirementsList)?;
+	validName (COMMA validName)*;
 
 libraryStatement:
 	NL
@@ -90,7 +85,7 @@ libraryStatement:
 	;
 
 libraryDefinition:
-	LIBRARY validName libraryInitializer libraryRequirements NL
+	LIBRARY name=validName (INITIALIZER libInit=validName)? (REQUIRES libraryRequirements)? NL
 		libraryStatement*
 	ENDLIBRARY NL
 	;
@@ -102,10 +97,10 @@ libraryDefinition:
  * ---------------------------------------------------------------------------
  */
  interfaceStatement:
-	PUBLIC? STATIC? METHOD validName TAKES parameters RETURNS returnType NL;
+	(PRIVATE|PUBLIC)? STATIC? METHOD validName TAKES parameters RETURNS returnType NL;
 
 interfaceDefinition:
-	PUBLIC? INTERFACE validName NL
+	(PRIVATE|PUBLIC)? INTERFACE validName NL
 		interfaceStatement*
 	ENDINTERFACE NL
 	;
@@ -117,7 +112,7 @@ interfaceDefinition:
  * ---------------------------------------------------------------------------
  */
 propertyStatement:
-	PUBLIC? STATIC? variableDeclaration NL;
+	(PRIVATE|PUBLIC)? STATIC? variableDeclaration NL;
 
 structStatement:
 	NL
@@ -128,7 +123,7 @@ structStatement:
 implementsList: validName (COMMA validName)*;
 
 structDefinition:
-	PUBLIC? STRUCT name=validName (EXTENDS extends=validName)? (IMPLEMENTS implementsList)? NL
+	(PRIVATE|PUBLIC)? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
 		structStatement*
 	ENDSTRUCT NL
 	;
@@ -143,7 +138,7 @@ returnType:
 	validType | NOTHING;
 
 parameter: 
-	validType validName;
+	variableDeclaration;
 
 parameters: 
 	(parameter (COMMA parameter)*)
@@ -154,7 +149,7 @@ arguments:
 	expression (COMMA expression)*;
 
 functionDefinition: 
-	PUBLIC? CONSTANT? STATIC? (FUNCTION | METHOD) validName TAKES parameters RETURNS returnType NL
+	(PRIVATE|PUBLIC)? CONSTANT? STATIC? (FUNCTION | METHOD) validName TAKES parameters RETURNS returnType NL
 		statement*
 	(ENDFUNCTION | ENDMETHOD) NL
 	;

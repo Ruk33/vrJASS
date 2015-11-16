@@ -55,7 +55,7 @@ public class ClassTest extends TestHelper {
 	@Test
 	public void userDefinedType() {
 		this.expectedEx.expect(IncompatibleTypeException.class);
-		this.expectedEx.expectMessage("10:17 Element <p> must have/return a value of type <person> but given <god>");
+		this.expectedEx.expectMessage("10:6 Element <p> must have/return a value of type <person> but given <god>");
 		this.run("struct chucknorris\n"
 				+ "endstruct\n"
 				

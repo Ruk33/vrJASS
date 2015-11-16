@@ -2,6 +2,9 @@ package com.ruke.vrjassc.vrjassc.symbol;
 
 import org.antlr.v4.runtime.Token;
 
+import com.ruke.vrjassc.vrjassc.util.TypeCompatibleChecker;
+import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
+
 public class BuiltInTypeSymbol extends Symbol implements Type {
 
 	public BuiltInTypeSymbol(String name, Scope scope, Token token) {
@@ -15,7 +18,7 @@ public class BuiltInTypeSymbol extends Symbol implements Type {
 	
 	@Override
 	public boolean isTypeCompatible(Symbol symbol) {
-		return symbol.getType().getName().equals(this.getName());
+		return TypeCompatibleChecker.isCompatible(symbol.getType().getName(), this.getName());
 	}
 
 }

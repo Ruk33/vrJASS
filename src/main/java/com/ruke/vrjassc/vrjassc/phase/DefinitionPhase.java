@@ -7,300 +7,270 @@ import org.antlr.v4.runtime.Token;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TopDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.GlobalVariableSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
+import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 import com.ruke.vrjassc.vrjassc.util.Validator;
 
-public class DefinitionPhase extends vrjassBaseVisitor<Void> {
+public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	private TokenSymbolBag symbols;
 	
 	private Validator validator;
 	
-	private Stack<Scope> scopes;
+	private ScopeSymbol scope;
 	
-	public DefinitionPhase(TokenSymbolBag symbols, Scope scope) {
+	private Stack<ScopeSymbol> scopes;
+	
+	public DefinitionPhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
 		this.validator = new Validator();
-		this.scopes = new Stack<Scope>();
+		this.scope = scope;
+		this.scopes = new Stack<ScopeSymbol>();
 		
 		this.scopes.push(scope);
 	}
 	
-	public Scope getScope() {
-		return this.scopes.peek();
-	}
-	
-	@Override
-	public Void visitLocalVariableStatement(LocalVariableStatementContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		String type = ctx.validType().getText();
-		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustNotBeDefined(scope, name, token)) {
-			throw this.validator.getException();
+	private void defineOrThrowAlreadyDefinedException(Scope scope, Symbol child) {
+		if (child == null) {
+			return;
 		}
-				
-		Symbol variable = new LocalVariableSymbol(name, scope, token);
-		
-		//variable.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);
-		variable.setType((Type) scope.resolve(type));
-		
-		scope.define(variable);
-		this.symbols.put(ctx, variable);
-		
-		if (ctx.value != null) {
-			this.visit(ctx.value);
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public Void visitParameter(ParameterContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		String type = ctx.validType().getText();
-		Token token = ctx.validName().getStart();
-		
-		Symbol variable = new LocalVariableSymbol(name, scope, token);
-		variable.setType((Type) scope.resolve(type));
-		
-		((FunctionSymbol) scope).defineParam(variable);
-		this.symbols.put(ctx, variable);
-		
-		return null;
-	}
-		
-	@Override
-	public Void visitFunctionDefinition(FunctionDefinitionContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		String type = ctx.returnType().getText();
-		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustNotBeDefined(scope, name, token)) {
-			throw this.validator.getException();
-		}
-				
-		FunctionSymbol function = new FunctionSymbol(name, scope, token);
-		
-		if (ctx.visibility().PUBLIC() != null) {
-			function.setModifier(Modifier.PUBLIC, true);
-		} else {
-			function.setModifier(Modifier.PRIVATE, true);
-		}
-		
-		scope.define(function);
-		this.symbols.put(ctx, function);
-		
-		this.scopes.push(function);
-		super.visitFunctionDefinition(ctx);
-		this.scopes.pop();
-		
-		return null;
-	}
-	
-	@Override
-	public Void visitNativeDefinition(NativeDefinitionContext ctx) {
-		Scope scope = this.getScope();
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
-		
-		FunctionSymbol function = new FunctionSymbol(name, scope, token);
-		function.setType((Type) scope.resolve(ctx.returnType().getText()));
-		
-		scope.define(function);
-		
-		this.scopes.push(function);
-		super.visitNativeDefinition(ctx);
-		this.scopes.pop();
-		
-		return null;
-	}
-	
-	@Override
-	public Void visitTypeDefinition(TypeDefinitionContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
-		
-		Symbol type = new BuiltInTypeSymbol(name, scope, token);
-		scope.define(type);
-		
-		return null;
-	}
-	
-	@Override
-	public Void visitLibraryDefinition(LibraryDefinitionContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustNotBeDefined(scope, name, token)) {
-			throw this.validator.getException();
-		}
-				
-		LibrarySymbol library = new LibrarySymbol(name, scope, token);
-		
-		scope.define(library);
-		this.symbols.put(ctx, library);
-		
-		this.scopes.push(library);
-		super.visitLibraryDefinition(ctx);
-		this.scopes.pop();
-		
-		return null;
-	}
-	
-	@Override
-	public Void visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		String type = ctx.validType().getText();
-		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustNotBeDefined(scope, name, token)) {
-			throw this.validator.getException();
-		}
-				
-		Symbol variable = new GlobalVariableSymbol(name, scope, token);
-		
-		if (ctx.publicPrivate() != null) {
-			if (ctx.publicPrivate().PUBLIC() != null) {
-				variable.setModifier(Modifier.PUBLIC, true);
-			} else {
-				variable.setModifier(Modifier.PRIVATE, true);
-			}
-		}
-		
-		//variable.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);
-		variable.setType((Type) scope.resolve(type));
-		
-		scope.define(variable);
-		this.symbols.put(ctx, variable);
-		
-		if (ctx.value != null) {
-			this.visit(ctx.value);
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public Void visitStructDefinition(StructDefinitionContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.name.getText();
-		Token token = ctx.name.getStart();
-		
-		if (!this.validator.mustNotBeDefined(scope, name, token)) {
-			// check the resolved symbol is a type since
-			// libraries can share name with structs
-			if (this.validator.getValidatedSymbol() instanceof Type) {
+
+		if (!this.validator.mustNotBeDefined(scope, child.getName(), child.getToken())) {
+			if (this.validator.getValidatedSymbol() instanceof LibrarySymbol == false) { 
 				throw this.validator.getException();
 			}
 		}
 		
-		ClassSymbol _class = new ClassSymbol(name, scope, token);
-		_class.setModifier(Modifier.PUBLIC, true);
+		scope.define(child);
+	}
+	
+	@Override
+	public Symbol visitTypeDefinition(TypeDefinitionContext ctx) {
+		String name = ctx.validName().getText();
+		Token token = ctx.validName().getStart();
 		
-		scope.define(_class);
-		this.symbols.put(ctx, _class);
+		Symbol type = new BuiltInTypeSymbol(name, null, token);	
 		
+		this.symbols.put(ctx, type);
+		this.scopes.peek().define(type);
+		
+		return type;
+	}
+	
+	@Override
+	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {		
+		String name = ctx.validName().getText();
+		Token token = ctx.validName().getStart();
+		
+		FunctionSymbol _native = new FunctionSymbol(name, null, token);
+		
+		if (ctx.returnType().validType() != null) {
+			String type = ctx.returnType().validType().getText();
+			_native.setType((Type) this.scopes.peek().resolve(type));
+		}
+		
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), _native);
+		this.scopes.push(_native);
+		
+		if (ctx.parameters() != null) {
+			for (ParameterContext parameter : ctx.parameters().parameter()) {
+				_native.defineParam(this.visit(parameter));
+			}
+		}
+		
+		this.symbols.put(ctx, _native);
+		this.scopes.pop();
+		
+		return _native;
+	}
+	
+	@Override
+	public Symbol visitLibraryDefinition(LibraryDefinitionContext ctx) {
+		String name = ctx.name.getText();
+		Token token = ctx.name.getStart();
+
+		LibrarySymbol library = new LibrarySymbol(name, null, token);
+		
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), library);
+		this.scopes.push(library);
+		
+		super.visitLibraryDefinition(ctx);
+
+		this.symbols.put(ctx, library);
+		this.scopes.pop();
+		
+		return library;
+	}
+	
+	@Override
+	public Symbol visitInterfaceDefinition(InterfaceDefinitionContext ctx) {
+		String name = ctx.validName().getText();
+		Token token = ctx.getStart();
+		
+		InterfaceSymbol _interface = new InterfaceSymbol(name, null, token);
+		_interface.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), _interface);
+		this.scopes.push(_interface);
+		
+		super.visitInterfaceDefinition(ctx);
+		
+		this.symbols.put(ctx, _interface);
+		this.scopes.pop();
+		
+		return _interface;
+	}
+	
+	@Override
+	public Symbol visitInterfaceStatement(InterfaceStatementContext ctx) {
+		String name = ctx.validName().getText();
+		Token token = ctx.getStart();
+		
+		FunctionSymbol function = new FunctionSymbol(name, null, token);
+		
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), function);
+		this.scopes.push(function);
+		
+		if (ctx.parameters().parameter() != null) {
+			for (ParameterContext param : ctx.parameters().parameter()) {
+				function.defineParam(this.visit(param));
+			}
+		}
+		
+		this.symbols.put(ctx, function);
+		this.scopes.peek();
+		
+		return function;
+	}
+	
+	@Override
+	public Symbol visitStructDefinition(StructDefinitionContext ctx) {
+		String name = ctx.name.getText();
+		Token token = ctx.name.getStart();
+		
+		ClassSymbol _class = new ClassSymbol(name, null, token);
+		_class.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), _class);
 		this.scopes.push(_class);
+		
 		super.visitStructDefinition(ctx);
+		
+		this.symbols.put(ctx, _class);
 		this.scopes.pop();
 		
-		return null;
+		return _class;
 	}
 	
 	@Override
-	public Void visitMethodDefinition(MethodDefinitionContext ctx) {
-		Scope scope = this.getScope();
-		
+	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
 		String name = ctx.validName().getText();
-		String type = ctx.returnType().getText();
 		Token token = ctx.validName().getStart();
 		
-		if (!this.validator.mustNotBeDefined(scope, name, token)) {
-			throw this.validator.getException();
+		FunctionSymbol function = new FunctionSymbol(name, null, token);
+		
+		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		function.setModifier(Modifier.STATIC, ctx.STATIC() != null);
+		
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), function);
+		this.scopes.push(function);
+		
+		if (ctx.parameters().parameter() != null) {			
+			for (ParameterContext param : ctx.parameters().parameter()) {
+				function.defineParam(this.visit(param));
+			}
+			
+			if (!function.hasModifier(Modifier.STATIC) && function.getParentScope() instanceof ClassSymbol) {
+				Symbol _this = new Symbol("this", function, null);
+				
+				_this.setType((Type) function.getParentScope());
+				function.define(_this);
+			}
 		}
 		
-		MethodSymbol method = new MethodSymbol(name, scope, token);
+		super.visitFunctionDefinition(ctx);
 		
-		if (ctx.visibility().PUBLIC() != null) {
-			method.setModifier(Modifier.PUBLIC, true);
-		} else {
-			method.setModifier(Modifier.PRIVATE, true);
-		}
-		
-		method.setModifier(Modifier.STATIC, ctx.STATIC() != null);
-		method.setType((Type) scope.resolve(type));
-		
-		scope.define(method);
-		this.symbols.put(ctx, method);
-		
-		this.scopes.push(method);
-		super.visitMethodDefinition(ctx);
+		this.symbols.put(ctx, function);
 		this.scopes.pop();
 		
-		return null;
+		return function;
 	}
 	
 	@Override
-	public Void visitPropertyStatement(PropertyStatementContext ctx) {
-		Scope scope = this.getScope();
-		
+	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		if (!this.validator.mustNotBeDefined(scope, name, token)) {
-			throw this.validator.getException();
-		}
+		Symbol variable = new VariableSymbol(name, null, token);
 		
-		Symbol property = new PropertySymbol(name, scope, token);
+		variable.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);
+		variable.setType((Type) this.scope.resolve(ctx.validType().getText()));
 		
-		if (ctx.visibility().PUBLIC() != null) {
-			property.setModifier(Modifier.PUBLIC, true);
-		} else {
-			property.setModifier(Modifier.PRIVATE, true);
-		}
+		this.symbols.put(ctx, variable);
 		
-		property.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);
+		return variable;
+	}
+	
+	@Override
+	public Symbol visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
+		Symbol variable = this.visit(ctx.variableDeclaration());
+		variable.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		
+		this.symbols.put(ctx, variable);
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), variable);
+		
+		return variable;
+	}
+	
+	@Override
+	public Symbol visitLocalVariableStatement(LocalVariableStatementContext ctx) {
+		Symbol variable = this.visit(ctx.variableDeclaration());
+		
+		variable.setModifier(Modifier.LOCAL, true);
+		variable.setModifier(Modifier.PRIVATE, true);
+		
+		this.symbols.put(ctx, variable);
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), variable);
+		
+		return variable;
+	}
+	
+	@Override
+	public Symbol visitPropertyStatement(PropertyStatementContext ctx) {
+		Symbol property = this.visit(ctx.variableDeclaration());
+		
+		property.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		property.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		
-		scope.define(property);
 		this.symbols.put(ctx, property);
+		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), property);
 		
-		return null;
+		return property;
 	}
 
 }

@@ -1,8 +1,8 @@
 package com.ruke.vrjassc.translator.expression;
 
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
@@ -40,7 +40,7 @@ public class VariableStatement extends Statement {
 		
 		String result = type + " " + name;
 		
-		if (this.variable instanceof LocalVariableSymbol) {
+		if (this.variable.hasModifier(Modifier.LOCAL)) {
 			result = "local " + result;
 		}
 		

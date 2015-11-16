@@ -2,6 +2,7 @@ package com.ruke.vrjassc.translator.expression;
 
 import java.util.Collection;
 
+import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
@@ -25,7 +26,7 @@ public class FunctionDefinition extends StatementBody {
 			
 			this.expressions.clear();
 			
-			if (this.function instanceof MethodSymbol) {
+			if (this.function.getParentScope() instanceof ClassSymbol) {
 				if (!this.function.hasModifier(Modifier.STATIC)) {
 					this.add(new RawExpression("integer this"));
 				}

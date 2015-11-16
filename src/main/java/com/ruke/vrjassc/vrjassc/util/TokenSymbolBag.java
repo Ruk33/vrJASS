@@ -13,13 +13,10 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.SetVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
@@ -33,10 +30,7 @@ public class TokenSymbolBag {
 	private Hashtable<Token, Symbol> bag = new Hashtable<Token, Symbol>();
 	
 	public void put(ParserRuleContext ctx, Symbol symbol) {
-		if (this.get(ctx) != null) {
-			return;
-		}
-		this.bag.put(ctx.getStart(), symbol);
+		this.bag.putIfAbsent(ctx.getStart(), symbol);
 	}
 	
 	public Symbol get(ParserRuleContext ctx) {

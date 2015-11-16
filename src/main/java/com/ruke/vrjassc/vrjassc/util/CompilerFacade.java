@@ -13,7 +13,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.phase.ReferencePhase;
 import com.ruke.vrjassc.vrjassc.phase.DefinitionPhase;
 import com.ruke.vrjassc.vrjassc.phase.TranslationPhase;
-import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.VrJassScope;
 
 public class CompilerFacade {
@@ -33,12 +32,12 @@ public class CompilerFacade {
 		return String.join("\n", Files.readAllLines(Paths.get("./resources/blizzard.j")));
 	}
 	
-	protected Scope getNatives() throws IOException {
+	protected VrJassScope getNatives() throws IOException {
 		String natives = this.getCommonJ() + "\n" + this.getBlizzardJ();
 		vrjassParser parser = this.getParser(new ANTLRInputStream(natives));
 		
 		TokenSymbolBag symbols = new TokenSymbolBag();
-		Scope scope = new VrJassScope();
+		VrJassScope scope = new VrJassScope();
 		
 		DefinitionPhase defPhase = new DefinitionPhase(symbols, scope);
 		defPhase.visit(parser.init());
@@ -50,7 +49,7 @@ public class CompilerFacade {
 		vrjassParser parser = this.getParser(is);
 		
 		TokenSymbolBag symbols = new TokenSymbolBag();
-		Scope scope = this.getNatives();
+		VrJassScope scope = this.getNatives();
 		
 		DefinitionPhase defPhase = new DefinitionPhase(symbols, scope);
 		ReferencePhase refPhase = new ReferencePhase(symbols, scope);

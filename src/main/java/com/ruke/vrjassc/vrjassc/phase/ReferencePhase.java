@@ -5,43 +5,53 @@ import java.util.Stack;
 import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExtendValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryInitializerContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryRequirementsListContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MethodDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParametersContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PlusContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidImplementNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
-import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InitTrigSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
+import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
@@ -51,105 +61,224 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 
 	private TokenSymbolBag symbols;
 	
-	/**
-	 * 
-	 */
 	private Validator validator;
-		
-	/**
-	 * Current working class/struct
-	 */
-	private ClassSymbol struct;
 	
-	/**
-	 * 
-	 */
-	private Stack<Scope> scopes;
+	private ScopeSymbol scope;
+	
+	private Stack<ScopeSymbol> scopes;
 			
-	public ReferencePhase(TokenSymbolBag symbols, Scope scope) {
+	public ReferencePhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
 		this.validator = new Validator();
-		this.scopes = new Stack<Scope>();
+		this.scope = scope;
+		this.scopes = new Stack<ScopeSymbol>();
 		
-		this.scopes.push(scope);
-	}
-	
-	public Scope getScope() {
-		return this.scopes.peek();
-	}
-	/*
-	@Override
-	public Symbol visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
-		Symbol global = this.symbols.get(ctx);
-		
-		global.setType((Type) this.getScope().resolve(ctx.validType().getText()));
-		
-		return global;
-	}
-	*/
-	@Override
-	public Symbol visitCast(CastContext ctx) {
-		Symbol original = this.visit(ctx.expression());
-		Symbol cast = this.getScope().resolve(ctx.validName().getText());
-		
-		return new CastSymbol(original, cast, ctx.getStart());
-	}
-	
-	@Override
-	public Symbol visitBoolean(BooleanContext ctx) {
-		return this.getScope().resolve("boolean");
-	}
-	
-	@Override
-	public Symbol visitInteger(IntegerContext ctx) {
-		return this.getScope().resolve("integer");
-	}
-	
-	@Override
-	public Symbol visitReal(RealContext ctx) {
-		return this.getScope().resolve("real");
-	}
-	
-	@Override
-	public Symbol visitString(StringContext ctx) {
-		return this.getScope().resolve("string");
-	}
-	
-	@Override
-	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {
-		return this.getScope().resolve(ctx.validName().getText());
+		this.scopes.push(this.scope);
 	}
 	
 	@Override
 	public Symbol visitTypeDefinition(TypeDefinitionContext ctx) {
-		return this.getScope().resolve(ctx.validName().getText());
+		return this.symbols.get(ctx);
 	}
 	
 	@Override
-	public Symbol visitLocalVariableStatement(LocalVariableStatementContext ctx) {
-		Scope scope = this.getScope();
+	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {
+		return this.symbols.get(ctx);
+	}
+	
+	@Override
+	public Symbol visitLibraryDefinition(LibraryDefinitionContext ctx) {
+		LibrarySymbol library = (LibrarySymbol) this.symbols.get(ctx);
 		
-		String name = ctx.validName().getText();
-		String type = ctx.validType().getText();
+		this.scopes.push(library);
 		
-		Symbol variable = scope.resolve(name);
+		if (ctx.libInit != null) {
+			String initName = ctx.libInit.getText();
+			Token initToken = ctx.libInit.getStart();
+			
+			if (!this.validator.mustBeDefined(library, initName, initToken)) {
+				throw this.validator.getException();
+			}
+			
+			library.setInitializer(this.validator.getValidatedSymbol());
+		}
+		
+		if (ctx.libraryRequirements() != null) {
+			String reqName;
+			Token reqToken;
+			
+			for (ValidNameContext requirement : ctx.libraryRequirements().validName()) {
+				reqName = requirement.getText();
+				reqToken = requirement.getStart();
+				
+				if (!this.validator.mustBeDefined(library, reqName, reqToken)) {
+					throw this.validator.getException();
+				}
+				
+				library.defineRequirement((LibrarySymbol) this.validator.getValidatedSymbol());
+			}
+		}
+		
+		super.visitLibraryDefinition(ctx);
+		
+		this.scopes.pop();
+		
+		return library;
+	}
+	
+	@Override
+	public Symbol visitInterfaceDefinition(InterfaceDefinitionContext ctx) {
+		InterfaceSymbol _interface = (InterfaceSymbol) this.symbols.get(ctx);
+		
+		this.scopes.push(_interface);
+		super.visitInterfaceDefinition(ctx);
+		this.scopes.pop();
+		
+		return _interface;
+	}
+	
+	@Override
+	public Symbol visitInterfaceStatement(InterfaceStatementContext ctx) {
+		FunctionSymbol function = (FunctionSymbol) this.symbols.get(ctx);
+		
+		this.scopes.push(function);
+		
+		super.visitInterfaceStatement(ctx);
+		
+		if (ctx.returnType().validType() != null) {
+			String type = ctx.returnType().validType().getText();
+			Token token = ctx.returnType().getStart();
+			
+			if (!this.validator.mustBeDefined(function, type, token)) {
+				throw this.validator.getException();
+			}
+			
+			if (!this.validator.mustBeValidType(this.validator.getValidatedSymbol(), token)) {
+				throw this.validator.getException();
+			}
+			
+			if (!this.validator.mustHaveAccess(function, this.validator.getValidatedSymbol(), token)) {
+				throw this.validator.getException();
+			}
+			
+			function.setType((Type) this.validator.getValidatedSymbol());
+		}
+		
+		this.scopes.pop();
+		
+		return function;
+	}
+	
+	@Override
+	public Symbol visitStructDefinition(StructDefinitionContext ctx) {		
+		ClassSymbol _class = (ClassSymbol) this.symbols.get(ctx);
+		
+		this.scopes.push(_class);
+		
+		if (ctx.extendsFrom != null) {
+			String extendsName = ctx.extendsFrom.getText();
+			Token extendsToken = ctx.extendsFrom.getStart();
+			
+			if (!this.validator.mustBeDefined(_class, extendsName, extendsToken)) {
+				throw this.validator.getException();
+			}
+			
+			if (!this.validator.mustBeExtendableValid(this.validator.getValidatedSymbol(), extendsToken)) {
+				throw this.validator.getException();
+			}
+			
+			_class.extendsFrom((ClassSymbol) this.validator.getValidatedSymbol());
+		}
+		
+		if (ctx.implementsList() != null) {
+			String interfaceName;
+			Token interfaceToken;
+			
+			for (ValidNameContext implement : ctx.implementsList().validName()) {
+				interfaceName = implement.getText();
+				interfaceToken = implement.getStart();
+				
+				if (!this.validator.mustBeDefined(_class, interfaceName, interfaceToken)) {
+					throw this.validator.getException();
+				}
+				
+				if (!this.validator.mustBeImplementableTypeValid(this.validator.getValidatedSymbol(), interfaceToken)) {
+					throw this.validator.getException();
+				}
+				
+				_class.define(this.validator.getValidatedSymbol());
+			}
+		}
+		
+		super.visitStructDefinition(ctx);
+		
+		this.scopes.pop();
+		
+		return _class;
+	}
+	
+	@Override
+	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
+		FunctionSymbol function = (FunctionSymbol) this.symbols.get(ctx);
+		
+		this.scopes.push(function);
+		
+		if (ctx.returnType().validType() != null) {
+			String type = ctx.returnType().validType().getText();
+			Token token = ctx.returnType().getStart();
+			
+			if (!this.validator.mustBeDefined(function, type, token)) {
+				throw this.validator.getException();
+			}
+			
+			if (!this.validator.mustBeValidType(this.validator.getValidatedSymbol(), token)) {
+				throw this.validator.getException();
+			}
+			
+			if (!this.validator.mustHaveAccess(function, this.validator.getValidatedSymbol(), token)) {
+				throw this.validator.getException();
+			}
+			
+			function.setType((Type) this.validator.getValidatedSymbol());
+			
+			if (!this.validator.mustReturn(function, ctx.statement())) {
+				throw this.validator.getException();
+			}
+		}
+		
+		super.visitFunctionDefinition(ctx);
+		
+		this.scopes.pop();
+		
+		return function;
+	}
+	
+	@Override
+	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
+		String typeName = ctx.validType().getText();
+		Token typeToken = ctx.validType().getStart();
+		
+		Symbol variable = this.symbols.get(ctx);
+		Scope scope = this.scopes.peek();
 
-		if (!this.validator.mustBeDefined(scope, type, ctx.validType().getStart())) {
+		if (!this.validator.mustBeDefined(scope, typeName, typeToken)) {
 			throw this.validator.getException();
 		}
 		
-		Symbol variableType = this.validator.getValidatedSymbol();
-		
-		if (!this.validator.mustBeValidType(variableType, ctx.validType().getStart())) {
+		if (!this.validator.mustBeValidType(this.validator.getValidatedSymbol(), typeToken)) {
 			throw this.validator.getException();
 		}
 		
-		variable.setType((Type) variableType);
+		if (!this.validator.mustHaveAccess(scope, this.validator.getValidatedSymbol(), typeToken)) {
+			throw this.validator.getException();
+		}
+		
+		variable.setType((Type) this.validator.getValidatedSymbol());
 		
 		if (ctx.value != null) {
 			Symbol value = this.visit(ctx.value);
 			
-			if (!this.validator.mustBeTypeCompatible(variable, value, ctx.value.getStart())) {
+			if (!this.validator.mustBeTypeCompatible(variable, value, typeToken)) {
 				throw this.validator.getException();
 			}
 		}
@@ -158,87 +287,95 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitPropertyStatement(PropertyStatementContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		String type = ctx.validType().getText();
-		
-		Symbol property = scope.resolve(name);
-
-		if (!this.validator.mustBeDefined(scope, type, ctx.validType().getStart())) {
-			throw this.validator.getException();
-		}
-		
-		Symbol propertyType = this.validator.getValidatedSymbol();
-		
-		if (!this.validator.mustBeValidType(propertyType, ctx.validType().getStart())) {
-			throw this.validator.getException();
-		}
-		
-		property.setType((Type) propertyType);
-		
-		return property;
+	public Symbol visitDiv(DivContext ctx) {
+		super.visitDiv(ctx);
+		return this.scope.resolve("real");
 	}
 	
 	@Override
-	public Symbol visitReturnType(ReturnTypeContext ctx) {
-		Scope scope = this.getScope();
-		String type;
-		
-		Token typeToken;
-		
-		if (ctx.NOTHING() == null) {
-			typeToken = ctx.validType().getStart();
-		} else {
-			typeToken = ctx.NOTHING().getSymbol();
-		}
-		
-		type = typeToken.getText();
-
-		if (!this.validator.mustBeDefined(scope, type, typeToken)) {
-			throw this.validator.getException();
-		}
-		
-		Symbol resolved = this.validator.getValidatedSymbol();
-		
-		if (!this.validator.mustBeValidType(resolved, typeToken)) {
-			throw this.validator.getException();
-		}
-		
-		((Symbol) scope).setType((Type) resolved);
-		
-		return resolved;
+	public Symbol visitMult(MultContext ctx) {
+		super.visitMult(ctx);
+		return this.scope.resolve("real");
 	}
 	
 	@Override
-	public Symbol visitVariableExpression(VariableExpressionContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustBeDefined(scope, name, token)) {
-			throw this.validator.getException();
-		}
-		
-		Symbol variable = this.validator.getValidatedSymbol();
-		
-		if (ctx.index != null) {
-			this.visit(ctx.index);
-		}
-		
-		this.symbols.put(ctx, variable);
-		
-		return variable;
+	public Symbol visitPlus(PlusContext ctx) {
+		super.visitPlus(ctx);
+		return this.scope.resolve("real");
+	}
+	
+	@Override
+	public Symbol visitMinus(MinusContext ctx) {
+		super.visitMinus(ctx);
+		return this.scope.resolve("real");
+	}
+	
+	@Override
+	public Symbol visitComparison(ComparisonContext ctx) {
+		super.visitComparison(ctx);
+		return this.scope.resolve("boolean");
+	}
+	
+	@Override
+	public Symbol visitLogical(LogicalContext ctx) {
+		super.visitLogical(ctx);
+		return this.scope.resolve("boolean");
+	}
+	
+	@Override
+	public Symbol visitInteger(IntegerContext ctx) {
+		return this.scope.resolve("integer");
+	}
+	
+	@Override
+	public Symbol visitReal(RealContext ctx) {
+		return this.scope.resolve("real");
+	}
+	
+	@Override
+	public Symbol visitString(StringContext ctx) {
+		return this.scope.resolve("string");
+	}
+	
+	@Override
+	public Symbol visitNegative(NegativeContext ctx) {
+		return this.visit(ctx.expression());
+	}
+	
+	@Override
+	public Symbol visitNot(NotContext ctx) {
+		this.visit(ctx.expression());
+		return this.scope.resolve("boolean");
+	}
+	
+	@Override
+	public Symbol visitBoolean(BooleanContext ctx) {
+		return this.scope.resolve("boolean");
+	}
+	
+	@Override
+	public Symbol visitNull(NullContext ctx) {
+		return this.scope.resolve("null");
+	}
+	
+	@Override
+	public Symbol visitCode(CodeContext ctx) {
+		this.visit(ctx.expression());
+		return this.scope.resolve("code");
+	}
+	
+	@Override
+	public Symbol visitThis(ThisContext ctx) {
+		return this.scopes.peek().resolve("this");
 	}
 	
 	@Override
 	public Symbol visitFunctionExpression(FunctionExpressionContext ctx) {
-		Scope scope = this.getScope();
+		Scope scope = this.scopes.peek();
+		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
-				
+		
 		if (!this.validator.mustBeDefined(scope, name, token)) {
 			if (name.startsWith("InitTrig_")) {
 				scope.getEnclosingScope().define(new InitTrigSymbol(name, null));
@@ -271,148 +408,48 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitReturnStatement(ReturnStatementContext ctx) {
-		if (ctx.expression() == null) {
-			return null;
-		}
+	public Symbol visitVariableExpression(VariableExpressionContext ctx) {
+		Scope scope = this.scopes.peek();
 		
-		Scope scope = this.getScope();
+		String name = ctx.validName().getText();
+		Token token = ctx.validName().getStart();
 		
-		Symbol expr = this.visit(ctx.expression());
-		Token token = ctx.expression().getStart();
-		
-		if (!this.validator.mustBeTypeCompatible((Symbol) scope, expr, token)) {
+		if (!this.validator.mustBeDefined(scope, name, token)) {
 			throw this.validator.getException();
 		}
 		
-		return expr;
+		Symbol variable = this.validator.getValidatedSymbol();
+		
+		if (ctx.index != null) {
+			this.visit(ctx.index);
+		}
+		
+		this.symbols.put(ctx, variable);
+		
+		return variable;
 	}
 	
 	@Override
-	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {
-		Scope scope = this.getScope();
+	public Symbol visitCast(CastContext ctx) {
+		Symbol original = this.visit(ctx.expression());
+		Symbol cast = original.getParentScope().resolve(ctx.validName().getText());
+		Symbol result = new CastSymbol(original, cast, ctx.getStart());
 		
-		String name = ctx.validName().getText();
-		Symbol function = scope.resolve(name);
+		this.symbols.put(ctx, result);
 		
-		this.scopes.push((Scope) function);
-		
-		this.visit(ctx.returnType());
-		
-		if (!ctx.returnType().getText().equals("nothing")) {
-			if (!this.validator.mustReturn(function, ctx.statements())) {
-				throw this.validator.getException();
-			}
-		}
-		
-		this.visit(ctx.statements());
-		
-		this.scopes.pop();
-		
-		return function;
-	}
-	
-	@Override
-	public Symbol visitLibraryRequirementsList(LibraryRequirementsListContext ctx) {
-		LibrarySymbol library = (LibrarySymbol) this.getScope();
-		LibrarySymbol requirement;
-		
-		for (ValidNameContext name : ctx.validName()) {
-			if (!this.validator.mustBeDefined(library, name.getText(), name.getStart())) {
-				throw this.validator.getException();
-			}
-			
-			requirement = (LibrarySymbol) this.validator.getValidatedSymbol();
-			library.defineRequirement(requirement);
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public Symbol visitLibraryInitializer(LibraryInitializerContext ctx) {
-		if (ctx.validName() != null) {
-			LibrarySymbol library = (LibrarySymbol) this.getScope();
-			String name = ctx.validName().getText();
-			Token token = ctx.validName().getStart();
-			
-			if (!this.validator.mustBeDefined(library, name, token)) {
-				throw this.validator.getException();
-			}
-			
-			library.setInitializer(this.validator.getValidatedSymbol());
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public Symbol visitLibraryDefinition(LibraryDefinitionContext ctx) {
-		String name = ctx.validName().getText();
-		Symbol library = this.getScope().resolve(name);
-		
-		this.scopes.push((Scope) library);
-		super.visitLibraryDefinition(ctx);
-		this.scopes.pop();
-		
-		return library;
-	}
-	
-	@Override
-	public Symbol visitThisExpression(ThisExpressionContext ctx) {
-		if (!this.validator.mustBeDefined(this.getScope(), "this", ctx.getStart())) {
-			throw this.validator.getException();
-		}
-		
-		Symbol _this = this.validator.getValidatedSymbol();
-		this.symbols.put(ctx, _this);
-		
-		return _this;
-	}
-	
-	@Override
-	public Symbol visitMethodDefinition(MethodDefinitionContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		Symbol method = scope.resolve(name);
-		boolean hasReturn = false;
-		
-		this.scopes.push((Scope) method);
-		
-		this.visit(ctx.returnType());
-		
-		if (ctx.returnType().getText().equals("nothing")) {
-			hasReturn = true;
-		}
-		
-		for (StatementContext stat : ctx.statements().statement()) {
-			this.visit(stat);
-			
-			if (stat.returnStatement() != null) {
-				hasReturn = true;
-			}
-		}
-		
-		if (!hasReturn) {
-			throw new MissReturnException(ctx.getStart(), method);
-		}
-		
-		this.visit(ctx.statements());
-		
-		this.scopes.pop();
-		
-		return method;
+		return result;
 	}
 	
 	@Override
 	public Symbol visitParenthesis(ParenthesisContext ctx) {
-		return this.visit(ctx.expression());
+		Symbol symbol = this.visit(ctx.expression());
+		this.symbols.put(ctx, symbol);
+		return symbol;
 	}
 	
 	@Override
 	public Symbol visitChainExpression(ChainExpressionContext ctx) {
-		Scope scope = this.getScope();
+		Scope scope = this.scopes.peek();
 		
 		Symbol prevSymbol = null;
 		Symbol symbol = null;
@@ -424,10 +461,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			
 			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {
 				if (symbol.getType() instanceof Scope) { // class
-					this.scopes.push((Scope) symbol.getType()).toggleEnclosingScope();
+					this.scopes.push((ScopeSymbol) symbol.getType()).toggleEnclosingScope();
 					pushed++;
 				} else if (symbol instanceof Scope) { // library
-					this.scopes.push((Scope) symbol).toggleEnclosingScope();
+					this.scopes.push((ScopeSymbol) symbol).toggleEnclosingScope();
 					pushed++;
 				} else if (prevSymbol != null) {
 					if (!this.validator.mustBeValidMember(prevSymbol, symbol, expr.getStart())) {
@@ -451,56 +488,38 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitValidImplementName(ValidImplementNameContext ctx) {
-		Scope scope = this.getScope();
+	public Symbol visitAssignmentStatement(AssignmentStatementContext ctx) {
+		Symbol variable = this.visit(ctx.name);
+		Symbol value = this.visit(ctx.value);
 		
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustBeDefined(scope, name, token)) {
+		if (!this.validator.mustBeTypeCompatible(variable, value, ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
-		Symbol _interface = this.validator.getValidatedSymbol();
-		
-		if (!this.validator.mustBeImplementableTypeValid(_interface, token)) {
-			throw this.validator.getException();
-		}
-		
-		return _interface;
+		return variable;
 	}
 	
 	@Override
-	public Symbol visitExtendValidName(ExtendValidNameContext ctx) {
-		Scope scope = this.getScope();
-		
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
-		
-		if (!this.validator.mustBeDefined(scope, name, token)) {
-			throw this.validator.getException();
-		}
-		
-		if (!this.validator.mustBeExtendableValid(this.validator.getValidatedSymbol(), token)) {
-			throw this.validator.getException();
-		}
-		
-		ClassSymbol _extends = (ClassSymbol) this.validator.getValidatedSymbol();
-		((ClassSymbol) scope).extendsFrom(_extends);
-		
-		return _extends;
-	}
+	public Symbol visitFunctionStatement(FunctionStatementContext ctx) {
+		return this.visit(ctx.expression());
+	}	
 	
 	@Override
-	public Symbol visitStructDefinition(StructDefinitionContext ctx) {
-		String name = ctx.validName().getText();
-		ClassSymbol _class = (ClassSymbol) this.getScope().resolve(name);
+	public Symbol visitReturnStatement(ReturnStatementContext ctx) {
+		if (ctx.expression() == null) {
+			return null;
+		}
 		
-		this.scopes.push(_class);
-		super.visitStructDefinition(ctx);
-		this.scopes.pop();
+		Scope scope = this.scopes.peek();
 		
-		return _class;
+		Symbol expr = this.visit(ctx.expression());
+		Token token = ctx.expression().getStart();
+		
+		if (!this.validator.mustBeTypeCompatible((Symbol) scope, expr, token)) {
+			throw this.validator.getException();
+		}
+		
+		return expr;
 	}
 
 }
