@@ -53,7 +53,7 @@ public class CompilerFacade {
 		
 		DefinitionPhase defPhase = new DefinitionPhase(symbols, scope);
 		ReferencePhase refPhase = new ReferencePhase(symbols, scope);
-		TranslationPhase tranPhase = new TranslationPhase(symbols);
+		TranslationPhase tranPhase = new TranslationPhase(symbols, scope);
 		
 		defPhase.visit(parser.init());
 		parser.reset();

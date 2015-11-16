@@ -16,6 +16,7 @@ import com.ruke.vrjassc.translator.expression.InitializerList;
 import com.ruke.vrjassc.translator.expression.JassContainer;
 import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
+import com.ruke.vrjassc.translator.expression.StringExpression;
 import com.ruke.vrjassc.translator.expression.MathExpression.Operator;
 import com.ruke.vrjassc.translator.expression.NegativeExpression;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
@@ -72,6 +73,7 @@ import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
+import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.InitializerHandler;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
@@ -79,6 +81,8 @@ import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	protected TokenSymbolBag symbols;
+	
+	protected ScopeSymbol scope;
 	
 	protected InitializerHandler initializerHandler;
 	
@@ -88,8 +92,9 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	private int propertyEnum;
 	
-	public TranslationPhase(TokenSymbolBag symbols) {
+	public TranslationPhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
+		this.scope = scope;
 	}
 
 	@Override
@@ -140,7 +145,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitString(StringContext ctx) {
-		return new RawExpression(ctx.getText());
+		return new StringExpression(ctx.getText(), this.scope.resolve("string"));
 	}
 
 	@Override
