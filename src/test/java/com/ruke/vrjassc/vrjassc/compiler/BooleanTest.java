@@ -9,6 +9,25 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class BooleanTest extends TestHelper {
 
 	@Test
+	public void logical() {
+		String code =
+			"function foo takes nothing returns nothing\n"
+				+ "if false or true and false then\n"
+				+ "endif\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function foo takes nothing returns nothing\n"
+					+ "if false or true and false then\n"
+					+ "endif\n"
+				+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void test() {
 		String code = 
 			"function foo takes nothing returns nothing\n"

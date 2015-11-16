@@ -30,13 +30,16 @@ public class BooleanExpression extends Expression {
 	}
 	
 	public BooleanExpression(Expression a) {
-		this.a = a;
+		this(a, null, null);
 	}
 
 	@Override
 	public String translate() {
 		if (this.b == null) {
-			if (this.a.translate().equals("true") || this.a.translate().equals("false")) {
+			boolean aIsTrue = this.a.translate().equals("true");
+			boolean aIsFalse = this.a.translate().equals("false");
+			
+			if (aIsTrue || aIsFalse) {
 				return this.a.translate();
 			}
 			
@@ -48,6 +51,8 @@ public class BooleanExpression extends Expression {
 				return "StringLength(" + this.a.translate() + ")!=0";
 			} else if (type.equals("integer")) {
 				return this.a.translate() + "!=0";
+			} else {
+				return this.a.translate();
 			}
 		}
 		

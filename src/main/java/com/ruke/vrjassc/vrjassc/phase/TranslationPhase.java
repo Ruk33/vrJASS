@@ -14,9 +14,9 @@ import com.ruke.vrjassc.translator.expression.FunctionStatement;
 import com.ruke.vrjassc.translator.expression.IfStatement;
 import com.ruke.vrjassc.translator.expression.InitializerList;
 import com.ruke.vrjassc.translator.expression.JassContainer;
+import com.ruke.vrjassc.translator.expression.LogicalExpression;
 import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
-import com.ruke.vrjassc.translator.expression.StringExpression;
 import com.ruke.vrjassc.translator.expression.MathExpression.Operator;
 import com.ruke.vrjassc.translator.expression.NegativeExpression;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
@@ -121,7 +121,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			Symbol symbol = new Symbol("vrjass_structs", null, null);
 			symbol.setType(new BuiltInTypeSymbol("hashtable", null, null));
 			
-			Statement structHashtable = new VariableStatement(symbol, new RawExpression("InitHashtable()"));
+			Statement structHashtable = new VariableStatement(symbol, new RawExpression("InitHashtable()", null));
 			this.container.addGlobal(structHashtable);
 		}
 
@@ -135,17 +135,28 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitNull(NullContext ctx) {
-		return new RawExpression("null");
+		return new RawExpression("null", this.scope.resolve("null"));
 	}
 
 	@Override
 	public Expression visitLogical(LogicalContext ctx) {
-		return null;
+		Expression left = this.visit(ctx.left);
+		Expression right = this.visit(ctx.right);
+		
+		LogicalExpression.Operator operator;
+		
+		if (ctx.OR() == null) {
+			operator = LogicalExpression.Operator.AND;
+		} else {
+			operator = LogicalExpression.Operator.OR;
+		}
+
+		return new LogicalExpression(left, operator, right);
 	}
 
 	@Override
 	public Expression visitString(StringContext ctx) {
-		return new StringExpression(ctx.getText(), this.scope.resolve("string"));
+		return new RawExpression(ctx.getText(), this.scope.resolve("string"));
 	}
 
 	@Override
@@ -156,7 +167,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitInteger(IntegerContext ctx) {
-		return new RawExpression(ctx.getText());
+		return new RawExpression(ctx.getText(), this.scope.resolve("integer"));
 	}
 
 	@Override
@@ -219,12 +230,12 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitReal(RealContext ctx) {
-		return new RawExpression(ctx.getText());
+		return new RawExpression(ctx.getText(), this.scope.resolve("real"));
 	}
 
 	@Override
 	public Expression visitBoolean(BooleanContext ctx) {
-		return new RawExpression(ctx.getText());
+		return new RawExpression(ctx.getText(), this.scope.resolve("boolean"));
 	}
 
 	@Override
@@ -381,7 +392,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		if (operator != null) {
 			// avoid mutual recursion
-			value = new MathExpression(new RawExpression(name.translate()), operator, value);
+			value = new MathExpression(new RawExpression(name.translate(), name.getSymbol()), operator, value);
 		}
 		
 		return new AssignmentStatement(name, value);
@@ -465,7 +476,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		if (!symbol.hasModifier(Modifier.STATIC)) {
 			this.propertyEnum++;
-			value = new RawExpression(String.valueOf(this.propertyEnum));
+			value = new RawExpression(String.valueOf(this.propertyEnum), this.scope.resolve("integer"));
 		}
 		
 		global = new VariableStatement(symbol, value);
