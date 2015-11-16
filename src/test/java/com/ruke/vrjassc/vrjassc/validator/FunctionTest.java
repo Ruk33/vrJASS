@@ -5,6 +5,7 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
 import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidMathException;
+import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidStringConcatenationException;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
@@ -13,6 +14,29 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
 
+	public void validExitwhen() {
+		this.expectedEx.none();
+		this.run("function foo takes nothing returns nothing\n"
+					+ "if false then\n"
+						+ "loop\n"
+							+ "if true then\n"
+								+ "exitwhen false\n"
+							+ "endif\n"
+							+ "exitwhen true\n"
+						+ "endloop\n"
+					+ "endif\n"
+				+ "endfunction");
+	}
+	
+	@Test
+	public void invalidExitwhen() {
+		this.expectedEx.expect(InvalidStatementException.class);
+		this.expectedEx.expectMessage("2:0 Can only be used inside of loops");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "exitwhen true\n"
+				+ "endfunction");
+	}
+	
 	@Test
 	public void concatenateString() {
 		this.expectedEx.none();

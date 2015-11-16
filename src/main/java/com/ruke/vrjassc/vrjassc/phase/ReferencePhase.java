@@ -2,9 +2,11 @@ package com.ruke.vrjassc.vrjassc.phase;
 
 import java.util.Stack;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
@@ -12,6 +14,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitWhenStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
@@ -43,6 +46,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
+import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
@@ -532,7 +536,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitFunctionStatement(FunctionStatementContext ctx) {
 		return this.visit(ctx.expression());
-	}	
+	}
+
+	@Override
+	public Symbol visitExitWhenStatement(ExitWhenStatementContext ctx) {
+		if (!this.validator.mustBeInsideOfLoop(ctx, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
+		return this.visit(ctx.expression());
+	}
 	
 	@Override
 	public Symbol visitReturnStatement(ReturnStatementContext ctx) {

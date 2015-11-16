@@ -3,8 +3,10 @@ package com.ruke.vrjassc.vrjassc.util;
 import java.util.List;
 import java.util.Stack;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
@@ -14,6 +16,7 @@ import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidMathException;
+import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidStringConcatenationException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
@@ -47,6 +50,30 @@ public class Validator {
 	
 	public CompileException getException() {
 		return this.exception;
+	}
+	
+	public boolean mustBeInsideOfLoop(ParserRuleContext ctx, Token token) {
+		this.validated = null;
+		
+		ParserRuleContext parent = ctx.getParent();
+		boolean insideOfLoop = false;
+		
+		// iterate until reach the function definition
+		while (parent.getRuleIndex() != vrjassParser.RULE_functionDefinition) {
+			if (parent.getRuleIndex() == vrjassParser.RULE_loopStatement) {
+				insideOfLoop = true;
+				break;
+			}
+			
+			parent = parent.getParent();
+		}
+		
+		if (!insideOfLoop) {
+			this.exception = new InvalidStatementException("Can only be used inside of loops", token);
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public boolean mustBeValidStringConcatenation(Symbol a, Symbol b, Token token) {
