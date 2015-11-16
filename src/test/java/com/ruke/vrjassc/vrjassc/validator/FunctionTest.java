@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
 import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
+import com.ruke.vrjassc.vrjassc.exception.InvalidMathException;
+import com.ruke.vrjassc.vrjassc.exception.InvalidStringConcatenationException;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
@@ -11,6 +13,59 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
 
+	@Test
+	public void concatenateString() {
+		this.expectedEx.none();
+		this.run("function foo takes nothing returns nothing\n"
+					+ "local string s = \"foo\" + \"bar\"\n"
+				+ "endfunction");
+	}
+	
+	@Test
+	public void invalidStringConcatenation() {
+		this.expectedEx.expect(InvalidStringConcatenationException.class);
+		this.expectedEx.expectMessage("2:17 Invalid string concatenation");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "local string s = \"foo\" + 2\n"
+				+ "endfunction");
+	}
+	
+	@Test
+	public void invalidDivisionOperation() {
+		this.expectedEx.expect(InvalidMathException.class);
+		this.expectedEx.expectMessage("2:20 Not a valid math operation");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "local integer bar = 1/\"s\"\n"
+				+ "endfunction");
+	}
+	
+	@Test
+	public void invalidMultiplicationOperation() {
+		this.expectedEx.expect(InvalidMathException.class);
+		this.expectedEx.expectMessage("2:20 Not a valid math operation");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "local integer bar = 1*\"s\"\n"
+				+ "endfunction");
+	}
+	
+	@Test
+	public void invalidSubstractionOperation() {
+		this.expectedEx.expect(InvalidMathException.class);
+		this.expectedEx.expectMessage("2:20 Not a valid math operation");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "local integer bar = 1-\"s\"\n"
+				+ "endfunction");
+	}
+	
+	@Test
+	public void invalidAdditionOperation() {
+		this.expectedEx.expect(InvalidMathException.class);
+		this.expectedEx.expectMessage("2:20 Not a valid math operation");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "local integer bar = 1+\"s\"\n"
+				+ "endfunction");
+	}
+	
 	@Test
 	public void _native() {
 		this.expectedEx.none();

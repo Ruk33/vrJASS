@@ -7,7 +7,7 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class OperatorTest extends TestHelper {
-
+	
 	@Test
 	public void test() {
 		String code =

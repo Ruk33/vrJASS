@@ -243,10 +243,6 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		Symbol symbol = this.symbols.get(ctx);
 		ExpressionList args = null;
 		
-		if (symbol == null) {
-			System.out.println(ctx.getText());
-		}
-		
 		if (ctx.arguments() == null) {
 			args = new ExpressionList();
 		} else {

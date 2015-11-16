@@ -288,25 +288,55 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitDiv(DivContext ctx) {
-		super.visitDiv(ctx);
+		Symbol left = this.visit(ctx.left);
+		Symbol right = this.visit(ctx.right);
+		
+		if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
 		return this.scope.resolve("real");
 	}
 	
 	@Override
 	public Symbol visitMult(MultContext ctx) {
-		super.visitMult(ctx);
+		Symbol left = this.visit(ctx.left);
+		Symbol right = this.visit(ctx.right);
+		
+		if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
 		return this.scope.resolve("real");
 	}
 	
 	@Override
 	public Symbol visitPlus(PlusContext ctx) {
-		super.visitPlus(ctx);
-		return this.scope.resolve("real");
+		Symbol left = this.visit(ctx.left);
+		Symbol right = this.visit(ctx.right);
+		
+		if (left.getType().getName().equals("string")) {
+			if (!this.validator.mustBeValidStringConcatenation(left, right, ctx.getStart())) {
+				throw this.validator.getException();
+			}
+		} else {
+			if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+				throw this.validator.getException();
+			}
+		}
+		
+		return left;
 	}
 	
 	@Override
 	public Symbol visitMinus(MinusContext ctx) {
-		super.visitMinus(ctx);
+		Symbol left = this.visit(ctx.left);
+		Symbol right = this.visit(ctx.right);
+		
+		if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
 		return this.scope.resolve("real");
 	}
 	

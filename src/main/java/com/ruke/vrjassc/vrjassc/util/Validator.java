@@ -13,6 +13,8 @@ import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
 import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
+import com.ruke.vrjassc.vrjassc.exception.InvalidMathException;
+import com.ruke.vrjassc.vrjassc.exception.InvalidStringConcatenationException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
@@ -45,6 +47,28 @@ public class Validator {
 	
 	public CompileException getException() {
 		return this.exception;
+	}
+	
+	public boolean mustBeValidStringConcatenation(Symbol a, Symbol b, Token token) {
+		this.validated = b;
+		
+		if (!this.mustBeTypeCompatible(a, b, token)) {
+			this.exception = new InvalidStringConcatenationException(token);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean mustBeValidMathOperation(Symbol a, Symbol b, Token token) {
+		this.validated = b;
+		
+		if (!this.mustBeTypeCompatible(a, b, token)) {
+			this.exception = new InvalidMathException(token);
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
