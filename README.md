@@ -6,7 +6,7 @@ _Because you deserve a better yet familiar flavor_
 _Even better flavor than before_
 
 ##What is vrJASS?
-A new and just-for-fun/learning-intended-to project which aims 
+A new and just-for-fun/learning-intended-to-project compiler which aims 
 to improve and rebuild from scratch the old and loved vJASS.
 
 ##How can I help you?
@@ -42,6 +42,48 @@ If you want the compiled source code to be applied in the map, just use the -res
 $ java -jar vrjassc-jar-with-dependencies.jar file1.j file2.j -result=map.w3x
 ```
 
-If no -result is passed the compiled output will be written in compiled-vrjass.j (which is going to be created on the folder where you are).
+If no -result is passed the compiled output will be written in compiled-vrjass.j 
+(which is going to be created on the folder where you are).
 
-Errors are going to be written in the log-vrjass.j file (you can change it by using the -log option, same as the -result option).
+Errors are going to be written in the log-vrjass.j file (you can change it by 
+using the -log option, same as the -result option).
+
+##How to add new features?
+**Rule of gold:** write the tests before you write any code (check tests folder
+for some examples).
+
+###New keyword/statement/expression
+See vrjass.g4
+
+Modify and then compile it with this parameters:
+
+```bash
+$ -no-listener -visitor -o src/main/java/com/ruke/vrjassc/vrjassc/antlr4 -package com.ruke.vrjassc.vrjassc.antlr4 -encoding UTF-8
+```
+
+Example: lets allow users to call a function/method using a 'doCall' keyword
+
+In the vrjass.g4 file, look functionStatement:
+
+```
+functionStatement:
+	CALL expression NL;
+ ```
+ 
+ Now add the new call alternative:
+ 
+ ```
+functionStatement:
+	CALL|'doCall' expression NL;
+ ```
+ 
+ Save, compile the grammar and boala!
+ 
+##Validation
+For the most part, validations are executed in the reference phase (see 
+ReferencePhase.java file) (although you might also need the DefinitionPhase) but
+the logic of these validations is stored in the Validator class.
+
+##Translation
+For this, you might wanna check the com.ruke.vrjassc.translator.expression package  
+and the TranslationPhase class.
