@@ -7,19 +7,14 @@ import org.antlr.v4.runtime.Token;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TopDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
@@ -56,10 +51,6 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	private void defineOrThrowAlreadyDefinedException(Scope scope, Symbol child) {
-		if (child == null) {
-			return;
-		}
-
 		if (!this.validator.mustNotBeDefined(scope, child.getName(), child.getToken())) {
 			if (this.validator.getValidatedSymbol() instanceof LibrarySymbol == false) { 
 				throw this.validator.getException();

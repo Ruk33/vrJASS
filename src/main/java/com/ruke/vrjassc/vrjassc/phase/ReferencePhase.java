@@ -469,8 +469,6 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol cast = original.getParentScope().resolve(ctx.validName().getText());
 		Symbol result = new CastSymbol(original, cast, ctx.getStart());
 		
-		this.symbols.put(ctx, result);
-		
 		return result;
 	}
 	

@@ -79,9 +79,11 @@ public class ChainExpressionTranslator {
 		Chainable property = this.chain.pop();
 		Chainable ch;
 		
-		if (property.getSymbol().hasModifier(Modifier.STATIC)) {
-			this.chain.clear();
-			return property.getKey();
+		if (property.getSymbol() != null) {
+			if (property.getSymbol().hasModifier(Modifier.STATIC)) {
+				this.chain.clear();
+				return property.getKey();
+			}
 		}
 		
 		args.push(this.getHashtableName());
