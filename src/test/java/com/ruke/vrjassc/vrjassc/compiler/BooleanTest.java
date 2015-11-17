@@ -12,7 +12,7 @@ public class BooleanTest extends TestHelper {
 	public void logical() {
 		String code =
 			"function foo takes nothing returns nothing\n"
-				+ "if false or true and false then\n"
+				+ "if false or true and false or \"\" then\n"
 				+ "endif\n"
 			+ "endfunction";
 		
@@ -20,7 +20,7 @@ public class BooleanTest extends TestHelper {
 			"globals\n"
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
-					+ "if false or true and false then\n"
+					+ "if false or true and false or StringLength(\"\")!=0 then\n"
 					+ "endif\n"
 				+ "endfunction";
 		

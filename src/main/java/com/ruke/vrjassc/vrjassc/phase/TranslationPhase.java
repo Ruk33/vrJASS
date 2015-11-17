@@ -147,8 +147,8 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitLogical(LogicalContext ctx) {
-		Expression left = this.visit(ctx.left);
-		Expression right = this.visit(ctx.right);
+		Expression left = new BooleanExpression(this.visit(ctx.left));
+		Expression right = new BooleanExpression(this.visit(ctx.right));
 		
 		LogicalExpression.Operator operator;
 		

@@ -43,17 +43,19 @@ public class BooleanExpression extends Expression {
 				return this.a.translate();
 			}
 			
-			String type = this.a.getSymbol().getType().getName();
-			
-			if (VariableTypeDetector.isHandle(type)) {
-				return this.a.translate() + "!=null";
-			} else if (type.equals("string")) {
-				return "StringLength(" + this.a.translate() + ")!=0";
-			} else if (type.equals("integer")) {
-				return this.a.translate() + "!=0";
-			} else {
-				return this.a.translate();
+			if (this.a.getSymbol() != null) {
+				String type = this.a.getSymbol().getType().getName();
+				
+				if (VariableTypeDetector.isHandle(type)) {
+					return this.a.translate() + "!=null";
+				} else if (type.equals("string")) {
+					return "StringLength(" + this.a.translate() + ")!=0";
+				} else if (type.equals("integer")) {
+					return this.a.translate() + "!=0";
+				}
 			}
+			
+			return this.a.translate();
 		}
 		
 		return this.a.translate() + this.operator + this.b.translate();
