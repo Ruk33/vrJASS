@@ -12,8 +12,11 @@ public class CastSymbol extends Symbol {
 
 		this.original = original;
 		this.cast = cast;
-		
-		this.setType(cast.getType());
+	}
+	
+	@Override
+	public Type getType() {
+		return this.cast.getType();
 	}
 	
 	@Override

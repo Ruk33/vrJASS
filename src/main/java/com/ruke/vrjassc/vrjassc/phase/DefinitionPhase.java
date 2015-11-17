@@ -47,7 +47,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		this.scope = scope;
 		this.scopes = new Stack<ScopeSymbol>();
 		
-		this.scopes.push(scope);
+		this.scopes.push(this.scope);
 	}
 	
 	private void defineOrThrowAlreadyDefinedException(Scope scope, Symbol child) {

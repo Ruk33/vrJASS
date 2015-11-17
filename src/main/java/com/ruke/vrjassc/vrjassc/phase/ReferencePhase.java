@@ -465,11 +465,12 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitCast(CastContext ctx) {
-		Symbol original = this.visit(ctx.expression());
-		Symbol cast = original.getParentScope().resolve(ctx.validName().getText());
-		Symbol result = new CastSymbol(original, cast, ctx.getStart());
+		String castType = ctx.validName().getText();
 		
-		return result;
+		Symbol original = this.visit(ctx.expression());
+		Symbol cast = original.getParentScope().resolve(castType);
+		
+		return new CastSymbol(original, cast, ctx.getStart());
 	}
 	
 	@Override
@@ -491,7 +492,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			symbol = this.visit(expr);
 			this.symbols.put(expr, symbol);
 			
-			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {
+			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {				
 				if (symbol.getType() instanceof Scope) { // class
 					this.scopes.push((ScopeSymbol) symbol.getType()).toggleEnclosingScope();
 					pushed++;

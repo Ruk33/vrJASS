@@ -38,9 +38,9 @@ expression:
 	|THIS #This
 	|validName PAREN_LEFT arguments? PAREN_RIGHT #FunctionExpression
 	|validName (BRACKET_LEFT index=expression BRACKET_RIGHT)? #VariableExpression
+	|expression DOT expression #ChainExpression
 	|expression CAST validName #Cast
 	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
-	|expression DOT expression #ChainExpression
 	;
 
 typeDefinition: 
