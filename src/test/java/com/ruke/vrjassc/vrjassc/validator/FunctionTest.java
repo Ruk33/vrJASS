@@ -14,6 +14,17 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
 
+	@Test
+	public void declareVariableBeforeUsing() {
+		this.expectedEx.expect(InvalidStatementException.class);
+		this.expectedEx.expectMessage("2:9 Variables must be declared before use");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "call I2S(bar)\n"
+					+ "local integer bar\n"
+				+ "endfunction");
+	}
+	
+	@Test
 	public void validExitwhen() {
 		this.expectedEx.none();
 		this.run("function foo takes nothing returns nothing\n"

@@ -52,6 +52,29 @@ public class Validator {
 		return this.exception;
 	}
 	
+	/**
+	 * Verifiy that the variable is declared before being used in token
+	 * 
+	 * @param variable
+	 * @param token Where we are using the variable
+	 * @return
+	 */
+	public boolean mustBeDeclaredBeforeUsed(Symbol variable, Token token) {
+		this.validated = variable;
+		
+		if (variable.hasModifier(Modifier.LOCAL)) {
+			if (variable.getToken().getLine() > token.getLine()) {
+				this.exception = new InvalidStatementException(
+					"Variables must be declared before use", token
+				);
+				
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	public boolean mustBeInsideOfLoop(ParserRuleContext ctx, Token token) {
 		this.validated = null;
 		
