@@ -149,7 +149,7 @@ arguments:
 	expression (COMMA expression)*;
 
 functionDefinition: 
-	(PRIVATE|PUBLIC)? CONSTANT? STATIC? (FUNCTION | METHOD) validName TAKES parameters RETURNS returnType NL
+	(PRIVATE|PUBLIC)? CONSTANT? STATIC? (FUNCTION | METHOD) validName (TAKES parameters)? (RETURNS returnType)? NL
 		statement*
 	(ENDFUNCTION | ENDMETHOD) NL
 	;

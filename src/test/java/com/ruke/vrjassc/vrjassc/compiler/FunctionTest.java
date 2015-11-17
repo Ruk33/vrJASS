@@ -9,6 +9,29 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 	
 	@Test
+	public void noParametersNoReturnNoNothing() {
+		String code =
+			"function foo returns nothing\n"
+			+ "endfunction\n"
+			+ "function bar takes integer a\n"
+			+ "endfunction\n"
+			+ "function baz\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function foo takes nothing returns nothing\n"
+				+ "endfunction\n"
+				+ "function bar takes integer a returns nothing\n"
+				+ "endfunction\n"
+				+ "function baz takes nothing returns nothing\n"
+				+ "endfunction";
+	
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void autoInitializeVariables() {
 		String code =
 			"globals\n"

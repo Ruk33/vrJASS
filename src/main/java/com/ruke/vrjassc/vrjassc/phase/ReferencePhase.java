@@ -227,7 +227,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		this.scopes.push(function);
 		
-		if (ctx.returnType().validType() != null) {
+		if (ctx.returnType() != null && ctx.returnType().validType() != null) {
 			String type = ctx.returnType().validType().getText();
 			Token token = ctx.returnType().getStart();
 			

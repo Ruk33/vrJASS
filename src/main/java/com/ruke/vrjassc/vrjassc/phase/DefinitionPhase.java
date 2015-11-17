@@ -191,12 +191,14 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), function);
 		this.scopes.push(function);
 		
-		if (ctx.parameters().parameter() != null) {			
+		if (ctx.parameters() != null) {			
 			for (ParameterContext param : ctx.parameters().parameter()) {
 				function.defineParam(this.visit(param));
 			}
-			
-			if (!function.hasModifier(Modifier.STATIC) && function.getParentScope() instanceof ClassSymbol) {
+		}
+		
+		if (function.getParentScope() instanceof ClassSymbol) {
+			if (!function.hasModifier(Modifier.STATIC)) {
 				Symbol _this = new Symbol("this", function, null);
 				
 				_this.setType((Type) function.getParentScope());
