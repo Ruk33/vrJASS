@@ -7,7 +7,7 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
-	
+		
 	@Test
 	public void _this() {
 		String code =

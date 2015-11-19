@@ -108,7 +108,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		for (TopDeclarationContext stat : ctx.topDeclaration()) {
 			e = this.visit(stat);
 			
-			if (e!= null) {
+			if (e != null) {
 				if (e.getSymbol().getName().equals("main")) {
 					((StatementBody) e).add(initList);
 				}
@@ -352,9 +352,14 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	@Override
 	public Expression visitLoopStatement(LoopStatementContext ctx) {
 		LoopStatement loop = new LoopStatement();
+		Statement statement;
 		
-		for (StatementContext statement : ctx.statement()) {
-			loop.add((Statement) this.visit(statement));
+		for (StatementContext stat : ctx.statement()) {
+			statement = (Statement) this.visit(stat);
+			
+			if (statement != null) { 
+				loop.add(statement);
+			}
 		}
 		
 		return loop;
