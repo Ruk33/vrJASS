@@ -3,8 +3,10 @@ package com.ruke.vrjassc.vrjassc.phase;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
@@ -15,6 +17,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;

@@ -21,13 +21,7 @@ variableDeclaration:
 	type=validType ARRAY? name=validName (EQ value=expression)?;
 
 expression:
-	left=expression DIV right=expression #Div
-	|left=expression TIMES right=expression #Mult
-	|left=expression MINUS right=expression #Minus
-	|left=expression PLUS right=expression #Plus
-	|left=expression operator=(EQEQ | NOT_EQ | GREATER | GREATER_EQ | LESS | LESS_EQ) right=expression #Comparison
-	|left=expression operator=(OR | AND) right=expression #Logical
-	|INT #Integer
+	INT #Integer
 	|REAL #Real
 	|STRING #String
 	|MINUS expression #Negative
@@ -41,6 +35,12 @@ expression:
 	|expression DOT expression #ChainExpression
 	|expression CAST validName #Cast
 	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
+	|left=expression DIV right=expression #Div
+	|left=expression TIMES right=expression #Mult
+	|left=expression MINUS right=expression #Minus
+	|left=expression PLUS right=expression #Plus
+	|left=expression operator=(EQEQ | NOT_EQ | GREATER | GREATER_EQ | LESS | LESS_EQ) right=expression #Comparison
+	|left=expression operator=(OR | AND) right=expression #Logical
 	;
 
 typeDefinition: 

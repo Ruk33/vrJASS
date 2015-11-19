@@ -289,7 +289,15 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitThis(ThisContext ctx) {
-		return new VariableExpression(this.symbols.get(ctx), null);
+		Symbol _this = this.symbols.get(ctx);
+		
+		if (_this == null) {
+			// methods create a 'this' parameter, that is why
+			// the symbol bag returns null
+			_this = new Symbol("this", null, null);
+		}
+		
+		return new VariableExpression(_this, null);
 	}
 	
 	@Override
