@@ -179,6 +179,14 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
+	public Symbol visitParameter(ParameterContext ctx) {
+		Symbol parameter = this.visit(ctx.variableDeclaration());
+		parameter.setModifier(Modifier.LOCAL, true);
+		
+		return parameter;
+	}
+	
+	@Override
 	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();

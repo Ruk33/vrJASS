@@ -9,6 +9,52 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 	
 	@Test
+	public void f() {
+		String code =
+			"struct Object\n" +
+			"    private static integer instances\n" +
+			"    \n" +
+			"    public static method allocate takes nothing returns Object\n" +
+			"        set Object.instances += 1\n" +
+			"        return Object.instances cast Object\n" +
+			"    endmethod\n" +
+			"endstruct\n" +
+			"\n" +
+			"struct Stack extends Object\n" +
+			"    Object array elements\n" +
+			"    integer size\n" +
+			"    \n" +
+			"    public method push takes Object e\n" +
+			"        set this.size += 1\n" +
+			"        set this.elements[this.size] = e\n" +
+			"    endmethod\n" +
+			"    \n" +
+			"    public method pop\n" +
+			"        set this.size = IMinBJ(0, this.size - 1)\n" +
+			"    endmethod\n" +
+			"    \n" +
+			"    public method getSize returns integer\n" +
+			"        return this.size\n" +
+			"    endmethod\n" +
+			"    \n" +
+			"    static method onInit\n" +
+			"        local Object a = Object.allocate()\n" +
+			"        local Object b = Object.allocate()\n" +
+			"        local Object c = Object.allocate()\n" +
+			"        local Object d = Object.allocate()\n" +
+			"        local Stack  s = Stack.allocate() cast Stack\n" +
+			"        \n" +
+			"        call s.push(a)\n" +
+			"        call s.push(b)\n" +
+			"        \n" +
+			"        call BJDebugMsg(I2S(s.getSize()))\n" +
+			"    endmethod\n" +
+			"endstruct";
+			
+		this.run(code);
+	}
+	
+	@Test
 	public void noParametersNoReturnNoNothing() {
 		String code =
 			"function foo returns nothing\n"
