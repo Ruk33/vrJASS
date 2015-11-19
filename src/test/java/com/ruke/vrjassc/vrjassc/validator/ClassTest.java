@@ -14,6 +14,22 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void scopes() {
+		this.expectedEx.none();
+		this.run("struct foo\n"
+					+ "static foo instance\n"
+					+ "integer array ia\n"
+					+ "integer i\n"
+					+ "method baz takes integer i\n"
+					+ "endmethod\n"
+					+ "method bar\n"
+						+ "set foo.instance.ia[foo.instance.i]=2\n"
+						+ "call foo.instance.baz(foo.instance.i)\n"
+					+ "endmethod\n"
+				+ "endstruct");
+	}
+	
+	@Test
 	public void usingInteger() {
 		this.expectedEx.none();
 		this.run("struct foo\n"

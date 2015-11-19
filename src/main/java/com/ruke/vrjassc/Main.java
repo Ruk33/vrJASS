@@ -106,6 +106,9 @@ public class Main {
 		} catch (IOException e) {
 			error = true;
 			logWriter.write("Could not load blizzard.j or common.j");
+		} catch (Exception e) {
+			error = true;
+			logWriter.write(e.getMessage());
 		}
 		
 		logWriter.close();

@@ -7,7 +7,7 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
-
+	
 	@Test
 	public void cast() {
 		String code =
@@ -130,18 +130,20 @@ public class ClassTest extends TestHelper {
 		String code =
 			"struct foo\n"
 				+ "integer array bar\n"
+				+ "integer i\n"
 				+ "method baz takes nothing returns nothing\n"
-					+ "set this.bar[2] = 1\n"
+					+ "set this.bar[this.i] = 1\n"
 				+ "endmethod\n"
 			+ "endstruct";
 		
 		String expected =
 			"globals\n"
 				+ "integer struct_foo_bar=1\n"
+				+ "integer struct_foo_i=2\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
 			+ "endglobals\n"
 			+ "function struct_foo_baz takes integer this returns nothing\n"
-				+ "call SaveInteger(vrjass_structs,this,struct_foo_bar*8191-IMinBJ(2,8191),1)\n"
+				+ "call SaveInteger(vrjass_structs,this,struct_foo_bar*8191-IMinBJ(LoadInteger(vrjass_structs,this,struct_foo_i),8191),1)\n"
 			+ "endfunction";
 		
 		assertEquals(expected, this.run(code));

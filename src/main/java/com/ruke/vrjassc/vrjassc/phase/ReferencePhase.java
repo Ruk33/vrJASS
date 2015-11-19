@@ -70,12 +70,15 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	private ScopeSymbol scope;
 	
 	private Stack<ScopeSymbol> scopes;
+	
+	private Stack<ScopeSymbol> enclosingScopes;
 			
 	public ReferencePhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
 		this.validator = new Validator();
 		this.scope = scope;
 		this.scopes = new Stack<ScopeSymbol>();
+		this.enclosingScopes = new Stack<ScopeSymbol>();
 		
 		this.scopes.push(this.scope);
 	}
@@ -226,6 +229,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		FunctionSymbol function = (FunctionSymbol) this.symbols.get(ctx);
 		
 		this.scopes.push(function);
+		this.enclosingScopes.push(function);
 		
 		if (ctx.returnType() != null && ctx.returnType().validType() != null) {
 			String type = ctx.returnType().validType().getText();
@@ -253,6 +257,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		super.visitFunctionDefinition(ctx);
 		
 		this.scopes.pop();
+		this.enclosingScopes.pop();
 		
 		return function;
 	}
@@ -427,9 +432,13 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Stack<Symbol> arguments = new Stack<Symbol>();
 		
 		if (ctx.arguments() != null) {
+			this.scopes.push(this.enclosingScopes.peek());
+			
 			for (ExpressionContext expr : ctx.arguments().expression()) {
 				arguments.push(this.visit(expr));
 			}
+			
+			this.scopes.pop();
 		}
 		
 		if (!this.validator.mustMatchArguments(function, arguments, token)) {
@@ -459,7 +468,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		}
 		
 		if (ctx.index != null) {
+			// chain expressions can modifiy the current scope so restore it
+			// to avoid failing
+			// example: this.foo[this.bar]
+			// 'this' will update the current scope to whatever class it points to
+			// then it will look for foo (which it will find it), but then it will
+			// try to find 'this' and it will fail (because the current scope is
+			// the class
+			this.scopes.push(this.enclosingScopes.peek());
 			this.visit(ctx.index);
+			this.scopes.pop();
 		}
 		
 		this.symbols.put(ctx, variable);
@@ -486,7 +504,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitChainExpression(ChainExpressionContext ctx) {
-		Scope scope = this.scopes.peek();
+		ScopeSymbol scope = this.scopes.peek();
 		
 		Symbol prevSymbol = null;
 		Symbol symbol = null;

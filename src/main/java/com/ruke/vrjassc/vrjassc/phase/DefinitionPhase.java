@@ -200,9 +200,19 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		if (function.getParentScope() instanceof ClassSymbol) {
 			if (!function.hasModifier(Modifier.STATIC)) {
 				Symbol _this = new Symbol("this", function, null);
-				
 				_this.setType((Type) function.getParentScope());
+				
 				function.define(_this);
+			}
+		}
+		
+		if (ctx.returnType() != null && ctx.returnType().validType() != null) {
+			// set the return type of the function to a (probably) native type
+			String returnType = ctx.returnType().validType().getText();
+			Symbol type = this.scope.resolve(returnType);
+			
+			if (type instanceof Type) {
+				function.setType((Type) type);
 			}
 		}
 		
