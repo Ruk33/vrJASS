@@ -14,7 +14,7 @@ topDeclaration:
 	;
 
 // Refers to a valid variable type, like integer, reals, etc.
-validType: ID;
+validType: expression;
 validName: ID;
 
 variableDeclaration: 

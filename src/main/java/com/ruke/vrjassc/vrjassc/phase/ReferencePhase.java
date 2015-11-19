@@ -44,6 +44,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
@@ -263,26 +264,29 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
+	public Symbol visitValidType(ValidTypeContext ctx) {
+		Symbol type = this.visit(ctx.expression());
+		
+		if (!this.validator.mustBeValidType(type, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
+		return type;
+	}
+	
+	@Override
 	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
-		String typeName = ctx.validType().getText();
-		Token typeToken = ctx.validType().getStart();
+		Scope scope = this.scopes.peek();
 		
 		Symbol variable = this.symbols.get(ctx);
-		Scope scope = this.scopes.peek();
-
-		if (!this.validator.mustBeDefined(scope, typeName, typeToken)) {
+		Symbol type = this.visit(ctx.validType());
+		Token typeToken = ctx.validType().getStart();
+		
+		if (!this.validator.mustHaveAccess(scope, type, typeToken)) {
 			throw this.validator.getException();
 		}
 		
-		if (!this.validator.mustBeValidType(this.validator.getValidatedSymbol(), typeToken)) {
-			throw this.validator.getException();
-		}
-		
-		if (!this.validator.mustHaveAccess(scope, this.validator.getValidatedSymbol(), typeToken)) {
-			throw this.validator.getException();
-		}
-		
-		variable.setType((Type) this.validator.getValidatedSymbol());
+		variable.setType((Type) type);
 		
 		if (ctx.value != null) {
 			Symbol value = this.visit(ctx.value);

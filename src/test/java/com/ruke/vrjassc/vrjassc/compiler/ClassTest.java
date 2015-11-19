@@ -9,6 +9,36 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void scopedTypes() {
+		String code =
+			"library foo\n"
+				+ "public struct foo\n"
+					+ "public method baz\n"
+					+ "endmethod\n"
+				+ "endstruct\n"
+			+ "endlibrary\n"
+			+ "struct bar\n"
+				+ "foo.foo l\n"
+				+ "method baz\n"
+					+ "call this.l.baz()\n"
+				+ "endmethod\n"
+			+ "endstruct";
+		
+		String expected =
+			"globals\n"
+				+ "integer struct_bar_l=1\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+			+ "endglobals\n"
+			+ "function struct_foo_foo_baz takes integer this returns nothing\n"
+			+ "endfunction\n"
+			+ "function struct_bar_baz takes integer this returns nothing\n"
+				+ "call struct_foo_foo_baz(LoadInteger(vrjass_structs,this,struct_bar_l))\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void scopes() {
 		String code =
 			"struct foo\n"

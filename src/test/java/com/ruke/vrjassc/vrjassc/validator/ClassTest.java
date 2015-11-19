@@ -2,6 +2,7 @@ package com.ruke.vrjassc.vrjassc.validator;
 
 import org.junit.Test;
 
+import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
@@ -12,6 +13,17 @@ import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
+	
+	@Test
+	public void propertiesCantShareLibraryNames() {
+		this.expectedEx.expect(AlreadyDefinedException.class);
+		this.expectedEx.expectMessage("3:4 Element <foo> is already defined on 1:8");
+		this.run("library foo\n"
+					+ "struct foo\n"
+						+ "foo foo\n"
+					+ "endstruct\n"
+				+ "endlibrary");
+	}
 	
 	@Test
 	public void scopes() {
