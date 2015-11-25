@@ -20,7 +20,7 @@ public class ClassTest extends TestHelper {
 		
 		String expected =
 			"globals\n" +
-				"player struct_foo_p=1\n" +
+				"integer struct_foo_p=1\n" +
 				"hashtable vrjass_structs=InitHashtable()\n" +
 			"endglobals\n" +
 			"function struct_foo_bar takes integer this returns nothing\n" +

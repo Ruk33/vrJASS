@@ -75,6 +75,8 @@ import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 import com.ruke.vrjassc.vrjassc.util.InitializerHandler;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 
@@ -502,15 +504,16 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitPropertyStatement(PropertyStatementContext ctx) {
 		Symbol symbol = this.symbols.get(ctx);
 		Expression value = null;
-		Statement global;
 		
 		if (!symbol.hasModifier(Modifier.STATIC)) {
 			this.propertyEnum++;
 			value = new RawExpression(String.valueOf(this.propertyEnum), this.scope.resolve("integer"));
 		}
 		
-		global = new VariableStatement(symbol, value);
-		this.container.addGlobal(global);
+		Symbol global = new VariableSymbol(symbol.getName(), symbol.getParentScope(), null);
+		global.setType((Type) this.scope.resolve("integer"));
+		
+		this.container.addGlobal(new VariableStatement(global, value));
 		
 		return null;
 	}
