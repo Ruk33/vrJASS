@@ -3,7 +3,6 @@ package com.ruke.vrjassc.vrjassc.symbol;
 import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.util.TypeCompatibleChecker;
-import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
 public class BuiltInTypeSymbol extends Symbol implements Type {
 

@@ -8,6 +8,7 @@ import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.ChainExpression;
 import com.ruke.vrjassc.translator.expression.Expression;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
+import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
 public class AssignTest {
@@ -18,7 +19,7 @@ public class AssignTest {
 		
 		Expression foo = new VariableExpression(new Symbol("foo", null, null), null);
 		Expression bar = new VariableExpression(new Symbol("bar", null, null), null);
-				
+		
 		Expression value = new VariableExpression(new Symbol("baz", null, null), null);
 		
 		// foo would be the instance

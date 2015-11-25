@@ -7,7 +7,29 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
+	
+	@Test
+	public void types() {
+		String code =
+			"struct foo\n"
+				+ "public player p\n"
+				+ "method bar\n"
+					+ "set this.p=this.p\n"
+				+ "endmethod\n"
+			+ "endstruct";
 		
+		String expected =
+			"globals\n" +
+				"player struct_foo_p=1\n" +
+				"hashtable vrjass_structs=InitHashtable()\n" +
+			"endglobals\n" +
+			"function struct_foo_bar takes integer this returns nothing\n" +
+			"call SavePlayerHandle(vrjass_structs,this,struct_foo_p,LoadPlayerHandle(vrjass_structs,this,struct_foo_p))\n" +
+			"endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
 	@Test
 	public void scopedTypes() {
 		String code =

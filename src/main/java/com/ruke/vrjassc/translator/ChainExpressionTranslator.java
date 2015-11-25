@@ -61,11 +61,9 @@ public class ChainExpressionTranslator {
 	
 	protected String hashtableName;
 	protected String value;
-	protected HashtableFunctionGetter functionGetter;
 	protected Stack<Chainable> chain;
 	
 	public ChainExpressionTranslator() {
-		this.functionGetter = new HashtableFunctionGetter();
 		this.chain = new Stack<ChainExpressionTranslator.Chainable>();
 	}
 	
@@ -77,6 +75,7 @@ public class ChainExpressionTranslator {
 	protected String buildGetter() {
 		Stack<String> args = new Stack<String>();
 		Chainable property = this.chain.pop();
+		String loadFunc = "";
 		Chainable ch;
 		
 		if (property.getSymbol() != null) {
@@ -84,6 +83,10 @@ public class ChainExpressionTranslator {
 				this.chain.clear();
 				return property.getKey();
 			}
+			
+			loadFunc = HashtableFunctionGetter.getLoadFunction(
+				property.getSymbol().getType()
+			);
 		}
 		
 		args.push(this.getHashtableName());
@@ -103,18 +106,23 @@ public class ChainExpressionTranslator {
 		
 		args.push(property.getKey());
 		
-		return "LoadInteger(" + String.join(",", args) + ")";
+		return loadFunc + "(" + String.join(",", args) + ")";
 	}
 	
 	protected String buildSetter() {
 		Chainable last = this.chain.peek();
+		Type symbolType = last.getSymbol().getType();
 		String result = this.buildGetter();
 		
 		if (last.getSymbol().hasModifier(Modifier.STATIC)) {
 			result += "=" + this.value;
 		} else {
-			result = result.replaceFirst("Load", "Save");
-			result = result.substring(0, result.length()-1)+","+this.value+")";
+			result = result.replaceFirst(
+				HashtableFunctionGetter.getLoadFunction(symbolType), 
+				HashtableFunctionGetter.getSaveFunction(symbolType)
+			);
+			
+			result = result.substring(0, result.length()-1) + "," + this.value + ")";
 		}
 		
 		return result;
