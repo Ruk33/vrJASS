@@ -346,6 +346,16 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			_if.add((Statement) this.visit(stat));
 		}
 		
+		if (ctx.elseIfStatement() != null) {
+			for (ElseIfStatementContext elif : ctx.elseIfStatement()) {
+				_if.add((Statement) this.visit(elif));
+			}
+		}
+		
+		if (ctx.elseStatement() != null) {
+			_if.add((Statement) this.visit(ctx.elseStatement()));
+		}
+		
 		return _if;
 	}
 

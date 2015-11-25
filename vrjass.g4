@@ -188,7 +188,7 @@ ifStatement:
 	IF expression THEN NL 
 		statement*
 		elseIfStatement*
-		elseStatement
+		elseStatement?
 	ENDIF NL
 	;
 
@@ -196,7 +196,7 @@ elseIfStatement:
 	ELSEIF expression THEN NL statement*;
 
 elseStatement: 
-	(ELSE NL statement*)?;
+	ELSE NL statement*;
 
 returnStatement:
 	RETURN (expression)? NL;

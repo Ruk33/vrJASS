@@ -15,6 +15,26 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 
 	@Test
+	public void emptyLines() {
+		this.expectedEx.none();
+		this.run("public function bool takes boolean b, integer line\n" +
+			     "   if (b == false) then\n" +
+			     "       //local string expected = \"false\"\n" +
+			     "       \n" +
+			     "       //if (b) then\n" +
+			     "       //    set expected = \"true\"\n" +
+			     "       //endif\n" +
+			            
+			     "       //call print(\"[FAIL] Expected \" + \" on line \" + I2S(line))\n" +
+			     "   endif\n" +
+			     "endfunction\n" +
+			
+			     "public function toBeFalse takes boolean b, integer line\n" +
+			     "    call bool(b == false, line)\n" +
+			     "endfunction");
+	}
+	
+	@Test
 	public void declareVariableBeforeUsing() {
 		this.expectedEx.expect(InvalidStatementException.class);
 		this.expectedEx.expectMessage("2:9 Variables must be declared before use");

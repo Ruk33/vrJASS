@@ -11,7 +11,7 @@ public class ElseIfStatement extends StatementBody {
 	
 	@Override
 	public String translate() {
-		return "elseif " + this.condition.translate() + " then\n" + super.translate();
+		return "elseif " + this.condition.translate() + " then\n" + super.translate().trim();
 	}
 	
 }

@@ -9,6 +9,37 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 		
 	@Test
+	public void ifElseIfElse() {
+		String code =
+				"function foo\n"
+					+ "local integer e\n"
+					+ "if false then\n"
+						+ "set e = 0\n"
+					+ "elseif true then\n"
+						+ "set e = 1\n"
+					+ "else\n"
+						+ "set e = 2\n"
+					+ "endif\n"
+				+ "endfunction";
+				
+			String expected =
+				"globals\n"
+				+ "endglobals\n"
+				+ "function foo takes nothing returns nothing\n"
+					+ "local integer e=0\n"
+					+ "if false then\n"
+						+ "set e=0\n"
+					+ "elseif true then\n"
+						+ "set e=1\n"
+					+ "else\n"
+						+ "set e=2\n"
+					+ "endif\n"
+				+ "endfunction";
+			
+			assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void _this() {
 		String code =
 			"struct foo\n" + 
