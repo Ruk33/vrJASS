@@ -9,6 +9,25 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class LibraryTest extends TestHelper {
 
 	@Test
+	public void usign() {
+		this.run("public function bool takes boolean b, integer line\n" +
+			     "   if (b == false) then\n" +
+			     "       //local string expected = \"false\"\n" +
+			     "       \n" +
+			     "       //if (b) then\n" +
+			     "       //    set expected = \"true\"\n" +
+			     "       //endif\n" +
+			            
+			     "       //call print(\"[FAIL] Expected \" + \" on line \" + I2S(line))\n" +
+			     "   endif\n" +
+			     "endfunction\n" +
+			
+			     "public function toBeFalse takes boolean b, integer line\n" +
+			     "    call bool(b == false, line)\n" +
+			     "endfunction");
+	}
+	
+	@Test
 	public void test() {
 		String code =
 			"library foo\n"

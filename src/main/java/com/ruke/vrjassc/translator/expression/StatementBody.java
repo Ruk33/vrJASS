@@ -45,6 +45,10 @@ public class StatementBody extends StatementList {
 	}
 	
 	public void add(Statement e) {
+		if (e == null) {
+			return;
+		}
+		
 		e.setParent(this);
 		
 		this.getUsedFunctions().addAll(e.getUsedFunctions());
