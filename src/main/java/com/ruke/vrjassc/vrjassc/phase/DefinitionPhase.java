@@ -205,7 +205,12 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		FunctionSymbol function = new FunctionSymbol(name, scope, token);
 		
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
-		function.setModifier(Modifier.STATIC, ctx.STATIC() != null);
+		
+		if (scope instanceof ClassSymbol) {
+			function.setModifier(Modifier.STATIC, ctx.STATIC() != null);
+		} else {
+			function.setModifier(Modifier.STATIC, true);
+		}
 		
 		this.defineOrThrowAlreadyDefinedException(scope, function);
 		this.scopes.push(function);
