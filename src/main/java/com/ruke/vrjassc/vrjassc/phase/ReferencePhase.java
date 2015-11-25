@@ -6,7 +6,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
@@ -19,11 +18,11 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
@@ -31,23 +30,18 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParametersContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PlusContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
-import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
 import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
@@ -73,6 +67,15 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	private Stack<ScopeSymbol> scopes;
 	
 	private Stack<ScopeSymbol> enclosingScopes;
+	
+	/**
+	 * We cant visit function statements before defining all the symbol
+	 * types (for example, if a function takes a parameter of type Foo
+	 * but that function is used before its definition the parameter type
+	 * is going to be null)
+	 */
+	private Stack<ParserRuleContext> functionDefinitions;
+	private boolean definingSymbolTypes = true;
 			
 	public ReferencePhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
@@ -80,8 +83,21 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.scope = scope;
 		this.scopes = new Stack<ScopeSymbol>();
 		this.enclosingScopes = new Stack<ScopeSymbol>();
+		this.functionDefinitions = new Stack<ParserRuleContext>();
 		
 		this.scopes.push(this.scope);
+	}
+	
+	@Override
+	public Symbol visitInit(InitContext ctx) {
+		super.visitInit(ctx);
+		this.definingSymbolTypes = false;
+		
+		for (ParserRuleContext definition : this.functionDefinitions) {
+			this.visit(definition);
+		}
+		
+		return null;
 	}
 	
 	@Override
@@ -224,7 +240,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		return _class;
 	}
-	
+		
 	@Override
 	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
 		FunctionSymbol function = (FunctionSymbol) this.symbols.get(ctx);
@@ -255,7 +271,15 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			}
 		}
 		
-		super.visitFunctionDefinition(ctx);
+		if (ctx.parameters() != null) {
+			this.visit(ctx.parameters());
+		}
+		
+		if (this.definingSymbolTypes) {
+			this.functionDefinitions.push(ctx);
+		} else {
+			super.visitFunctionDefinition(ctx);
+		}
 		
 		this.scopes.pop();
 		this.enclosingScopes.pop();
@@ -505,7 +529,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.symbols.put(ctx, symbol);
 		return symbol;
 	}
-	
+		
 	@Override
 	public Symbol visitChainExpression(ChainExpressionContext ctx) {
 		ScopeSymbol scope = this.scopes.peek();

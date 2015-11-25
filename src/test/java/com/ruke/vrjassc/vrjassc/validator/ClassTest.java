@@ -15,6 +15,104 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void propertyType() {
+		this.expectedEx.none();
+		this.run(
+				"struct Object\n" + 
+				"    static integer instances\n" + 
+				"    \n" + 
+				"    public static method allocate takes nothing returns Object\n" + 
+				"        set Object.instances += 1\n" + 
+				"        return Object.instances cast Object\n" + 
+				"    endmethod\n" + 
+				"    \n" + 
+				"    public method equals takes Object e returns boolean\n" + 
+				"        return this cast integer == e cast integer\n" + 
+				"    endmethod\n" + 
+				"    \n" + 
+				"    public method isNull returns boolean\n" + 
+				"        return this cast integer == 0\n" + 
+				"    endmethod\n" + 
+				"endstruct\n" +
+				"library List\n" + 
+				"    struct Node extends Object\n" + 
+				"        Object element\n" + 
+				"        Node prev\n" + 
+				"        Node next\n" + 
+				"        \n" + 
+				"        public method getElement returns Object\n" + 
+				"            return this.element\n" + 
+				"        endmethod\n" + 
+				"        \n" + 
+				"        public method getPrev returns Node\n" + 
+				"            return this.prev\n" + 
+				"        endmethod\n" + 
+				"        \n" + 
+				"        public method getNext returns Node\n" + 
+				"            return this.next\n" + 
+				"        endmethod\n" + 
+				"        \n" + 
+				"        public static method create takes Object element, Node prev returns Node\n" + 
+				"            local Node instance = Node.allocate()\n" + 
+				"            \n" + 
+				"            set instance.element = element\n" + 
+				"            \n" + 
+				"            set prev.next = instance\n" + 
+				"            set instance.prev = prev\n" + 
+				"            \n" + 
+				"            return instance\n" + 
+				"        endmethod\n" + 
+				"    endstruct\n" + 
+				"    \n" + 
+				"    public struct Doubly extends Object\n" + 
+				"        Node head\n" + 
+				"        Node last\n" + 
+				"        \n" + 
+				"        public method createIterator returns Iterator\n" + 
+				"            return Iterator.create(this.head)\n" + 
+				"        endmethod\n" + 
+				"        \n" + 
+				"        public method getHead returns Object\n" + 
+				"            return this.head.getElement()\n" + 
+				"        endmethod\n" + 
+				"        \n" + 
+				"        public method getLast returns Object\n" + 
+				"            return this.last.getElement()\n" + 
+				"        endmethod\n" + 
+				"        \n" + 
+				"        public method insert takes Object element\n" + 
+				"            if (this.head.isNull()) then\n" + 
+				"                set this.head = Node.create(element, this.last)\n" + 
+				"            endif\n" + 
+				"            \n" + 
+				"            if (this.last.isNull()) then\n" + 
+				"                set this.last = Node.create(element, this.head)\n" + 
+				"            endif\n" + 
+				"        endmethod\n" + 
+				"    endstruct\n" + 
+				"    \n" + 
+				"    public struct Iterator extends Object\n" + 
+				"        Node head\n" + 
+				"        Node node\n" + 
+				"        \n" + 
+				"        public method hasNext returns boolean\n" + 
+				"            return this.node.getNext().isNull() == false\n" + 
+				"        endmethod\n" + 
+				"    \n" + 
+				"        public static method create takes Node head returns Iterator\n" + 
+				"            local Iterator it = Iterator.allocate()\n" + 
+				"            \n" + 
+				"            set it.head = head\n" + 
+				"            set it.node = head\n" + 
+				"            \n" + 
+				"            return it\n" + 
+				"        endmethod\n" + 
+				"    endstruct\n" + 
+				"endlibrary"
+		);
+	}
+	
+	@Test
 	public void resolveCheckingSuperThenEnclosingScope() {
 		this.expectedEx.none();
 		this.run(

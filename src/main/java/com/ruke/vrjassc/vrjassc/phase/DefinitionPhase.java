@@ -1,11 +1,15 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
+
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
@@ -39,7 +43,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	private ScopeSymbol scope;
 	
 	private Stack<ScopeSymbol> scopes;
-	
+		
 	public DefinitionPhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
 		this.validator = new Validator();
@@ -48,7 +52,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		this.scopes.push(this.scope);
 	}
-	
+		
 	private void defineOrThrowAlreadyDefinedException(Scope scope, Symbol child) {
 		if (!this.validator.mustNotBeDefined(scope, child.getName(), child.getToken())) {
 			if (!(scope instanceof LibrarySymbol && child instanceof ClassSymbol)) { 
@@ -61,30 +65,34 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitTypeDefinition(TypeDefinitionContext ctx) {
+		Scope scope = this.scopes.peek();
+		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		Symbol type = new BuiltInTypeSymbol(name, null, token);	
+		Symbol type = new BuiltInTypeSymbol(name, scope, token);	
 		
 		this.symbols.put(ctx, type);
-		this.scopes.peek().define(type);
+		scope.define(type);
 		
 		return type;
 	}
 	
 	@Override
-	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {		
+	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {
+		Scope scope = this.scopes.peek();
+		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		FunctionSymbol _native = new FunctionSymbol(name, null, token);
+		FunctionSymbol _native = new FunctionSymbol(name, scope, token);
 		
 		if (ctx.returnType().validType() != null) {
 			String type = ctx.returnType().validType().getText();
-			_native.setType((Type) this.scopes.peek().resolve(type));
+			_native.setType((Type) scope.resolve(type));
 		}
 		
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), _native);
+		this.defineOrThrowAlreadyDefinedException(scope, _native);
 		this.scopes.push(_native);
 		
 		if (ctx.parameters() != null) {
@@ -160,13 +168,15 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitStructDefinition(StructDefinitionContext ctx) {
+		Scope scope = this.scopes.peek();
+		
 		String name = ctx.name.getText();
 		Token token = ctx.name.getStart();
 		
-		ClassSymbol _class = new ClassSymbol(name, null, token);
+		ClassSymbol _class = new ClassSymbol(name, scope, token);
 		_class.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), _class);
+		this.defineOrThrowAlreadyDefinedException(scope, _class);
 		this.scopes.push(_class);
 		
 		super.visitStructDefinition(ctx);
@@ -186,16 +196,18 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
+	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {
+		Scope scope = this.scopes.peek();
+		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		FunctionSymbol function = new FunctionSymbol(name, null, token);
+		FunctionSymbol function = new FunctionSymbol(name, scope, token);
 		
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		function.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), function);
+		this.defineOrThrowAlreadyDefinedException(scope, function);
 		this.scopes.push(function);
 		
 		if (ctx.parameters() != null) {			
@@ -214,9 +226,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		}
 		
 		if (ctx.returnType() != null && ctx.returnType().validType() != null) {
-			// set the return type of the function to a (probably) native type
-			String returnType = ctx.returnType().validType().getText();
-			Symbol type = this.scope.resolve(returnType);
+			Symbol type = scope.resolve(ctx.returnType().validType().getText());
 			
 			if (type instanceof Type) {
 				function.setType((Type) type);
@@ -233,13 +243,15 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
+		Scope scope = this.scopes.peek();
+		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		Symbol variable = new VariableSymbol(name, null, token);
-		Symbol type = this.scope.resolve(ctx.validType().getText());
-		
+		Symbol variable = new VariableSymbol(name, scope, token);
 		variable.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);
+		
+		Symbol type = scope.resolve(ctx.type.getText());
 		
 		if (type instanceof Type) {
 			variable.setType((Type) type);
