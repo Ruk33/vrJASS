@@ -30,7 +30,10 @@ public class SymbolTest {
 		scope.define(functionFoo);
 		scope.define(functionBar);
 		
-		LocalVariableSymbol variableFooLorem = new LocalVariableSymbol("lorem", functionFoo, null);
+		VariableSymbol variableFooLorem = new VariableSymbol("lorem", functionFoo, null);
+		variableFooLorem.setModifier(Modifier.LOCAL, true);
+		variableFooLorem.setModifier(Modifier.PRIVATE, true);
+		
 		functionFoo.define(variableFooLorem);
 		
 		assertNull(functionFoo.resolve(functionBar, "lorem"));
@@ -54,5 +57,26 @@ public class SymbolTest {
 		assertNull(libraryA.resolve(barFunction, "foo"));
 		assertEquals(fooFunction, libraryA.resolve(libraryA, "foo"));
 	}
+	
+	@Test
+	public void resolveFromSameLibrary() {
+		VrJassScope scope = new VrJassScope();
+		LibrarySymbol libA = new LibrarySymbol("a", scope, null);
+		
+		ClassSymbol classB = new ClassSymbol("b", libA, null);
+		ClassSymbol classC = new ClassSymbol("c", libA, null);
+		
+		libA.define(classB);
+		libA.define(classC);
+		
+		assertEquals(classB, classC.resolve("b"));
+	}
+	
+	@Test
+	public void resolvingItself() {
+		ScopeSymbol foo = new ScopeSymbol("foo", null, null);
+		assertEquals(foo, foo.resolve("foo"));		
+	}
+	
 
 }

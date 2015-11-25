@@ -14,7 +14,7 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 		super(name, scope, token);
 		this.setModifier(Modifier.MEMBER, true);
 	}
-	
+
 	@Override
 	public Type getType() {
 		return this;
@@ -57,14 +57,33 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 		}
 	}
 	
+	@Override
+	public Symbol resolve(Scope requesting, String name) {
+		Symbol resolved = null;
+		
+		if (requesting instanceof ClassSymbol) {
+			resolved = this.resolveMember((ClassSymbol) requesting, name);
+		} 
+
+		if (resolved == null) {
+			resolved = super.resolve(requesting, name);
+		}
+		
+		if (resolved == null && this.getEnclosingScope() != null) {
+			resolved = this.getEnclosingScope().resolve(requesting, name);
+		}
+		
+		return resolved;
+	}
+	
 	public Symbol resolveMember(ClassSymbol requesting, String name) {
-		Symbol member = this.childs.getOrDefault(name, this.childsAliases.get(name));
+		Symbol member = this.childs.get(name);
 		
 		if (member == null || !requesting.hasAccessToMember(member)) {
 			member = null;
 			
 			if (this.getSuper() != null) {
-				return this.getSuper().resolveMember(requesting, name);
+				member = this.getSuper().resolveMember(requesting, name);
 			}
 		}
 		

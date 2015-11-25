@@ -15,9 +15,42 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void resolveCheckingSuperThenEnclosingScope() {
+		this.expectedEx.none();
+		this.run(
+			"struct Object\n"
+			+ "endstruct\n"
+			+ "library List\n"+
+			    "struct Node extends Object\n"+
+			        "Object e\n"+
+			        "Node prev\n"+
+			        "Node next\n"+
+			    "endstruct\n"+
+			    "public struct Doubly extends Object\n"+
+			        "Node node\n"+
+			    "endstruct\n"+
+			"endlibrary"
+		);
+	}
+	
+	@Test
+	public void usingItself() {
+		this.expectedEx.none();
+		this.run(
+		"struct obj\n"
+		+ "endstruct\n"
+		+ "library list\n"
+			+ "struct Node extends obj\n" +
+		        "Node prev\n" +
+		        "Node next\n" +
+		    "endstruct\n"
+	    + "endlibrary");
+	}
+	
+	@Test
 	public void propertiesCantShareLibraryNames() {
 		this.expectedEx.expect(AlreadyDefinedException.class);
-		this.expectedEx.expectMessage("3:4 Element <foo> is already defined on 1:8");
+		this.expectedEx.expectMessage("3:4 Element <foo> is already defined on 2:7");
 		this.run("library foo\n"
 					+ "struct foo\n"
 						+ "foo foo\n"

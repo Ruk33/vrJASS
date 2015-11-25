@@ -8,14 +8,11 @@ import org.antlr.v4.runtime.Token;
 public class ScopeSymbol extends Symbol implements Scope {
 
 	protected Map<String, Symbol> childs;
-	protected Map<String, Symbol> childsAliases;
 	protected Scope enclosingScope;
 	
 	public ScopeSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
-		
 		this.childs = new HashMap<String, Symbol>();
-		this.childsAliases = new HashMap<String, Symbol>();
 	}
 	
 	@Override
@@ -27,22 +24,7 @@ public class ScopeSymbol extends Symbol implements Scope {
 	public Scope getParentScope() {
 		return this.getEnclosingScope();
 	}
-	
-	/**
-	 * 
-	 * @param key
-	 * @param symbol
-	 * @return Defined symbol
-	 */
-	public Symbol defineAlias(String alias, Symbol symbol) {
-		if (symbol != null) {
-			this.childsAliases.put(alias, symbol);
-			symbol.scope = this;
-		}
 		
-		return symbol;
-	}
-	
 	/**
 	 *
 	 * @param symbol
@@ -64,28 +46,40 @@ public class ScopeSymbol extends Symbol implements Scope {
 	 * @return
 	 */
 	@Override
-	public boolean hasAccess(Symbol symbol) {
-		if (!symbol.hasModifier(Modifier.PUBLIC) && this != symbol.getParentScope()) {
-			return false;
+	public boolean hasAccess(Symbol symbol) {		
+		if (symbol == this) {
+			return true;
 		}
 		
-		return true;
+		if (symbol.hasModifier(Modifier.PUBLIC)) {
+			return true;
+		}
+		
+		if (symbol.getParentScope() == this.getParentScope()) {
+			return true;
+		}
+		
+		if (this == symbol.getParentScope()) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	@Override
 	public Symbol resolve(Scope requesting, String name) {		
-		Symbol resolved = this.childs.getOrDefault(name, this.childsAliases.get(name));
-		
+		Symbol resolved = this.childs.get(name);
+			
 		if (resolved == null || !requesting.hasAccess(resolved)) {
 			resolved = null;
+			
+			if (name.equals(this.getName())) {
+				return this;
+			}
 			
 			if (this.getParentScope() != null) {
 				return this.getParentScope().resolve(requesting, name);
 			}
-		}
-		
-		if (resolved == null && name.equals(this.getName())) {
-			resolved = this;
 		}
 		
 		return resolved;
