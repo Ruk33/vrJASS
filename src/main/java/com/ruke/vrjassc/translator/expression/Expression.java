@@ -1,7 +1,8 @@
 package com.ruke.vrjassc.translator.expression;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
@@ -9,7 +10,7 @@ import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
 public abstract class Expression {
 
 	protected Expression parent;
-	protected Collection<Symbol> usedFunctions = new ArrayList<Symbol>();
+	protected Set<Symbol> usedFunctions = new HashSet<Symbol>();
 	
 	public abstract String translate();
 	

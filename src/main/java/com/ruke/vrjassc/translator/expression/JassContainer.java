@@ -25,8 +25,8 @@ public class JassContainer extends StatementList {
 	public void addGlobal(Statement e) {
 		this.globals.add(e);
 	}
-		
-	protected void sort() {
+
+	protected LinkedList<Statement> sortFunctions() {
 		LinkedList<Statement> sorted = new LinkedList<Statement>();
 		FunctionDefinition def;
 		Statement funDef;
@@ -66,20 +66,25 @@ public class JassContainer extends StatementList {
 			}
 		}
 		
+		return sorted;
+	}
+	
+	protected void sort() {
+		this.statements = this.sortFunctions();
+		this.statements = this.sortFunctions();
+		
 		GlobalStatement allGlobals = new GlobalStatement();
 		
 		for (MutualRecursion rec : this.recursion.values()) {
 			allGlobals.add(rec.getGlobalVariableBlock());
 			
-			sorted.addFirst(rec.getDummyDefinition());
-			sorted.addLast(rec.getDummyNoArgsDefinition());
+			this.statements.addFirst(rec.getDummyDefinition());
+			this.statements.addLast(rec.getDummyNoArgsDefinition());
 		}
 		
 		allGlobals.add(this.globals);
 		
-		sorted.addFirst(allGlobals);
-		
-		this.statements = sorted;
+		this.statements.addFirst(allGlobals);
 	}
 	
 	protected void createMutualRecursion(Symbol function) {

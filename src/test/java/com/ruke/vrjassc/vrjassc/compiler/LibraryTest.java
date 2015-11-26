@@ -11,18 +11,18 @@ public class LibraryTest extends TestHelper {
 	@Test
 	public void test() {
 		String code =
-			"library foo\n"
+			"function baz\n"
+				+ "call foo.bar()\n"
+				+ "call foo.bee.baa()\n"
+			+ "endfunction\n"
+			+ "library foo\n"
 				+ "public function bar\n"
 				+ "endfunction\n"
 				+ "public struct bee\n"
 					+ "public static method baa\n"
 					+ "endmethod\n"
 				+ "endstruct\n"
-			+ "endlibrary\n"
-			+ "function baz\n"
-				+ "call foo.bar()\n"
-				+ "call foo.bee.baa()\n"
-			+ "endfunction";
+			+ "endlibrary";
 		
 		String expected =
 			"globals\n"

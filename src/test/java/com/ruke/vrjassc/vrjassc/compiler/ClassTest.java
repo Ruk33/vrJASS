@@ -7,7 +7,7 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
-	
+		
 	@Test
 	public void types() {
 		String code =

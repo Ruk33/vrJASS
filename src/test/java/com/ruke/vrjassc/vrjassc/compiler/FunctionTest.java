@@ -7,7 +7,35 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
+	
+	@Test
+	public void sort() {
+		String code =
+			"function foo\n"
+				+ "call assert()\n"
+			+ "endfunction\n"
+			+ "function assert\n"
+				+ "call bar()\n"
+			+ "endfunction\n"
+			+ "function bar\n"
+				+ ""
+			+ "endfunction";
 		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function bar takes nothing returns nothing\n"
+			+ "endfunction\n"
+			+ "function assert takes nothing returns nothing\n"
+				+ "call bar()\n"
+			+ "endfunction\n"
+			+ "function foo takes nothing returns nothing\n"
+				+ "call assert()\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
 	@Test
 	public void ifElseIfElse() {
 		String code =
