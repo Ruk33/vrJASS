@@ -5,11 +5,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.atn.PredictionMode;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassLexer;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
+import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
+import com.ruke.vrjassc.vrjassc.exception.SyntaxErrorException;
 import com.ruke.vrjassc.vrjassc.phase.ReferencePhase;
 import com.ruke.vrjassc.vrjassc.phase.DefinitionPhase;
 import com.ruke.vrjassc.vrjassc.phase.TranslationPhase;
@@ -54,6 +62,20 @@ public class CompilerFacade {
 		DefinitionPhase defPhase = new DefinitionPhase(symbols, scope);
 		ReferencePhase refPhase = new ReferencePhase(symbols, scope);
 		TranslationPhase tranPhase = new TranslationPhase(symbols, scope);
+		
+		parser.removeErrorListeners();
+		parser.addErrorListener(new BaseErrorListener() {
+			@Override
+			public void syntaxError(Recognizer<?, ?> recognizer,
+									Object offendingSymbol,
+									int line,
+									int charPositionInLine,
+									String msg,
+									RecognitionException e)
+			{
+				throw new SyntaxErrorException(line, charPositionInLine, msg);
+			}
+		});
 		
 		defPhase.visit(parser.init());
 		parser.reset();
