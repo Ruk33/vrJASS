@@ -9,20 +9,41 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 	
 	@Test
+	public void end() {
+		String code =
+			"function foo\n"
+				+ "if false then\n"
+				+ "else\n"
+				+ "end\n"
+			+ "end";
+		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function foo takes nothing returns nothing\n"
+				+ "if false then\n"
+				+ "else\n"
+				+ "endif\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void not() {
 		String code =
-				"function foo\n"
-					+ "local boolean f = not false\n"
-				+ "endfunction";
-			
-			String expected =
-				"globals\n"
-				+ "endglobals\n"
-				+ "function foo takes nothing returns nothing\n"
-					+ "local boolean f=not false\n"
-				+ "endfunction";
-			
-			assertEquals(expected, this.run(code));
+			"function foo\n"
+				+ "local boolean f = not false\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function foo takes nothing returns nothing\n"
+				+ "local boolean f=not false\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
 	}
 	
 	@Test

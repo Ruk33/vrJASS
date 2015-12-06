@@ -15,7 +15,7 @@ topDeclaration:
 
 // Refers to a valid variable type, like integer, reals, etc.
 validType: expression;
-validName: ID;
+validName: ID|END;
 
 variableDeclaration: 
 	type=validType ARRAY? name=validName (EQ value=expression)?;
@@ -63,7 +63,7 @@ globalStatements:
 globalDefinition:
 	GLOBALS NL
 		globalStatements
-	ENDGLOBALS NL
+	(ENDGLOBALS | END) NL
 	;
 
 
@@ -87,7 +87,7 @@ libraryStatement:
 libraryDefinition:
 	LIBRARY name=validName (INITIALIZER libInit=validName)? (REQUIRES libraryRequirements)? NL
 		libraryStatement*
-	ENDLIBRARY NL
+	(ENDLIBRARY | END) NL
 	;
 
  
@@ -102,7 +102,7 @@ libraryDefinition:
 interfaceDefinition:
 	(PRIVATE|PUBLIC)? INTERFACE validName NL
 		interfaceStatement*
-	ENDINTERFACE NL
+	(ENDINTERFACE | END) NL
 	;
 
 
@@ -125,7 +125,7 @@ implementsList: validName (COMMA validName)*;
 structDefinition:
 	(PRIVATE|PUBLIC)? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
 		structStatement*
-	ENDSTRUCT NL
+	(ENDSTRUCT | END) NL
 	;
 
 
@@ -151,7 +151,7 @@ arguments:
 functionDefinition: 
 	(PRIVATE|PUBLIC)? CONSTANT? STATIC? (FUNCTION | METHOD) validName (TAKES parameters)? (RETURNS returnType)? NL
 		statement*
-	(ENDFUNCTION | ENDMETHOD) NL
+	(ENDFUNCTION | ENDMETHOD | END) NL
 	;
 
 
@@ -181,7 +181,7 @@ exitWhenStatement:
 loopStatement:
 	LOOP NL
 		statement*
-	ENDLOOP NL
+	(ENDLOOP | END) NL
 	;
 
 ifStatement: 
@@ -189,7 +189,7 @@ ifStatement:
 		statement*
 		elseIfStatement*
 		elseStatement?
-	ENDIF NL
+	(ENDIF | END) NL
 	;
 
 elseIfStatement: 
@@ -202,6 +202,7 @@ returnStatement:
 	RETURN (expression)? NL;
 
 
+END: 'end';
 CAST: 'cast';
 LIBRARY: 'library';
 ENDLIBRARY: 'endlibrary';
