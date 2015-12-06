@@ -9,6 +9,23 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 	
 	@Test
+	public void code() {
+		String code =
+			"function foo\n"
+				+ "local code f = function foo\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function foo takes nothing returns nothing\n"
+				+ "local code f=function foo\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void sort() {
 		String code =
 			"function foo\n"

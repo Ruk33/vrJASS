@@ -170,8 +170,8 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitCode(CodeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		Symbol func = this.visit(ctx.expression()).getSymbol();
+		return new FunctionExpression(func, true, new ExpressionList());
 	}
 
 	@Override

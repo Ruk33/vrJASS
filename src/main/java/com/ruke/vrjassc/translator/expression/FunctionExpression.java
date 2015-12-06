@@ -36,6 +36,10 @@ public class FunctionExpression extends Expression {
 			name = recursion.getPrefix();
 		}
 		
+		if (this.isCode) {
+			return "function " + name;
+		}
+		
 		return name + "(" + this.args.translate() + ")";
 	}
 
