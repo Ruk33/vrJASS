@@ -19,6 +19,7 @@ import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
 import com.ruke.vrjassc.translator.expression.MathExpression.Operator;
 import com.ruke.vrjassc.translator.expression.NegativeExpression;
+import com.ruke.vrjassc.translator.expression.NotExpression;
 import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.ReturnStatement;
@@ -189,7 +190,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitNot(NotContext ctx) {
-		return null;
+		return new NotExpression(this.visit(ctx.expression()));
 	}
 
 	@Override

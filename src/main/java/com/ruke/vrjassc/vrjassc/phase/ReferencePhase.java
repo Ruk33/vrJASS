@@ -427,7 +427,9 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitCode(CodeContext ctx) {
-		this.visit(ctx.expression());
+		if (!this.validator.mustBeValidCode(this.visit(ctx.expression()), ctx.getStart())) {
+			throw this.validator.getException();
+		}
 		return this.scope.resolve("code");
 	}
 	

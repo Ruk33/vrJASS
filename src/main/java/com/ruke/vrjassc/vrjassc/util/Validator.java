@@ -301,4 +301,15 @@ public class Validator {
 		return false;
 	}
 
+	public boolean mustBeValidCode(Symbol func, Token token) {
+		this.validated = func;
+		
+		if (!func.hasModifier(Modifier.STATIC)) {
+			this.exception = new InvalidStatementException("Functions/methods must be static to be used as code", token);			
+			return false;
+		}
+		
+		return true;
+	}
+
 }

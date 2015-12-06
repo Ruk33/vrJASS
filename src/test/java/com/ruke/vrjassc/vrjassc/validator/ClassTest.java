@@ -6,6 +6,7 @@ import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
+import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
 import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
@@ -13,6 +14,25 @@ import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
+	
+	@Test
+	public void shouldUseCodeOnlyWithStatic() {
+		this.expectedEx.expect(InvalidStatementException.class);
+		this.expectedEx.expectMessage("10:8 Functions/methods must be static to be used as code");
+		this.run(
+			"struct foo\n"
+				+ "public static method baz\n"
+				+ "endmethod\n"
+				+ "public method lorem\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "function bar\n"
+				+ "local foo instance\n"
+				+ "local code f = function foo.baz\n"
+				+ "set f = function instance.lorem\n"
+			+ "endfunction"
+		);
+	}
 	
 	@Test
 	public void propertyType() {

@@ -28,12 +28,12 @@ expression:
 	|NOT expression #Not
 	|(TRUE | FALSE) #Boolean	
 	|NULL #Null
-	|FUNCTION expression #Code
 	|THIS #This
 	|validName PAREN_LEFT arguments? PAREN_RIGHT #FunctionExpression
 	|validName (BRACKET_LEFT index=expression BRACKET_RIGHT)? #VariableExpression
 	|expression DOT expression #ChainExpression
 	|expression CAST validName #Cast
+	|FUNCTION expression #Code
 	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
 	|left=expression DIV right=expression #Div
 	|left=expression TIMES right=expression #Mult
