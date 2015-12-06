@@ -69,6 +69,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.WhileLoopStatementContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
@@ -371,6 +372,24 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			statement = (Statement) this.visit(stat);
 			
 			if (statement != null) { 
+				loop.add(statement);
+			}
+		}
+		
+		return loop;
+	}
+	
+	@Override
+	public Expression visitWhileLoopStatement(WhileLoopStatementContext ctx) {
+		LoopStatement loop = new LoopStatement();
+		Statement statement;
+		
+		loop.add(new ExitWhenStatement(this.visit(ctx.expression())));
+		
+		for (StatementContext stat : ctx.statement()) {
+			statement = (Statement) this.visit(stat);
+			
+			if (statement != null) {
 				loop.add(statement);
 			}
 		}

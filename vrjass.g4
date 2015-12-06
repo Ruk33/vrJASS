@@ -161,6 +161,7 @@ statement:
 	|assignmentStatement
 	|functionStatement
 	|loopStatement
+	|whileLoopStatement
 	|exitWhenStatement
 	|ifStatement
 	|returnStatement
@@ -184,6 +185,12 @@ loopStatement:
 	(ENDLOOP | END) NL
 	;
 
+whileLoopStatement:
+	WHILE expression NL
+		statement*
+	(ENDWHILE | END) NL
+	;
+
 ifStatement: 
 	IF expression THEN NL 
 		statement*
@@ -202,6 +209,8 @@ returnStatement:
 	RETURN (expression)? NL;
 
 
+WHILE: 'while';
+ENDWHILE: 'endwhile';
 END: 'end';
 CAST: 'cast';
 LIBRARY: 'library';

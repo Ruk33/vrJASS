@@ -9,6 +9,28 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class FunctionTest extends TestHelper {
 	
 	@Test
+	public void whileLoop() {
+		String code =
+			"function foo\n"
+				+ "while true\n"
+					+ "call foo()\n"
+				+ "endwhile\n"
+			+ "end";
+		
+		String expected =
+			"globals\n"
+			+ "endglobals\n"
+			+ "function foo takes nothing returns nothing\n"
+				+ "loop\n"
+					+ "exitwhen true\n"
+					+ "call foo()\n"
+				+ "endloop\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void end() {
 		String code =
 			"function foo\n"
