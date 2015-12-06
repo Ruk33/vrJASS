@@ -162,6 +162,7 @@ statement:
 	|functionStatement
 	|loopStatement
 	|whileLoopStatement
+	|breakStatement
 	|exitWhenStatement
 	|ifStatement
 	|returnStatement
@@ -175,6 +176,9 @@ assignmentStatement:
 
 functionStatement:
 	CALL expression NL;
+
+breakStatement:
+	BREAK NL;
 
 exitWhenStatement:
 	EXITWHEN expression NL;
@@ -209,6 +213,7 @@ returnStatement:
 	RETURN (expression)? NL;
 
 
+BREAK: 'break';
 WHILE: 'while';
 ENDWHILE: 'endwhile';
 END: 'end';

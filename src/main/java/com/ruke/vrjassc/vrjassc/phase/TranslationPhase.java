@@ -31,6 +31,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ArgumentsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BreakStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
@@ -459,6 +460,11 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitExitWhenStatement(ExitWhenStatementContext ctx) {
 		BooleanExpression condition = new BooleanExpression(this.visit(ctx.expression()));
 		return new ExitWhenStatement(condition);
+	}
+	
+	@Override
+	public Expression visitBreakStatement(BreakStatementContext ctx) {
+		return new ExitWhenStatement(new RawExpression("true"));
 	}
 
 	@Override
