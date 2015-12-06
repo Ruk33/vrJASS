@@ -81,9 +81,12 @@ public class Validator {
 		ParserRuleContext parent = ctx.getParent();
 		boolean insideOfLoop = false;
 		
+		int loopType = vrjassParser.RULE_loopStatement;
+		int whileType = vrjassParser.RULE_whileLoopStatement;
+		
 		// iterate until reach the function definition
 		while (parent.getRuleIndex() != vrjassParser.RULE_functionDefinition) {
-			if (parent.getRuleIndex() == vrjassParser.RULE_loopStatement) {
+			if (parent.getRuleIndex() == loopType || parent.getRuleIndex() == whileType) {
 				insideOfLoop = true;
 				break;
 			}

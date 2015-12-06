@@ -60,6 +60,15 @@ public class FunctionTest extends TestHelper {
 	}
 	
 	@Test
+	public void invalidBreak() {
+		this.expectedEx.expect(InvalidStatementException.class);
+		this.expectedEx.expectMessage("2:0 Can only be used inside of loops");
+		this.run("function foo takes nothing returns nothing\n"
+					+ "break\n"
+				+ "endfunction");
+	}
+	
+	@Test
 	public void invalidExitwhen() {
 		this.expectedEx.expect(InvalidStatementException.class);
 		this.expectedEx.expectMessage("2:0 Can only be used inside of loops");

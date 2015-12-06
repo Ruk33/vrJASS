@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.Token;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BreakStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
@@ -596,6 +597,15 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		}
 		
 		return this.visit(ctx.expression());
+	}
+	
+	@Override
+	public Symbol visitBreakStatement(BreakStatementContext ctx) {
+		if (!this.validator.mustBeInsideOfLoop(ctx, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+		
+		return null;
 	}
 	
 	@Override
