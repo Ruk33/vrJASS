@@ -58,6 +58,10 @@ public class Symbol {
 		return this.modifiers.getOrDefault(whichOne, false);
 	}
 	
+	public void setParentScope(Scope scope) {
+		this.scope = scope;
+	}
+	
 	public Scope getParentScope() {
 		return this.scope;
 	}
