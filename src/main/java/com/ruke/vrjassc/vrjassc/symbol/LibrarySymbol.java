@@ -28,11 +28,7 @@ public class LibrarySymbol extends ScopeSymbol implements InitializerContainer {
 
 	@Override
 	public Collection<InitializerContainer> getInitializersToLoadFirst() {
-		Collection<InitializerContainer> loadFirst = new ArrayList<InitializerContainer>();
-		
-		loadFirst.addAll(this.requirements);
-		
-		return loadFirst;
+		return new ArrayList<InitializerContainer>(this.requirements);
 	}
 
 }

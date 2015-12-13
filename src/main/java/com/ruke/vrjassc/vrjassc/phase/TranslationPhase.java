@@ -1,5 +1,7 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
 import com.ruke.vrjassc.translator.expression.ChainExpression;
@@ -52,6 +54,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContex
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LoopStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ModuleDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
@@ -66,6 +69,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TopDeclarationContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.UseStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
@@ -74,8 +78,10 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.WhileLoopStatementContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InitializerContainer;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
+import com.ruke.vrjassc.vrjassc.symbol.ModuleSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
@@ -556,6 +562,23 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			
 			if (e != null) {
 				this.container.add((Statement) e);
+			}
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Expression visitModuleDefinition(ModuleDefinitionContext ctx) {
+		Statement statement;
+		
+		this.initializerHandler.add((InitializerContainer) this.symbols.get(ctx));
+		
+		for (StructStatementContext ssc : ctx.structStatement()) {
+			statement = (Statement) this.visit(ssc);
+			
+			if (statement != null) {
+				this.container.add(statement);
 			}
 		}
 		
