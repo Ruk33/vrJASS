@@ -2,21 +2,17 @@ package com.ruke.vrjassc.vrjassc.symbol;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.antlr.v4.runtime.Token;
 
 public class ClassSymbol extends ScopeSymbol implements Type, InitializerContainer {
 
 	private ClassSymbol _super;
-	protected Set<ModuleSymbol> modules;
 	protected Symbol onInit;
 	
 	public ClassSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
 		this.setModifier(Modifier.MEMBER, true);
-		this.modules = new HashSet<ModuleSymbol>();
 	}
 
 	@Override
@@ -28,10 +24,6 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 	public Symbol define(Symbol symbol) {
 		if (symbol.getName().equals("onInit")) {
 			this.setInitializer(symbol);
-		}
-		
-		if (symbol instanceof ModuleSymbol) {
-			this.modules.add((ModuleSymbol) symbol);
 		}
 		
 		return super.define(symbol);
@@ -71,7 +63,7 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 		
 		if (requesting instanceof ClassSymbol) {
 			resolved = this.resolveMember((ClassSymbol) requesting, name);
-		}
+		} 
 
 		if (resolved == null) {
 			resolved = super.resolve(requesting, name);
@@ -92,15 +84,6 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 			
 			if (this.getSuper() != null) {
 				member = this.getSuper().resolveMember(requesting, name);
-			}
-		}
-		
-		if (member == null) {
-			for (ModuleSymbol module : this.modules) {
-				member = module.resolve(this, name);
-				if (member != null) {
-					break;
-				}
 			}
 		}
 		
@@ -147,7 +130,7 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 
 	@Override
 	public Collection<InitializerContainer> getInitializersToLoadFirst() {
-		return new ArrayList<InitializerContainer>(this.modules);
+		return new ArrayList<InitializerContainer>();
 	}
 
 }

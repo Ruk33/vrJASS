@@ -11,7 +11,6 @@ topDeclaration:
 	|interfaceDefinition
 	|structDefinition
 	|functionDefinition
-	|moduleDefinition
 	;
 
 // Refers to a valid variable type, like integer, reals, etc.
@@ -83,7 +82,6 @@ libraryStatement:
 	|interfaceDefinition
 	|structDefinition
 	|functionDefinition
-	|moduleDefinition
 	;
 
 libraryDefinition:
@@ -116,14 +114,10 @@ interfaceDefinition:
 propertyStatement:
 	(PRIVATE|PUBLIC)? STATIC? variableDeclaration NL;
 
-useStatement:
-	USE validName NL;
-
 structStatement:
 	NL
 	|propertyStatement
 	|functionDefinition
-	|useStatement
 	;
 
 implementsList: validName (COMMA validName)*;
@@ -132,16 +126,6 @@ structDefinition:
 	(PRIVATE|PUBLIC)? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
 		structStatement*
 	(ENDSTRUCT | END) NL
-	;
-
-
-/*
- * Modules
- */ 
-moduleDefinition:
-	MODULE validName NL
-		structStatement*
-	(ENDMODULE | END)
 	;
 
 
@@ -229,9 +213,6 @@ returnStatement:
 	RETURN (expression)? NL;
 
 
-USE: 'use';
-MODULE: 'module';
-ENDMODULE: 'endmodule';
 BREAK: 'break';
 WHILE: 'while';
 ENDWHILE: 'endwhile';

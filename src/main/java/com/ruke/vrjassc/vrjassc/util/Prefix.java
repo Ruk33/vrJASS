@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.ModuleSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
 public class Prefix {
@@ -19,9 +18,7 @@ public class Prefix {
 				parent = (Symbol) parent.getParentScope();
 			}
 			
-			if (symbol.getParentScope() instanceof ModuleSymbol) {
-				e.addFirst("module");
-			} else if (symbol.getParentScope() instanceof ClassSymbol) {
+			if (symbol.getParentScope() instanceof ClassSymbol) {
 				e.addFirst("struct");
 			}
 			

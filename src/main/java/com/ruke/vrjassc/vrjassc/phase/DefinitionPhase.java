@@ -14,7 +14,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ModuleDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
@@ -27,7 +26,6 @@ import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.ModuleSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -187,26 +185,6 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		this.scopes.pop();
 		
 		return _class;
-	}
-	
-	@Override
-	public Symbol visitModuleDefinition(ModuleDefinitionContext ctx) {
-		Scope scope = this.scopes.peek();
-		
-		String name = ctx.validName().getText();
-		Token token = ctx.getStart();
-		
-		ModuleSymbol module = new ModuleSymbol(name, scope, token);
-		
-		this.defineOrThrowAlreadyDefinedException(scope, module);
-		this.scopes.push(module);
-		
-		super.visitModuleDefinition(ctx);
-		
-		this.symbols.put(ctx, module);
-		this.scopes.pop();
-		
-		return module;
 	}
 	
 	@Override

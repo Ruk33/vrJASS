@@ -39,7 +39,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.UseStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
@@ -51,7 +50,6 @@ import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InitTrigSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
-import com.ruke.vrjassc.vrjassc.symbol.ModuleSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
@@ -626,19 +624,6 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		}
 		
 		return expr;
-	}
-	
-	@Override
-	public Symbol visitUseStatement(UseStatementContext ctx) {
-		Scope scope = this.scopes.peek();
-		String name = ctx.validName().getText();
-		
-		ModuleSymbol module = (ModuleSymbol) scope.resolve(name);
-		
-		scope.define(module);
-		this.symbols.put(ctx, module);
-		
-		return module;
 	}
 
 }
