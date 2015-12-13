@@ -22,7 +22,7 @@ public class FunctionTest extends TestHelper {
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
 				+ "loop\n"
-					+ "exitwhen false\n"
+					+ "exitwhen not false\n"
 					+ "exitwhen true\n"
 				+ "endloop\n"
 			+ "endfunction";
