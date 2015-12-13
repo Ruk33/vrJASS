@@ -17,7 +17,6 @@ import com.ruke.vrjassc.translator.expression.JassContainer;
 import com.ruke.vrjassc.translator.expression.LogicalExpression;
 import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression;
-import com.ruke.vrjassc.translator.expression.WhileLoopStatement;
 import com.ruke.vrjassc.translator.expression.MathExpression.Operator;
 import com.ruke.vrjassc.translator.expression.NegativeExpression;
 import com.ruke.vrjassc.translator.expression.NotExpression;
@@ -383,8 +382,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	@Override
 	public Expression visitWhileLoopStatement(WhileLoopStatementContext ctx) {
-		LoopStatement loop = new WhileLoopStatement(this.visit(ctx.expression()));
+		LoopStatement loop = new LoopStatement();
 		Statement statement;
+		
+		loop.add(new ExitWhenStatement(this.visit(ctx.expression())));
 		
 		for (StatementContext stat : ctx.statement()) {
 			statement = (Statement) this.visit(stat);

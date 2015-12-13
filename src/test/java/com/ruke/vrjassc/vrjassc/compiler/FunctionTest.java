@@ -7,7 +7,7 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
-		
+	
 	@Test
 	public void breakStatement() {
 		String code =
@@ -44,7 +44,7 @@ public class FunctionTest extends TestHelper {
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
 				+ "loop\n"
-					+ "exitwhen not true\n"
+					+ "exitwhen true\n"
 					+ "call foo()\n"
 				+ "endloop\n"
 			+ "endfunction";
