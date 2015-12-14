@@ -9,6 +9,28 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class LibraryTest extends TestHelper {
 	
 	@Test
+	public void returnUsingNamespace() {
+		String code =
+			"library foo\n"
+				+ "public struct bar\n"
+				+ "endstruct\n"
+			+ "endlibrary\n"
+			+ "function lorem returns foo.bar\n"
+				+ "return 0 cast foo.bar\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+			+ "endglobals\n"
+			+ "function lorem takes nothing returns integer\n"
+				+ "return 0\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void test() {
 		String code =
 			"function baz\n"

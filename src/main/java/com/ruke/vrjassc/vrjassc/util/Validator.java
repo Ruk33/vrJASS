@@ -150,7 +150,7 @@ public class Validator {
 	 * @return
 	 */
 	public boolean mustBeDefined(Scope scope, String name, Token token) {
-		this.validated = scope.resolve(scope, name);
+		this.validated = scope.resolve(name);
 		
 		if (this.validated == null) {
 			this.exception = new UndefinedSymbolException(token, name);

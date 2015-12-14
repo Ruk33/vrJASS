@@ -250,22 +250,14 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.enclosingScopes.push(function);
 		
 		if (ctx.returnType() != null && ctx.returnType().validType() != null) {
-			String type = ctx.returnType().validType().getText();
+			Symbol _return = this.visit(ctx.returnType());
 			Token token = ctx.returnType().getStart();
 			
-			if (!this.validator.mustBeDefined(function, type, token)) {
+			if (!this.validator.mustBeValidType(_return, token)) {
 				throw this.validator.getException();
 			}
 			
-			if (!this.validator.mustBeValidType(this.validator.getValidatedSymbol(), token)) {
-				throw this.validator.getException();
-			}
-			
-			if (!this.validator.mustHaveAccess(function, this.validator.getValidatedSymbol(), token)) {
-				throw this.validator.getException();
-			}
-			
-			function.setType((Type) this.validator.getValidatedSymbol());
+			function.setType((Type) _return);
 			
 			if (!this.validator.mustReturn(function, ctx.statement())) {
 				throw this.validator.getException();
@@ -517,12 +509,9 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitCast(CastContext ctx) {
-		String castType = ctx.validName().getText();
-		
-		Symbol original = this.visit(ctx.expression());
-		Symbol cast = original.getParentScope().resolve(castType);
-		
+	public Symbol visitCast(CastContext ctx) {		
+		Symbol original = this.visit(ctx.original);
+		Symbol cast = this.visit(ctx.casted);
 		return new CastSymbol(original, cast, ctx.getStart());
 	}
 	

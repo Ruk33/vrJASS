@@ -135,15 +135,15 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 	
 	@Override
-	public Expression visitCast(CastContext ctx) {
-		Expression casted = this.visit(ctx.expression());
-		Symbol symbol = casted.getSymbol();
+	public Expression visitCast(CastContext ctx) {		
+		Expression original = this.visit(ctx.original);		
+		Symbol symbol = original.getSymbol();
 		
 		if (symbol instanceof BuiltInTypeSymbol) {
 			symbol = null;
 		}
 		
-		return new RawExpression(casted.translate(), symbol);
+		return new RawExpression(original.translate(), symbol);
 	}
 
 	@Override

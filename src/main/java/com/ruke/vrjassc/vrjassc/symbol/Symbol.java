@@ -3,6 +3,7 @@ package com.ruke.vrjassc.vrjassc.symbol;
 import java.util.HashMap;
 
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.NotNull;
 
 public class Symbol {
 

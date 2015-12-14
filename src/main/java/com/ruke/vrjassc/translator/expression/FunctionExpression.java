@@ -29,11 +29,14 @@ public class FunctionExpression extends Expression {
 	
 	@Override
 	public String translate() {
-		MutualRecursion recursion = this.getParent().getMutualRecursion(this.getSymbol());
 		String name = Prefix.build(this.getSymbol());
 		
-		if (recursion != null) {
-			name = recursion.getPrefix();
+		if (this.getParent() != null) {
+			MutualRecursion recursion = this.getParent().getMutualRecursion(this.getSymbol());
+			
+			if (recursion != null) {
+				name = recursion.getPrefix();
+			}
 		}
 		
 		if (this.isCode) {

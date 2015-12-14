@@ -21,7 +21,8 @@ variableDeclaration:
 	type=validType ARRAY? name=validName (EQ value=expression)?;
 
 expression:
-	INT #Integer
+	PAREN_LEFT expression PAREN_RIGHT #Parenthesis
+	|INT #Integer
 	|REAL #Real
 	|STRING #String
 	|MINUS expression #Negative
@@ -29,12 +30,11 @@ expression:
 	|(TRUE | FALSE) #Boolean	
 	|NULL #Null
 	|THIS #This
-	|validName PAREN_LEFT arguments? PAREN_RIGHT #FunctionExpression
 	|validName (BRACKET_LEFT index=expression BRACKET_RIGHT)? #VariableExpression
+	|validName PAREN_LEFT arguments? PAREN_RIGHT #FunctionExpression
 	|expression DOT expression #ChainExpression
-	|expression CAST validName #Cast
+	|original=expression CAST casted=expression #Cast
 	|FUNCTION expression #Code
-	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
 	|left=expression DIV right=expression #Div
 	|left=expression TIMES right=expression #Mult
 	|left=expression MINUS right=expression #Minus
