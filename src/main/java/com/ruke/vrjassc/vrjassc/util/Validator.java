@@ -13,6 +13,7 @@ import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
 import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
+import com.ruke.vrjassc.vrjassc.exception.InterfaceMethodException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidMathException;
@@ -29,6 +30,7 @@ import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Scope;
+import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
 
@@ -309,6 +311,25 @@ public class Validator {
 		
 		if (!func.hasModifier(Modifier.STATIC)) {
 			this.exception = new InvalidStatementException("Functions/methods must be static to be used as code", token);			
+			return false;
+		}
+		
+		return true;
+	}
+
+	public boolean mustImplementAllMethods(ScopeSymbol _interface, ClassSymbol _class, Token token) {
+		this.validated = _class;
+		
+		int methods = _interface.getChilds().size();
+		
+		for (Symbol method : _interface.getChilds().values()) {
+			if (_class.resolveMember(_class, method.getName()) != null) {
+				methods--;
+			}
+		}
+		
+		if (methods > 0) {
+			this.exception = new InterfaceMethodException(_interface, _class, token);
 			return false;
 		}
 		

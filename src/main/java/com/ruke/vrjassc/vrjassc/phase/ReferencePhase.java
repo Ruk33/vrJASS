@@ -197,6 +197,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitStructDefinition(StructDefinitionContext ctx) {		
 		ClassSymbol _class = (ClassSymbol) this.symbols.get(ctx);
+		Token token = ctx.name.getStart();
 		
 		this.scopes.push(_class);
 		
@@ -227,11 +228,17 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 					throw this.validator.getException();
 				}
 				
-				if (!this.validator.mustBeImplementableTypeValid(this.validator.getValidatedSymbol(), interfaceToken)) {
+				ScopeSymbol _interface = (ScopeSymbol) this.validator.getValidatedSymbol();
+				
+				if (!this.validator.mustBeImplementableTypeValid(_interface, interfaceToken)) {
 					throw this.validator.getException();
 				}
 				
-				_class.define(this.validator.getValidatedSymbol());
+				if (!this.validator.mustImplementAllMethods(_interface, _class, token)) {
+					throw this.validator.getException();
+				}
+				
+				_class.define(_interface);
 			}
 		}
 		

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
+import com.ruke.vrjassc.vrjassc.exception.InterfaceMethodException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
@@ -14,6 +15,19 @@ import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
+	
+	@Test
+	public void shouldImplementAllAbstractMethods() {
+		this.expectedEx.expect(InterfaceMethodException.class);
+		this.expectedEx.expectMessage("4:7 Class lorem must implement all methods of interface foo");
+		this.run(
+			"interface foo\n"
+				+ "method bar takes nothing returns nothing\n"
+			+ "endinterface\n"
+			+ "struct lorem implements foo\n"
+			+ "endstruct"
+		);
+	}
 	
 	@Test
 	public void shouldUseCodeOnlyWithStatic() {
