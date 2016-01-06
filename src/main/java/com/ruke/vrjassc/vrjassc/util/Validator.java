@@ -22,6 +22,7 @@ import com.ruke.vrjassc.vrjassc.exception.InvalidStringConcatenationException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
+import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
@@ -316,15 +317,44 @@ public class Validator {
 		
 		return true;
 	}
+	
+	public boolean mustBeFunction(Symbol symbol, Token token) {
+		this.validated = symbol;
+		
+		if (symbol instanceof FunctionSymbol == false) {
+			this.exception = new NoFunctionException(token, symbol);
+			return false;
+		}
+		
+		return true;
+	}
 
 	public boolean mustImplementAllMethods(ScopeSymbol _interface, ClassSymbol _class, Token token) {
 		this.validated = _class;
 		
-		int methods = _interface.getChilds().size()-1;
+		int methods = _interface.getChilds().size();
+		Symbol resolved;
+		boolean argsMatch;
 		
 		for (Symbol method : _interface.getChilds().values()) {
-			if (_class.resolveMember(_class, method.getName()) != null) {
+			resolved = _class.resolveMember(_class, method.getName());
+			
+			if (!this.mustBeFunction(resolved, resolved.getToken())) {
+				return false;
+			}
+			
+			if (resolved != null) {
 				methods--;
+			}
+			
+			argsMatch = this.mustMatchArguments(
+				(FunctionSymbol) method, 
+				((FunctionSymbol) resolved).getParams(), 
+				resolved.getToken()
+			);
+			
+			if (!argsMatch) {
+				return false;
 			}
 		}
 		

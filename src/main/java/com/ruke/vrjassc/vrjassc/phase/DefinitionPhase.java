@@ -1,7 +1,5 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
@@ -9,7 +7,6 @@ import org.antlr.v4.runtime.Token;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
@@ -151,6 +148,8 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		FunctionSymbol function = new FunctionSymbol(name, null, token);
 		
+		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		
 		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), function);
 		this.scopes.push(function);
 		
@@ -161,7 +160,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		}
 		
 		this.symbols.put(ctx, function);
-		this.scopes.peek();
+		this.scopes.pop();
 		
 		return function;
 	}
