@@ -34,7 +34,8 @@ public class ScopeSymbol extends Symbol implements Scope {
 	public Symbol define(Symbol symbol) {
 		if (symbol != null) {
 			this.childs.put(symbol.getName(), symbol);
-			if (symbol instanceof ScopeSymbol == false) {
+			
+			if (symbol.scope == null) {
 				symbol.scope = this;
 			}
 		}

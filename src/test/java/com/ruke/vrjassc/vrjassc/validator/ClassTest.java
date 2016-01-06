@@ -4,12 +4,14 @@ import org.junit.Test;
 
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
+import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
 import com.ruke.vrjassc.vrjassc.exception.InterfaceMethodException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
 import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
+import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
 import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
@@ -17,14 +19,63 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
-	public void properInterfaceImplementation() {
-		this.expectedEx.none();
+	public void interfaceMethodImplementationMustMatchArgumentsCount() {
+		this.expectedEx.expect(IncorrectArgumentCountException.class);
+		this.expectedEx.expectMessage("5:7 Incorrect amount of arguments passed to function <bar>");
+		this.run(
+			"interface foo\n"
+				+ "method bar takes integer i, real e returns nothing\n"
+			+ "endinterface\n"
+			+ "struct lorem implements foo\n"
+				+ "method bar takes integer i returns nothing\n"
+				+ "endmethod\n"
+			+ "endstruct"
+		);
+	}
+	
+	@Test
+	public void interfaceMethodImplementationMustBeMethod() {
+		this.expectedEx.expect(NoFunctionException.class);
+		this.expectedEx.expectMessage("5:8 Element <bar> is not a function");
 		this.run(
 			"interface foo\n"
 				+ "method bar takes nothing returns nothing\n"
 			+ "endinterface\n"
 			+ "struct lorem implements foo\n"
+				+ "integer bar\n"
+			+ "endstruct"
+		);
+	}
+	
+	@Test
+	public void properInterfaceImplementation() {
+		this.expectedEx.none();
+		this.run(
+			"interface foo\n"
+				+ "public method bar takes nothing returns nothing\n"
+				+ "method baz takes nothing returns nothing\n"
+			+ "endinterface\n"
+			+ "struct ipsum\n"
+				+ "public method baz takes nothing returns nothing\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct lorem extends ipsum implements foo\n"
 				+ "method bar takes nothing returns nothing\n"
+				+ "endmethod\n"
+			+ "endstruct"
+		);
+	}
+	
+	@Test
+	public void shouldMatchParamsInAbstractMethods() {
+		this.expectedEx.expect(IncompatibleTypeException.class);
+		this.expectedEx.expectMessage("5:7 Element <i> must have/return a value of type <integer> but given <boolean>");
+		this.run(
+			"interface foo\n"
+				+ "method bar takes integer i returns nothing\n"
+			+ "endinterface\n"
+			+ "struct lorem implements foo\n"
+				+ "method bar takes boolean i returns nothing\n"
 				+ "endmethod\n"
 			+ "endstruct"
 		);
