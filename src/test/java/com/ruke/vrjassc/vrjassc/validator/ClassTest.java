@@ -17,6 +17,20 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void properInterfaceImplementation() {
+		this.expectedEx.none();
+		this.run(
+			"interface foo\n"
+				+ "method bar takes nothing returns nothing\n"
+			+ "endinterface\n"
+			+ "struct lorem implements foo\n"
+				+ "method bar takes nothing returns nothing\n"
+				+ "endmethod\n"
+			+ "endstruct"
+		);
+	}
+	
+	@Test
 	public void shouldImplementAllAbstractMethods() {
 		this.expectedEx.expect(InterfaceMethodException.class);
 		this.expectedEx.expectMessage("4:7 Class lorem must implement all methods of interface foo");

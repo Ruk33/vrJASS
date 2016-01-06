@@ -320,7 +320,7 @@ public class Validator {
 	public boolean mustImplementAllMethods(ScopeSymbol _interface, ClassSymbol _class, Token token) {
 		this.validated = _class;
 		
-		int methods = _interface.getChilds().size();
+		int methods = _interface.getChilds().size()-1;
 		
 		for (Symbol method : _interface.getChilds().values()) {
 			if (_class.resolveMember(_class, method.getName()) != null) {

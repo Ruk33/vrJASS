@@ -10,6 +10,7 @@ public class VrJassScope extends ScopeSymbol {
 	@Override
 	public Symbol define(Symbol symbol) {
 		symbol.setModifier(Modifier.PUBLIC, true);
+		symbol.scope = this;
 		return super.define(symbol);
 	}
 	

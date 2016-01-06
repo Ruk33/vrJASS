@@ -228,13 +228,13 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 					throw this.validator.getException();
 				}
 				
-				ScopeSymbol _interface = (ScopeSymbol) this.validator.getValidatedSymbol();
+				Symbol _interface = this.validator.getValidatedSymbol();
 				
 				if (!this.validator.mustBeImplementableTypeValid(_interface, interfaceToken)) {
 					throw this.validator.getException();
 				}
 				
-				if (!this.validator.mustImplementAllMethods(_interface, _class, token)) {
+				if (!this.validator.mustImplementAllMethods((ScopeSymbol) _interface, _class, token)) {
 					throw this.validator.getException();
 				}
 				
