@@ -19,6 +19,19 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void interfaceUsesNamespaceInReturn() {
+		this.run(
+			"interface foo\n"
+				+ "method bar takes nothing returns lorem.ipsum\n"
+			+ "endinterface\n"
+			+ "library lorem\n"
+				+ "public struct ipsum\n"
+				+ "endstruct\n"
+			+ "endlibrary"
+		);
+	}
+	
+	@Test
 	public void interfaceMethodImplementationMustMatchArgumentsCount() {
 		this.expectedEx.expect(IncorrectArgumentCountException.class);
 		this.expectedEx.expectMessage("5:7 Incorrect amount of arguments passed to function <bar>");

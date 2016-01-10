@@ -97,11 +97,11 @@ libraryDefinition:
  * ---------------------------------------------------------------------------
  */
  interfaceStatement:
-	(PRIVATE|PUBLIC)? STATIC? METHOD validName TAKES parameters RETURNS returnType NL;
+	(PRIVATE|PUBLIC)? STATIC? METHOD validName TAKES parameters RETURNS expression NL;
 
 interfaceDefinition:
 	(PRIVATE|PUBLIC)? INTERFACE validName NL
-		interfaceStatement*
+		(NL | interfaceStatement)*
 	(ENDINTERFACE | END) NL
 	;
 

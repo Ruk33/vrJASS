@@ -170,23 +170,19 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		super.visitInterfaceStatement(ctx);
 		
-		if (ctx.returnType().validType() != null) {
-			String type = ctx.returnType().validType().getText();
-			Token token = ctx.returnType().getStart();
+		if (ctx.expression() != null) {
+			Symbol _return = this.visit(ctx.expression());
+			Token token = ctx.expression().getStart();
 			
-			if (!this.validator.mustBeDefined(function, type, token)) {
+			if (!this.validator.mustBeValidType(_return, token)) {
 				throw this.validator.getException();
 			}
 			
-			if (!this.validator.mustBeValidType(this.validator.getValidatedSymbol(), token)) {
+			if (!this.validator.mustHaveAccess(function, _return, token)) {
 				throw this.validator.getException();
 			}
 			
-			if (!this.validator.mustHaveAccess(function, this.validator.getValidatedSymbol(), token)) {
-				throw this.validator.getException();
-			}
-			
-			function.setType((Type) this.validator.getValidatedSymbol());
+			function.setType((Type) _return);
 		}
 		
 		this.scopes.pop();

@@ -339,12 +339,12 @@ public class Validator {
 		for (Symbol method : _interface.getChilds().values()) {
 			resolved = _class.resolveMember(_class, method.getName());
 			
-			if (!this.mustBeFunction(resolved, resolved.getToken())) {
-				return false;
+			if (resolved == null) {
+				continue;
 			}
 			
-			if (resolved != null) {
-				methods--;
+			if (!this.mustBeFunction(resolved, resolved.getToken())) {
+				return false;
 			}
 			
 			argsMatch = this.mustMatchArguments(
@@ -356,6 +356,8 @@ public class Validator {
 			if (!argsMatch) {
 				return false;
 			}
+			
+			methods--;
 		}
 		
 		if (methods > 0) {
