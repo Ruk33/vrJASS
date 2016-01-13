@@ -6,14 +6,16 @@ import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionSignatureContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
@@ -61,6 +63,11 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
+	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {
+		return this.visit(ctx.functionSignature());
+	}
+	
+	@Override
 	public Symbol visitTypeDefinition(TypeDefinitionContext ctx) {
 		Scope scope = this.scopes.peek();
 		
@@ -73,35 +80,6 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		scope.define(type);
 		
 		return type;
-	}
-	
-	@Override
-	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {
-		Scope scope = this.scopes.peek();
-		
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
-		
-		FunctionSymbol _native = new FunctionSymbol(name, scope, token);
-		
-		if (ctx.returnType().validType() != null) {
-			String type = ctx.returnType().validType().getText();
-			_native.setType((Type) scope.resolve(type));
-		}
-		
-		this.defineOrThrowAlreadyDefinedException(scope, _native);
-		this.scopes.push(_native);
-		
-		if (ctx.parameters() != null) {
-			for (ParameterContext parameter : ctx.parameters().parameter()) {
-				_native.defineParam(this.visit(parameter));
-			}
-		}
-		
-		this.symbols.put(ctx, _native);
-		this.scopes.pop();
-		
-		return _native;
 	}
 	
 	@Override
@@ -140,31 +118,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		return _interface;
 	}
-	
-	@Override
-	public Symbol visitInterfaceStatement(InterfaceStatementContext ctx) {
-		String name = ctx.validName().getText();
-		Token token = ctx.getStart();
 		
-		FunctionSymbol function = new FunctionSymbol(name, null, token);
-		
-		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
-		
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), function);
-		this.scopes.push(function);
-		
-		if (ctx.parameters().parameter() != null) {
-			for (ParameterContext param : ctx.parameters().parameter()) {
-				function.defineParam(this.visit(param));
-			}
-		}
-		
-		this.symbols.put(ctx, function);
-		this.scopes.pop();
-		
-		return function;
-	}
-	
 	@Override
 	public Symbol visitStructDefinition(StructDefinitionContext ctx) {
 		Scope scope = this.scopes.peek();
@@ -172,7 +126,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		String name = ctx.name.getText();
 		Token token = ctx.name.getStart();
 		
-		ClassSymbol _class = new ClassSymbol(name, scope, token);
+		ClassSymbol _class = new ClassSymbol(name, null, token);
 		_class.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
 		this.defineOrThrowAlreadyDefinedException(scope, _class);
@@ -191,17 +145,33 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		Symbol parameter = this.visit(ctx.variableDeclaration());
 		parameter.setModifier(Modifier.LOCAL, true);
 		
+		((FunctionSymbol) this.scopes.peek()).defineParam(parameter);
+		
 		return parameter;
 	}
 	
 	@Override
-	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {
+	public Symbol visitReturnType(ReturnTypeContext ctx) {
+		Symbol type = null;
+		
+		if (ctx.expression() != null) {
+			type = this.scopes.peek().resolve(ctx.expression().getText());
+			if (type instanceof Type) {
+				this.scopes.peek().setType((Type) type);
+			}
+		}
+		
+		return type;
+	}
+	
+	@Override
+	public Symbol visitFunctionSignature(FunctionSignatureContext ctx) {
 		Scope scope = this.scopes.peek();
 		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		FunctionSymbol function = new FunctionSymbol(name, scope, token);
+		FunctionSymbol function = new FunctionSymbol(name, null, token);
 		
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
@@ -214,10 +184,8 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		this.defineOrThrowAlreadyDefinedException(scope, function);
 		this.scopes.push(function);
 		
-		if (ctx.parameters() != null) {			
-			for (ParameterContext param : ctx.parameters().parameter()) {
-				function.defineParam(this.visit(param));
-			}
+		if (ctx.parameters() != null) {
+			this.visit(ctx.parameters());
 		}
 		
 		if (function.getParentScope() instanceof ClassSymbol) {
@@ -229,17 +197,27 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 			}
 		}
 		
-		if (ctx.returnType() != null && ctx.returnType().validType() != null) {
-			Symbol type = scope.resolve(ctx.returnType().validType().getText());
-			
-			if (type instanceof Type) {
-				function.setType((Type) type);
-			}
+		if (ctx.returnType() != null) {
+			this.visit(ctx.returnType());
 		}
 		
-		super.visitFunctionDefinition(ctx);
+		this.symbols.put(ctx, function);
+		this.scopes.pop();
+		
+		return function;
+	}
+	
+	@Override
+	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {
+		FunctionSymbol function = (FunctionSymbol) this.visit(ctx.functionSignature());
 		
 		this.symbols.put(ctx, function);
+		this.scopes.push(function);
+		
+		for (StatementContext stat : ctx.statement()) {
+			this.visit(stat);
+		}
+		
 		this.scopes.pop();
 		
 		return function;

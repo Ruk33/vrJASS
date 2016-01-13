@@ -1,6 +1,5 @@
 package com.ruke.vrjassc.translator.expression;
 
-import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
@@ -14,8 +13,15 @@ public class VariableStatement extends Statement {
 	public VariableStatement(Symbol variable, Expression value) {		
 		this.variable = variable;
 		
-		if (value == null && variable.getType() != null) {
-			value = new DefaultValue(variable.getType());
+		boolean valueIsNull =
+			value == null ||
+			value.getSymbol() != null && 
+			value.getSymbol().getName().equals("null");
+		
+		if (valueIsNull) {
+			if (variable.getType() != null) {
+				value = new DefaultValue(variable.getType());
+			}
 		}
 		
 		if (value != null) {

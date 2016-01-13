@@ -93,7 +93,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	protected InitializerHandler initializerHandler;
 	
 	protected JassContainer container;
-
+	
 	private int classEnum;
 	
 	private int propertyEnum;

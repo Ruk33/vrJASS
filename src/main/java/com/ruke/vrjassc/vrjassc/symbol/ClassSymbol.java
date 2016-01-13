@@ -103,6 +103,10 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 	public boolean isTypeCompatible(Symbol symbol) {
 		Type sType = symbol.getType();
 		
+		if (sType.getName().equals("null")) {
+			return true;
+		}
+		
 		if (!(sType instanceof ClassSymbol || sType instanceof InterfaceSymbol)) {
 			return false;
 		}

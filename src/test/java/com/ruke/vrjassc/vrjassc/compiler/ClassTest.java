@@ -7,6 +7,26 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
+	
+	@Test
+	public void nullShouldTranslateToZero() {
+		String code =
+			"struct object\n"
+			+ "endstruct\n"
+			+ "function foo\n"
+				+ "local object bar = null\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n" +
+				"hashtable vrjass_structs=InitHashtable()\n" +
+			"endglobals\n" +
+			"function foo takes nothing returns nothing\n"
+				+ "local integer bar=0\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
 		
 	@Test
 	public void types() {

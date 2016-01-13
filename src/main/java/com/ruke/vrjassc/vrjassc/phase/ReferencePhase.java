@@ -18,11 +18,11 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitWhenStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionSignatureContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
@@ -35,6 +35,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PlusContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
@@ -107,11 +108,6 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {
-		return this.symbols.get(ctx);
-	}
-	
-	@Override
 	public Symbol visitLibraryDefinition(LibraryDefinitionContext ctx) {
 		LibrarySymbol library = (LibrarySymbol) this.symbols.get(ctx);
 		
@@ -160,34 +156,6 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.scopes.pop();
 		
 		return _interface;
-	}
-	
-	@Override
-	public Symbol visitInterfaceStatement(InterfaceStatementContext ctx) {
-		FunctionSymbol function = (FunctionSymbol) this.symbols.get(ctx);
-		
-		this.scopes.push(function);
-		
-		super.visitInterfaceStatement(ctx);
-		
-		if (ctx.expression() != null) {
-			Symbol _return = this.visit(ctx.expression());
-			Token token = ctx.expression().getStart();
-			
-			if (!this.validator.mustBeValidType(_return, token)) {
-				throw this.validator.getException();
-			}
-			
-			if (!this.validator.mustHaveAccess(function, _return, token)) {
-				throw this.validator.getException();
-			}
-			
-			function.setType((Type) _return);
-		}
-		
-		this.scopes.pop();
-		
-		return function;
 	}
 	
 	@Override
@@ -244,32 +212,54 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		return _class;
 	}
-		
+	
 	@Override
-	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
+	public Symbol visitReturnType(ReturnTypeContext ctx) {
+		Symbol type = null;
+		
+		if (ctx.expression() != null) {
+			type = this.visit(ctx.expression());
+			Token token = ctx.expression().getStart();
+			
+			if (!this.validator.mustBeValidType(type, token)) {
+				throw this.validator.getException();
+			}
+		}
+		
+		return type;
+	}
+	
+	@Override
+	public Symbol visitFunctionSignature(FunctionSignatureContext ctx) {
 		FunctionSymbol function = (FunctionSymbol) this.symbols.get(ctx);
 		
 		this.scopes.push(function);
 		this.enclosingScopes.push(function);
 		
-		if (ctx.returnType() != null && ctx.returnType().validType() != null) {
-			Symbol _return = this.visit(ctx.returnType());
-			Token token = ctx.returnType().getStart();
-			
-			if (!this.validator.mustBeValidType(_return, token)) {
-				throw this.validator.getException();
-			}
-			
-			function.setType((Type) _return);
-			
-			if (!this.validator.mustReturn(function, ctx.statement())) {
-				throw this.validator.getException();
-			}
+		if (ctx.returnType() != null) {
+			function.setType((Type) this.visit(ctx.returnType()));
 		}
 		
 		if (ctx.parameters() != null) {
 			this.visit(ctx.parameters());
 		}
+		
+		this.scopes.pop();
+		this.enclosingScopes.pop();
+		
+		return function;
+	}
+	
+	@Override
+	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
+		FunctionSymbol function = (FunctionSymbol) this.visit(ctx.functionSignature());
+		
+		if (!this.validator.mustReturn(function, ctx.statement())) {
+			throw this.validator.getException();
+		}
+		
+		this.scopes.push(function);
+		this.enclosingScopes.push(function);
 		
 		if (this.definingSymbolTypes) {
 			this.functionDefinitions.push(ctx);

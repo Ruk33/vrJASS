@@ -280,6 +280,10 @@ public class Validator {
 	public boolean mustReturn(Symbol function, List<StatementContext> statements) {
 		this.validated = function;
 		
+		if (function.getType() == null) {
+			return true;
+		}
+		
 		for (StatementContext stat : statements) {
 			if (stat.returnStatement() != null) {
 				return true;

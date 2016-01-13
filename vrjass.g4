@@ -47,7 +47,7 @@ typeDefinition:
 	TYPE validName (EXTENDS validType)? NL;
 
 nativeDefinition: 
-	CONSTANT? NATIVE validName TAKES parameters RETURNS returnType NL;
+	functionSignature NL;
 
 /* 
  * ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ nativeDefinition:
  * ---------------------------------------------------------------------------
  */	
 globalVariableStatement: 
-	(PRIVATE|PUBLIC)? CONSTANT? variableDeclaration NL;
+	(PRIVATE | PUBLIC)? CONSTANT? variableDeclaration NL;
 
 globalStatements: 
 	(NL | globalVariableStatement)*;
@@ -96,12 +96,9 @@ libraryDefinition:
  * Interfaces
  * ---------------------------------------------------------------------------
  */
- interfaceStatement:
-	(PRIVATE|PUBLIC)? STATIC? METHOD validName TAKES parameters RETURNS expression NL;
-
 interfaceDefinition:
-	(PRIVATE|PUBLIC)? INTERFACE validName NL
-		(NL | interfaceStatement)*
+	(PRIVATE | PUBLIC)? INTERFACE validName NL
+		(NL | functionSignature)*
 	(ENDINTERFACE | END) NL
 	;
 
@@ -112,11 +109,10 @@ interfaceDefinition:
  * ---------------------------------------------------------------------------
  */
 propertyStatement:
-	(PRIVATE|PUBLIC)? STATIC? variableDeclaration NL;
+	(PRIVATE | PUBLIC)? STATIC? variableDeclaration NL;
 
 structStatement:
-	NL
-	|propertyStatement
+	propertyStatement
 	|functionDefinition
 	;
 
@@ -124,7 +120,7 @@ implementsList: validName (COMMA validName)*;
 
 structDefinition:
 	(PRIVATE|PUBLIC)? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
-		structStatement*
+		(NL | structStatement)*
 	(ENDSTRUCT | END) NL
 	;
 
@@ -135,7 +131,7 @@ structDefinition:
  * ---------------------------------------------------------------------------
  */
 returnType: 
-	validType | NOTHING;
+	expression | NOTHING;
 
 parameter: 
 	variableDeclaration;
@@ -148,8 +144,11 @@ parameters:
 arguments: 
 	expression (COMMA expression)*;
 
+functionSignature: 
+	(PRIVATE | PUBLIC)? CONSTANT? NATIVE? STATIC? (FUNCTION | METHOD)? name=validName (TAKES parameters)? (RETURNS returnType)?;
+
 functionDefinition: 
-	(PRIVATE|PUBLIC)? CONSTANT? STATIC? (FUNCTION | METHOD) validName (TAKES parameters)? (RETURNS returnType)? NL
+	functionSignature NL
 		statement*
 	(ENDFUNCTION | ENDMETHOD | END) NL
 	;
