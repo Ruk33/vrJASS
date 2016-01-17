@@ -42,6 +42,8 @@ import com.ruke.vrjassc.vrjassc.symbol.Type;
  * @author Ruke
  */
 public class Validator {
+	
+	public Scope scope;
 
 	private CompileException exception;
 	
@@ -135,7 +137,11 @@ public class Validator {
 	 * @return
 	 */
 	public boolean mustNotBeDefined(Scope scope, String name, Token token) {
-		this.validated = scope.resolve(scope, name);
+		if (VariableTypeDetector.isJassType(name)) {
+			this.validated = this.scope.resolve(name);
+		} else {
+			this.validated = scope.resolve(name);
+		}
 		
 		if (this.validated != null) {
 			this.exception = new AlreadyDefinedException(token, this.validated);
@@ -153,7 +159,11 @@ public class Validator {
 	 * @return
 	 */
 	public boolean mustBeDefined(Scope scope, String name, Token token) {
-		this.validated = scope.resolve(name);
+		if (VariableTypeDetector.isJassType(name)) {
+			this.validated = this.scope.resolve(name);
+		} else {
+			this.validated = scope.resolve(name);
+		}
 		
 		if (this.validated == null) {
 			this.exception = new UndefinedSymbolException(token, name);

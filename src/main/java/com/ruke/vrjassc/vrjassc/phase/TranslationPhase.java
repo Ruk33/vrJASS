@@ -109,18 +109,18 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		this.initializerHandler = new InitializerHandler();
 		
 		InitializerList initList = new InitializerList(this.initializerHandler);
-		Expression e;
+		Expression e = null;
 		
 		for (TopDeclarationContext stat : ctx.topDeclaration()) {
 			e = this.visit(stat);
 			
 			if (e != null) {
-				if (e.getSymbol().getName().equals("main")) {
-					((StatementBody) e).add(initList);
-				}
-				
 				this.container.add((Statement) e);
 			}
+		}
+		
+		if (e != null && e.getSymbol().getName().equals("main")) {
+			((StatementBody) e).add(initList);
 		}
 		
 		if (this.classEnum > 0) {

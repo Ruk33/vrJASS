@@ -1,7 +1,5 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
-import java.util.Stack;
-
 import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
@@ -40,16 +38,12 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	private Validator validator;
 	
 	private ScopeSymbol scope;
-	
-	private Stack<ScopeSymbol> scopes;
 		
 	public DefinitionPhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
 		this.validator = new Validator();
 		this.scope = scope;
-		this.scopes = new Stack<ScopeSymbol>();
-		
-		this.scopes.push(this.scope);
+		this.validator.scope = scope;
 	}
 		
 	private void defineOrThrowAlreadyDefinedException(Scope scope, Symbol child) {
@@ -68,16 +62,14 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitTypeDefinition(TypeDefinitionContext ctx) {
-		Scope scope = this.scopes.peek();
-		
+	public Symbol visitTypeDefinition(TypeDefinitionContext ctx) {		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		Symbol type = new BuiltInTypeSymbol(name, scope, token);	
+		Symbol type = new BuiltInTypeSymbol(name, this.scope, token);	
 		
 		this.symbols.put(ctx, type);
-		scope.define(type);
+		this.scope.define(type);
 		
 		return type;
 	}
@@ -89,13 +81,15 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 
 		LibrarySymbol library = new LibrarySymbol(name, null, token);
 		
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), library);
-		this.scopes.push(library);
+		this.defineOrThrowAlreadyDefinedException(this.scope, library);
+		
+		ScopeSymbol prev = this.scope;
+		this.scope = library;
 		
 		super.visitLibraryDefinition(ctx);
 
 		this.symbols.put(ctx, library);
-		this.scopes.pop();
+		this.scope = prev;
 		
 		return library;
 	}
@@ -108,34 +102,36 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		InterfaceSymbol _interface = new InterfaceSymbol(name, null, token);
 		_interface.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), _interface);
-		this.scopes.push(_interface);
+		this.defineOrThrowAlreadyDefinedException(this.scope, _interface);
+		
+		ScopeSymbol prev = this.scope;
+		this.scope = _interface;
 		
 		super.visitInterfaceDefinition(ctx);
 		
 		this.symbols.put(ctx, _interface);
-		this.scopes.pop();
+		this.scope = prev;
 		
 		return _interface;
 	}
 		
 	@Override
-	public Symbol visitStructDefinition(StructDefinitionContext ctx) {
-		Scope scope = this.scopes.peek();
-		
+	public Symbol visitStructDefinition(StructDefinitionContext ctx) {		
 		String name = ctx.name.getText();
 		Token token = ctx.name.getStart();
 		
 		ClassSymbol _class = new ClassSymbol(name, null, token);
 		_class.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
-		this.defineOrThrowAlreadyDefinedException(scope, _class);
-		this.scopes.push(_class);
+		this.defineOrThrowAlreadyDefinedException(this.scope, _class);
+		
+		ScopeSymbol prev = this.scope;
+		this.scope = _class;
 		
 		super.visitStructDefinition(ctx);
 		
 		this.symbols.put(ctx, _class);
-		this.scopes.pop();
+		this.scope = prev;
 		
 		return _class;
 	}
@@ -145,7 +141,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		Symbol parameter = this.visit(ctx.variableDeclaration());
 		parameter.setModifier(Modifier.LOCAL, true);
 		
-		((FunctionSymbol) this.scopes.peek()).defineParam(parameter);
+		((FunctionSymbol) this.scope).defineParam(parameter);
 		
 		return parameter;
 	}
@@ -155,9 +151,9 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		Symbol type = null;
 		
 		if (ctx.expression() != null) {
-			type = this.scopes.peek().resolve(ctx.expression().getText());
+			type = this.scope.resolve(ctx.expression().getText());
 			if (type instanceof Type) {
-				this.scopes.peek().setType((Type) type);
+				this.scope.setType((Type) type);
 			}
 		}
 		
@@ -165,9 +161,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitFunctionSignature(FunctionSignatureContext ctx) {
-		Scope scope = this.scopes.peek();
-		
+	public Symbol visitFunctionSignature(FunctionSignatureContext ctx) {		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
@@ -175,14 +169,16 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
-		if (scope instanceof ClassSymbol) {
+		if (this.scope instanceof ClassSymbol) {
 			function.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		} else {
 			function.setModifier(Modifier.STATIC, true);
 		}
 		
-		this.defineOrThrowAlreadyDefinedException(scope, function);
-		this.scopes.push(function);
+		this.defineOrThrowAlreadyDefinedException(this.scope, function);
+		
+		ScopeSymbol prev = this.scope;
+		this.scope = function;
 		
 		if (ctx.parameters() != null) {
 			this.visit(ctx.parameters());
@@ -202,7 +198,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		}
 		
 		this.symbols.put(ctx, function);
-		this.scopes.pop();
+		this.scope = prev;
 		
 		return function;
 	}
@@ -212,28 +208,28 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		FunctionSymbol function = (FunctionSymbol) this.visit(ctx.functionSignature());
 		
 		this.symbols.put(ctx, function);
-		this.scopes.push(function);
+		
+		ScopeSymbol prev = this.scope;
+		this.scope = function;
 		
 		for (StatementContext stat : ctx.statement()) {
 			this.visit(stat);
 		}
 		
-		this.scopes.pop();
+		this.scope = prev;
 		
 		return function;
 	}
 	
 	@Override
 	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
-		Scope scope = this.scopes.peek();
-		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		Symbol variable = new VariableSymbol(name, scope, token);
+		Symbol variable = new VariableSymbol(name, this.scope, token);
 		variable.setModifier(Modifier.ARRAY, ctx.ARRAY() != null);
 		
-		Symbol type = scope.resolve(ctx.type.getText());
+		Symbol type = this.scope.resolve(ctx.type.getText());
 		
 		if (type instanceof Type) {
 			variable.setType((Type) type);
@@ -250,7 +246,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		variable.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
 		this.symbols.put(ctx, variable);
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), variable);
+		this.defineOrThrowAlreadyDefinedException(this.scope, variable);
 		
 		return variable;
 	}
@@ -263,7 +259,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		variable.setModifier(Modifier.PRIVATE, true);
 		
 		this.symbols.put(ctx, variable);
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), variable);
+		this.defineOrThrowAlreadyDefinedException(this.scope, variable);
 		
 		return variable;
 	}
@@ -276,7 +272,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		property.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		
 		this.symbols.put(ctx, property);
-		this.defineOrThrowAlreadyDefinedException(this.scopes.peek(), property);
+		this.defineOrThrowAlreadyDefinedException(this.scope, property);
 		
 		return property;
 	}

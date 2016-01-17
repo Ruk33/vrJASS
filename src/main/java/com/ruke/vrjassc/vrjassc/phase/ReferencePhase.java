@@ -27,7 +27,6 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
@@ -88,6 +87,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.functionDefinitions = new Stack<ParserRuleContext>();
 		
 		this.scopes.push(this.scope);
+		this.validator.scope = scope;
 	}
 	
 	@Override
@@ -366,28 +366,28 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitComparison(ComparisonContext ctx) {
 		super.visitComparison(ctx);
-		return this.scope.resolve("boolean");
+		return this.scopes.get(0).resolve("boolean");
 	}
 	
 	@Override
 	public Symbol visitLogical(LogicalContext ctx) {
 		super.visitLogical(ctx);
-		return this.scope.resolve("boolean");
+		return this.scopes.get(0).resolve("boolean");
 	}
 	
 	@Override
 	public Symbol visitInteger(IntegerContext ctx) {
-		return this.scope.resolve("integer");
+		return this.scopes.get(0).resolve("integer");
 	}
 	
 	@Override
 	public Symbol visitReal(RealContext ctx) {
-		return this.scope.resolve("real");
+		return this.scopes.get(0).resolve("real");
 	}
 	
 	@Override
 	public Symbol visitString(StringContext ctx) {
-		return this.scope.resolve("string");
+		return this.scopes.get(0).resolve("string");
 	}
 	
 	@Override
@@ -398,17 +398,17 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitNot(NotContext ctx) {
 		this.visit(ctx.expression());
-		return this.scope.resolve("boolean");
+		return this.scopes.get(0).resolve("boolean");
 	}
 	
 	@Override
 	public Symbol visitBoolean(BooleanContext ctx) {
-		return this.scope.resolve("boolean");
+		return this.scopes.get(0).resolve("boolean");
 	}
 	
 	@Override
 	public Symbol visitNull(NullContext ctx) {
-		return this.scope.resolve("null");
+		return this.scopes.get(0).resolve("null");
 	}
 	
 	@Override
@@ -416,7 +416,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		if (!this.validator.mustBeValidCode(this.visit(ctx.expression()), ctx.getStart())) {
 			throw this.validator.getException();
 		}
-		return this.scope.resolve("code");
+		return this.scopes.get(0).resolve("code");
 	}
 	
 	@Override
