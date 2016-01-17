@@ -356,11 +356,11 @@ public class Validator {
 			if (resolved == null) {
 				continue;
 			}
-			
+
 			if (!this.mustBeFunction(resolved, resolved.getToken())) {
 				return false;
 			}
-			
+
 			argsMatch = this.mustMatchArguments(
 				(FunctionSymbol) method, 
 				((FunctionSymbol) resolved).getParams(), 

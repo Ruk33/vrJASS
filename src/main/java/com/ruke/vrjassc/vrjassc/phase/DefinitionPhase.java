@@ -114,7 +114,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		return _interface;
 	}
-		
+	
 	@Override
 	public Symbol visitStructDefinition(StructDefinitionContext ctx) {		
 		String name = ctx.name.getText();
