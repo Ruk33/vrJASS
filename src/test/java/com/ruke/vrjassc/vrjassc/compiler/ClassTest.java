@@ -2,12 +2,13 @@ package com.ruke.vrjassc.vrjassc.compiler;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
-	
+		
 	@Test
 	public void nullShouldTranslateToZero() {
 		String code =
@@ -161,7 +162,7 @@ public class ClassTest extends TestHelper {
 			+ "function struct_foo_baz takes integer this returns nothing\n"
 			+ "endfunction\n"
 			+ "function struct_foo_bar_e takes integer this returns nothing\n"
-			+ "endfunction\n"
+			+ "endfunction\n"			
 			+ "function struct_foo_bar_n takes integer this returns nothing\n"
 				+ "call struct_foo_baz(this)\n"
 				+ "call struct_foo_bar_e(this)\n"

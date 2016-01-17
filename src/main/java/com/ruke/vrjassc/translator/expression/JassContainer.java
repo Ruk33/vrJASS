@@ -1,6 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -10,15 +11,13 @@ import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
 
 public class JassContainer extends StatementList {
 
-	protected Map<Symbol, Integer> pos = new HashMap<Symbol, Integer>();
+	protected HashMap<Symbol, Statement> symbolStatement = new HashMap<Symbol, Statement>();
 	protected Map<Symbol, MutualRecursion> recursion = new HashMap<Symbol, MutualRecursion>();
 	protected StatementList globals = new StatementList();
-	
+		
 	@Override
 	public void add(Statement e) {
-		e.setParent(this);
-		
-		this.pos.put(e.getSymbol(), this.statements.size());
+		this.symbolStatement.put(e.getSymbol(), e);
 		super.add(e);
 	}
 	
@@ -26,51 +25,53 @@ public class JassContainer extends StatementList {
 		this.globals.add(e);
 	}
 
+	/*
+	 * All credits to 
+	 * 	http://www.electricmonk.nl/log/2008/08/07/dependency-resolving-algorithm/
+	 * 	muZk
+	 * Thanks!
+	 */
+	protected void doMagic(Statement statement, LinkedList<Statement> sorted, HashSet<Statement> seen) {
+		if (statement == null) return;
+		
+		Symbol function = statement.getSymbol();
+		Statement dstat;
+
+		seen.add(statement);
+		
+		for (Symbol dependency : statement.getUsedFunctions()) {
+			if (dependency == function) continue;
+			
+			dstat = this.symbolStatement.get(dependency);
+			
+			if (dstat == null) continue;
+			
+			if (!sorted.contains(dstat)) {
+				if (seen.contains(dstat)) {
+					this.createMutualRecursion(function);
+					return;
+				}
+
+				this.doMagic(dstat, sorted, seen);
+			}
+		}
+		
+		if (!sorted.contains(statement)) sorted.add(statement);
+	}
+	
+	
 	protected LinkedList<Statement> sortFunctions() {
 		LinkedList<Statement> sorted = new LinkedList<Statement>();
-		FunctionDefinition def;
-		Statement funDef;
-		int index;
+		HashSet<Statement> seen = new HashSet<Statement>();
 		
-		sorted.addAll(this.getStatements());
-
-		for (Statement statement : this.statements) {
-			if (statement instanceof FunctionDefinition == false) {
-				continue;
-			}
-			
-			def = (FunctionDefinition) statement;
-			index = this.pos.get(def.getSymbol());
-			
-			for (Symbol fun : def.getUsedFunctions()) {
-				if (!this.pos.containsKey(fun)) {
-					continue;
-				}
-				
-				if (index < this.pos.get(fun)) {
-					funDef = this.statements.get(this.pos.get(fun));
-					
-					if (def.hasMutualRecursionWith(funDef)) {
-						this.createMutualRecursion(fun);
-					} else {
-						index = this.pos.get(fun);
-					}
-				}
-			}
-			
-			if (index != this.pos.get(def.getSymbol())) {
-				sorted.remove(def);
-				sorted.add(index, def);
-				
-				this.pos.put(def.getSymbol(), index);
-			}
+		for (Statement statement : this.getStatements()) {
+			this.doMagic(statement, sorted, seen);
 		}
 		
 		return sorted;
 	}
 	
-	protected void sort() {
-		this.statements = this.sortFunctions();
+	protected void sort() {		
 		this.statements = this.sortFunctions();
 		
 		GlobalStatement allGlobals = new GlobalStatement();

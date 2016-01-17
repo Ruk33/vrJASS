@@ -14,8 +14,12 @@ import com.ruke.vrjassc.translator.expression.Statement;
 import com.ruke.vrjassc.translator.expression.StatementList;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
 import com.ruke.vrjassc.translator.expression.VariableStatement;
+import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 
 public class MutualRecursion {
 
@@ -30,13 +34,23 @@ public class MutualRecursion {
 	protected FunctionDefinition dummyDefinition;
 	protected FunctionDefinition dummyNoArgsDefinition;
 	
+	protected Stack<Symbol> getParams() {
+		Stack<Symbol> params = this.function.getParams();
+		
+		if (this.function.getEnclosingScope() instanceof ClassSymbol) 
+			if (!this.function.hasModifier(Modifier.STATIC) && !params.contains(this.function.resolve("this")))
+				params.add(0, this.function.resolve("this"));
+		
+		return params;
+	}
+	
 	protected void defineGlobals() {
 		Symbol variable;
 		
 		this.globals = new StatementList();
 		this.globalArgs = new Stack<Symbol>();
 		
-		for (Symbol param : this.function.getParams()) {
+		for (Symbol param : this.getParams()) {
 			variable = new Symbol(this.getGlobalVariableName(param), null, null);
 			variable.setType(param.getType());
 			
@@ -57,9 +71,10 @@ public class MutualRecursion {
 	
 	protected void defineDummyFunction() {
 		FunctionSymbol function = new FunctionSymbol(this.getPrefix(), null, null);
+		Stack<Symbol> params = this.getParams();
 		
 		function.setType(this.function.getType());
-		function.defineParam(this.function.getParams());
+		function.defineParam(params);
 		
 		this.dummyDefinition = new FunctionDefinition(function);
 		

@@ -26,11 +26,7 @@ public class FunctionDefinition extends StatementBody {
 			
 			this.expressions.clear();
 			
-			if (this.function.getParentScope() instanceof ClassSymbol) {
-				if (!this.function.hasModifier(Modifier.STATIC)) {
-					this.add(new RawExpression("integer this"));
-				}
-			}
+			boolean thisAdded = false;
 			
 			for (Symbol param : this.function.getParams()) {
 				type = param.getType().getName();
@@ -40,6 +36,14 @@ public class FunctionDefinition extends StatementBody {
 				}
 				
 				this.add(new RawExpression(type + " " + param.getName()));
+				
+				if (param.getName().equals("this")) thisAdded = true;
+			}
+			
+			if (this.function.getParentScope() instanceof ClassSymbol) {
+				if (!this.function.hasModifier(Modifier.STATIC) && !thisAdded) {
+					this.getList().add(0, new RawExpression("integer this"));
+				}
 			}
 			
 			if (this.expressions.isEmpty()) {
