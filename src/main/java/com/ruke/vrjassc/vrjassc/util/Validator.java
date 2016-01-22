@@ -194,7 +194,7 @@ public class Validator {
 			return false;
 		}
 		
-		if (!a.isTypeCompatible(b)) {
+		if (!a.isTypeCompatible(b) && !b.isTypeCompatible(a)) {
 			this.exception = new IncompatibleTypeException(token, a, b.getType());
 			return false;
 		}

@@ -17,9 +17,26 @@ import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
+		
+	@Test
+	public void inheritanceTypeCheckCorrectly() {
+		this.expectedEx.none();
+		this.run(
+			"struct foo\n"
+				+ "public static method bar takes foo f\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct bar extends foo\n"
+			+ "endstruct\n"
+			+ "function lorem\n"
+				+ "call foo.bar(0 cast bar)\n"
+			+ "endfunction"
+		);
+	}
 	
 	@Test
 	public void interfaceUsesNamespaceInReturn() {
+		this.expectedEx.none();
 		this.run(
 			"interface foo\n"
 				+ "method bar takes nothing returns lorem.ipsum\n"
