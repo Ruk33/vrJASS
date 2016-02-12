@@ -536,7 +536,12 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		}
 		
 		Symbol global = new VariableSymbol(symbol.getName(), symbol.getParentScope(), null);
-		global.setType((Type) this.scope.resolve("integer"));
+		
+		if (symbol.hasModifier(Modifier.STATIC)) {
+			global = symbol;
+		} else {
+			global.setType((Type) this.scope.resolve("integer"));
+		}
 		
 		this.container.addGlobal(new VariableStatement(global, value));
 		

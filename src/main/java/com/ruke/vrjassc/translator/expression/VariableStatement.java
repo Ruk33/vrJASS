@@ -1,5 +1,6 @@
 package com.ruke.vrjassc.translator.expression;
 
+import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
@@ -18,8 +19,8 @@ public class VariableStatement extends Statement {
 			value.getSymbol() != null && 
 			value.getSymbol().getName().equals("null");
 		
-		if (valueIsNull) {
-			if (variable.getType() != null) {
+		if (valueIsNull) {			
+			if (!variable.hasModifier(Modifier.ARRAY) && variable.getType() != null) {
 				value = new DefaultValue(variable.getType());
 			}
 		}
@@ -44,7 +45,19 @@ public class VariableStatement extends Statement {
 			type = "integer";
 		}
 		
-		String result = type + " " + name;
+		String result = type + " ";
+		
+		if (this.variable.hasModifier(Modifier.ARRAY)) {
+			boolean trueArray = 
+				this.variable.hasModifier(Modifier.LOCAL) || 
+				this.variable.hasModifier(Modifier.STATIC);
+			
+			if (trueArray) {
+				result += "array ";
+			}
+		}
+		
+		result += name;
 		
 		if (this.variable.hasModifier(Modifier.LOCAL)) {
 			result = "local " + result;

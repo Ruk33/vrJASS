@@ -10,20 +10,54 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 		
 	@Test
+	public void staticPropertyArray() {
+		String code =
+			"struct foo\n"
+				+ "static real array bar\n"
+				+ "static foo array f\n"
+				+ "static method lorem\n"
+					+ "set foo.bar[2]=2\n"
+					+ "set foo.f[1] = foo.f[2]\n"
+				+ "endmethod\n"
+			+ "endstruct\n";
+		
+		String expected =
+			"globals\n"+
+			"real array struct_foo_bar\n"+
+			"integer array struct_foo_f\n"+
+			"hashtable vrjass_structs=InitHashtable()\n"+
+			"endglobals\n"+
+			"function struct_foo_lorem takes nothing returns nothing\n"+
+			"set struct_foo_bar[2]=2\n"+
+			"set struct_foo_f[1]=struct_foo_f[2]\n"+
+			"endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void nullShouldTranslateToZero() {
 		String code =
 			"struct object\n"
+				+ "public object e\n"
 			+ "endstruct\n"
 			+ "function foo\n"
 				+ "local object bar = null\n"
+				+ "if (bar==null or null==bar) then\n"
+				+ "endif\n"
+				+ "set bar.e=null\n"
 			+ "endfunction";
 		
 		String expected =
 			"globals\n" +
+				"integer struct_object_e=1\n" +
 				"hashtable vrjass_structs=InitHashtable()\n" +
 			"endglobals\n" +
 			"function foo takes nothing returns nothing\n"
 				+ "local integer bar=0\n"
+				+ "if (bar==0 or 0==bar) then\n"
+				+ "endif\n"
+				+ "call SaveInteger(vrjass_structs,bar,struct_object_e,0)\n"
 			+ "endfunction";
 		
 		assertEquals(expected, this.run(code));
@@ -247,21 +281,30 @@ public class ClassTest extends TestHelper {
 	@Test
 	public void onInit() {
 		String code =
-			"struct foo\n"
-				+ "static method onInit takes nothing returns nothing\n"
+			"struct bar\n"
+				+ "static method onInit\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct foo extends bar\n"
+				+ "static method onInit\n"
 				+ "endmethod\n"
 			+ "endstruct\n"
 			+ "function main takes nothing returns nothing\n"
+				+ "call main()\n"
 			+ "endfunction";
 		
 		String expected =
 			"globals\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
 			+ "endglobals\n"
-			+ "function struct_foo_onInit takes nothing returns nothing\n"
+			+ "function struct_bar_onInit takes nothing returns nothing\n"
+			+ "endfunction\n"
+			+ "function struct_bar_foo_onInit takes nothing returns nothing\n"
 			+ "endfunction\n"
 			+ "function main takes nothing returns nothing\n"
-				+ "call ExecuteFunc(\"struct_foo_onInit\")\n"
+				+ "call main()\n"
+				+ "call ExecuteFunc(\"struct_bar_onInit\")\n"
+				+ "call ExecuteFunc(\"struct_bar_foo_onInit\")\n"
 			+ "endfunction";
 		
 		assertEquals(expected, this.run(code));

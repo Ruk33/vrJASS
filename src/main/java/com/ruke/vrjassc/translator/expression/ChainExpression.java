@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 
 public class ChainExpression extends Expression {
@@ -63,7 +64,13 @@ public class ChainExpression extends Expression {
 			return result;
 		} else {
 			if (this.value != null) {
-				this.chainTranslator.setValue(this.value.translate());
+				String val = this.value.translate();
+				
+				if (val.equals("null") && last.getSymbol().getType() instanceof UserTypeSymbol) {
+					val = "0";
+				}
+				
+				this.chainTranslator.setValue(val);
 			}
 		}
 		

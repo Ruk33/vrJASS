@@ -39,7 +39,11 @@ public class ChainExpressionTranslator {
 				return this.key;
 			}
 			
-			return String.format("%s*8191-IMinBJ(%s,8191)", this.key, this.getIndex());
+			if (this.symbol.hasModifier(Modifier.STATIC)) {
+				return this.key + "[" + this.index + "]";
+			}
+			
+			return String.format("%s*8191-IMinBJ(%s,8191)", this.key, this.index);
 		}
 		
 		public boolean isSpecial() {

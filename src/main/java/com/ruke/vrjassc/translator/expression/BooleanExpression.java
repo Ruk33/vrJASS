@@ -1,6 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
-import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
+import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
 
 public class BooleanExpression extends Expression {
 
@@ -21,7 +22,7 @@ public class BooleanExpression extends Expression {
 		this.a = a;
 		this.operator = operator;
 		this.b = b;
-		
+				
 		this.a.setParent(this);
 		
 		if (this.b != null) {
@@ -35,6 +36,13 @@ public class BooleanExpression extends Expression {
 
 	@Override
 	public String translate() {
+		Type atype = null;
+		Type btype = null;
+		
+		if (this.a.getSymbol() != null) {
+			atype = this.a.getSymbol().getType();
+		}
+		
 		if (this.b == null) {
 			boolean aIsTrue = this.a.translate().equals("true");
 			boolean aIsFalse = this.a.translate().equals("false");
@@ -42,20 +50,35 @@ public class BooleanExpression extends Expression {
 			if (aIsTrue || aIsFalse) {
 				return this.a.translate();
 			}
-			
-			if (this.a.getSymbol() != null) {
-				String type = this.a.getSymbol().getType().getName();
-				
-				if (VariableTypeDetector.isHandle(type)) {
-					return this.a.translate() + "!=null";
-				} else if (type.equals("string")) {
+		
+			if (atype != null) {
+				if (atype.getName().equals("string")) {
 					return "StringLength(" + this.a.translate() + ")!=0";
-				} else if (type.equals("integer")) {
-					return this.a.translate() + "!=0";
+				} else {
+					return 
+						this.a.translate() + 
+						"!=" + 
+						new DefaultValue(atype).translate();
 				}
 			}
 			
 			return this.a.translate();
+		} else {
+			if (this.b.getSymbol() != null) {
+				btype = this.b.getSymbol().getType();
+			}
+		}
+		
+		if (atype instanceof UserTypeSymbol) {
+			if (this.b.translate().equals("null")) {
+				return this.a.translate() + this.operator + "0";
+			}
+		}
+		
+		if (btype instanceof UserTypeSymbol) {
+			if (this.a.translate().equals("null")) {
+				return "0" + this.operator + this.b.translate();
+			}
 		}
 		
 		return this.a.translate() + this.operator + this.b.translate();
