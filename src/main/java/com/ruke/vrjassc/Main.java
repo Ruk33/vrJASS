@@ -77,6 +77,7 @@ public class Main {
 					
 					editor.close();
 				}
+				toCompile.add("\n");
 			} catch (IOException io) {
 				error = true;
 				logWriter.write(io.getMessage());

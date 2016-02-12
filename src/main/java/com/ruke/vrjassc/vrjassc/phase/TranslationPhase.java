@@ -116,11 +116,11 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			
 			if (e != null) {
 				this.container.add((Statement) e);
+				
+				if (e.getSymbol().getName().equals("main")) {
+					((StatementBody) e).add(initList);
+				}
 			}
-		}
-		
-		if (e != null && e.getSymbol().getName().equals("main")) {
-			((StatementBody) e).add(initList);
 		}
 		
 		if (this.classEnum > 0) {
