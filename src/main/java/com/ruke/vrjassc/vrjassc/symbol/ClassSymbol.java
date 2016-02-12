@@ -5,25 +5,25 @@ import java.util.Collection;
 
 import org.antlr.v4.runtime.Token;
 
-public class ClassSymbol extends ScopeSymbol implements Type, InitializerContainer {
+public class ClassSymbol extends UserTypeSymbol implements InitializerContainer {
 
 	private ClassSymbol _super;
+	private ArrayList<InterfaceSymbol> interfaces = new ArrayList<InterfaceSymbol>();
 	protected Symbol onInit;
 	
 	public ClassSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
 		this.setModifier(Modifier.MEMBER, true);
 	}
-
-	@Override
-	public Type getType() {
-		return this;
-	}
 	
 	@Override
 	public Symbol define(Symbol symbol) {
 		if (symbol.getName().equals("onInit")) {
 			this.setInitializer(symbol);
+		}
+		
+		if (symbol instanceof InterfaceSymbol) {
+			this.interfaces.add((InterfaceSymbol) symbol);
 		}
 		
 		return super.define(symbol);
@@ -101,18 +101,14 @@ public class ClassSymbol extends ScopeSymbol implements Type, InitializerContain
 	
 	@Override
 	public boolean isTypeCompatible(Symbol symbol) {
-		Type sType = symbol.getType();
-		
-		if (sType.getName().equals("null")) {
+		if (super.isTypeCompatible(symbol)) {
 			return true;
 		}
 		
-		if (!(sType instanceof ClassSymbol || sType instanceof InterfaceSymbol)) {
-			return false;
-		}
-		
-		if (this.getName().equals(sType.getName())) {
-			return true;
+		for (InterfaceSymbol _interface : this.interfaces) {
+			if (_interface.isTypeCompatible(symbol)) {
+				return true;
+			}
 		}
 		
 		if (this.getSuper() != null) {

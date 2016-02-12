@@ -2,14 +2,12 @@ package com.ruke.vrjassc.vrjassc.symbol;
 
 import org.antlr.v4.runtime.Token;
 
-import com.ruke.vrjassc.vrjassc.util.TypeCompatibleChecker;
+public abstract class UserTypeSymbol extends ScopeSymbol implements Type {
 
-public class BuiltInTypeSymbol extends Symbol implements Type {
-
-	public BuiltInTypeSymbol(String name, Scope scope, Token token) {
+	public UserTypeSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
 	}
-	
+
 	@Override
 	public Type getType() {
 		return this;
@@ -20,10 +18,15 @@ public class BuiltInTypeSymbol extends Symbol implements Type {
 		if (symbol == null) return false;
 		if (symbol.getType() == null) return false;
 		
-		return TypeCompatibleChecker.isCompatible(
-			symbol.getType().getName(), 
-			this.getName()
-		);
+		if ("null".equals(symbol.getType().getName())) {
+			return true;
+		}
+		
+		if (this.getName().equals(symbol.getType().getName())) {
+			return true;
+		}
+		
+		return false;
 	}
 
 }

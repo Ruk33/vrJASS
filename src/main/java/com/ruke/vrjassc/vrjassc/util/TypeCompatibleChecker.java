@@ -21,8 +21,7 @@ public class TypeCompatibleChecker {
 
 		if (b.equals("null")) {
 			// strings, code and handles can be null
-			if (a.equals("string") || a.equals("code")
-					|| VariableTypeDetector.isHandle(a)) {
+			if (a.equals("string") || a.equals("code") || VariableTypeDetector.isHandle(a)) {
 				return true;
 			}
 		}

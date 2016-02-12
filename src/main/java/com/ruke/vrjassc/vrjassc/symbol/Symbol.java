@@ -68,7 +68,6 @@ public class Symbol {
 	 * @return
 	 */
 	public boolean isTypeCompatible(Symbol symbol) {
-		if (this.getType() == null || symbol.getType() == null) return false;
 		return this.getType().isTypeCompatible(symbol);
 	}
 
