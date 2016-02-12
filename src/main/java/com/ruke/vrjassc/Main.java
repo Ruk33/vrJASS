@@ -37,7 +37,7 @@ public class Main {
 		File tmpFile;
 		
 		Collection<String> files = new ArrayList<String>();
-		String toCompile = "";
+		ArrayList<String> toCompile = new ArrayList<String>();
 		String resultPath = "compiled-vrjass.j";
 		String logPath = "log-vrjass.txt";
 		boolean error = false;
@@ -66,14 +66,14 @@ public class Main {
 		for (String file : files) {
 			try {
 				if (file.endsWith(".j")) {
-					toCompile += String.join("\n", Files.readAllLines(Paths.get(file))) + "\n";
+					toCompile.addAll(Files.readAllLines(Paths.get(file)));
 				} else {
 					editor = new JmpqEditor(new File(file));
 					
 					tmpFile = File.createTempFile("vrjass-temp", null);
 					editor.extractFile("war3map.j", tmpFile);
 					
-					toCompile += String.join("\n", Files.readAllLines(tmpFile.toPath())) + "\n";
+					toCompile.addAll(Files.readAllLines(tmpFile.toPath()));
 					
 					editor.close();
 				}
@@ -87,7 +87,7 @@ public class Main {
 			tmpFile = File.createTempFile("vrjass-compiled", null);
 			writer = new PrintWriter(tmpFile, "UTF-8");
 			
-			writer.write(compile.run(toCompile));
+			writer.write(compile.run(String.join("\n", toCompile) + "\n"));
 			writer.close();
 			
 			if (resultPath.endsWith("w3x") || resultPath.endsWith("w3m")) {
@@ -99,7 +99,20 @@ public class Main {
 			}
 		} catch (CompileException ce) {
 			error = true;
-			logWriter.write(ce.getMessage());
+			logWriter.write(ce.getMessage()+System.lineSeparator());
+			
+			for (int i = Math.max(0, ce.getLine() - 10), max = Math.min(toCompile.size(), ce.getLine() + 10); i < max; i++) {
+				if (i == ce.getLine()) {
+					String s = System.lineSeparator();
+					for (int p = 0; p < ce.getCharPos(); p++) {
+						s+= "-";
+					}
+					s += "^";
+					logWriter.write(s);
+				}
+				
+				logWriter.write(System.lineSeparator() + toCompile.get(i).replace("\t", "    "));
+			}
 		} catch (JmpqError jmpqe) {
 			error = true;
 			logWriter.write(jmpqe.getMessage());
