@@ -178,6 +178,7 @@ public class FunctionTest extends TestHelper {
 		String expected =
 			"globals\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function struct_foo_equals takes integer this,integer e returns boolean\n"
 				+ "return this==e\n"
@@ -230,6 +231,7 @@ public class FunctionTest extends TestHelper {
 			"globals\n"
 				+ "handle f=null\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
 					+ "local integer a=0\n"

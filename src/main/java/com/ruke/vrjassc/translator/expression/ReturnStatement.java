@@ -1,5 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+
 public class ReturnStatement extends Statement {
 
 	protected Expression value;
@@ -19,6 +21,12 @@ public class ReturnStatement extends Statement {
 		}
 		
 		return "return";
+	}
+	
+	@Override
+	public Symbol getSymbol() {
+		if (this.value != null) return this.value.getSymbol();
+		return null;
 	}
 	
 }

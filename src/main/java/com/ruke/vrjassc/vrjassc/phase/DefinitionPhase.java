@@ -27,6 +27,7 @@ import com.ruke.vrjassc.vrjassc.symbol.Scope;
 import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 import com.ruke.vrjassc.vrjassc.util.Validator;
@@ -38,7 +39,9 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	private Validator validator;
 	
 	private ScopeSymbol scope;
-		
+	
+	private int classesCount;
+	
 	public DefinitionPhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
 		this.validator = new Validator();
@@ -99,7 +102,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		String name = ctx.validName().getText();
 		Token token = ctx.getStart();
 		
-		InterfaceSymbol _interface = new InterfaceSymbol(name, null, token);
+		InterfaceSymbol _interface = new InterfaceSymbol(name, 0, null, token);
 		_interface.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
 		this.defineOrThrowAlreadyDefinedException(this.scope, _interface);
@@ -120,7 +123,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		String name = ctx.name.getText();
 		Token token = ctx.name.getStart();
 		
-		ClassSymbol _class = new ClassSymbol(name, null, token);
+		ClassSymbol _class = new ClassSymbol(name, ++this.classesCount, null, token);
 		_class.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
 		this.defineOrThrowAlreadyDefinedException(this.scope, _class);
@@ -169,7 +172,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		
-		if (this.scope instanceof ClassSymbol) {
+		if (this.scope instanceof UserTypeSymbol) {
 			function.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		} else {
 			function.setModifier(Modifier.STATIC, true);
@@ -243,7 +246,9 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitGlobalVariableStatement(GlobalVariableStatementContext ctx) {
 		Symbol variable = this.visit(ctx.variableDeclaration());
+		
 		variable.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		variable.setModifier(Modifier.STATIC, true);
 		
 		this.symbols.put(ctx, variable);
 		this.defineOrThrowAlreadyDefinedException(this.scope, variable);

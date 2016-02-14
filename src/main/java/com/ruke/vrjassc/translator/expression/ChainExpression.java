@@ -2,7 +2,9 @@ package com.ruke.vrjassc.translator.expression;
 
 import java.util.LinkedList;
 
+import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
@@ -47,16 +49,53 @@ public class ChainExpression extends Expression {
 			this.expressions.removeLast();
 			
 			boolean isStatic = last.getSymbol().hasModifier(Modifier.STATIC);
+			boolean isInterface = last.getSymbol().getParentScope() instanceof InterfaceSymbol;
 			FunctionExpression func = ((FunctionExpression) last);
 			
 			if (!isStatic) {
+				if (isInterface) {
+					ChainExpression vtype = new ChainExpression();
+					vtype.setHashtableName(this.chainTranslator.getHashtableName());
+					
+					Expression lastInstance = null;
+					
+					for (Expression i : this.expressions) {
+						if (i.getSymbol().getType() instanceof UserTypeSymbol) {
+							lastInstance = i;
+						}
+					}
+					
+					vtype.append(lastInstance, null);
+					vtype.append(new RawExpression(Config.VTYPE_NAME), null);
+					
+					func.getArguments().getList().addFirst(vtype);
+				}
+				
 				func.getArguments().getList().addFirst(this);
+			} else if (last.getSymbol().getName().equals("allocate")) {
+				Expression lastInstance = null;
+				
+				for (Expression e : this.expressions) {
+					if (e.getSymbol() instanceof UserTypeSymbol) {
+						lastInstance = e;
+					}
+				}
+				
+				func.getArguments().getList().addFirst(
+					new RawExpression(
+						((UserTypeSymbol) lastInstance.getSymbol().getType()).getTypeId()
+					)
+				);
 			}
 			
 			String result = last.translate();
 			
 			if (!isStatic) {
 				func.getArguments().getList().removeFirst();
+				
+				if (isInterface) {
+					func.getArguments().getList().removeFirst();
+				}
 			}
 			
 			this.expressions.add(last);

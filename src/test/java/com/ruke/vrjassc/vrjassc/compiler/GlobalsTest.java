@@ -21,6 +21,7 @@ public class GlobalsTest extends TestHelper {
 			"globals\n"
 				+ "integer f=0\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals";
 		
 		assertEquals(expected, this.run(code));

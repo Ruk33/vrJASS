@@ -4,8 +4,15 @@ import org.antlr.v4.runtime.Token;
 
 public abstract class UserTypeSymbol extends ScopeSymbol implements Type {
 
-	public UserTypeSymbol(String name, Scope scope, Token token) {
+	protected int vtype;
+	
+	public UserTypeSymbol(String name, int vtype, Scope scope, Token token) {
 		super(name, scope, token);
+		this.vtype = vtype;
+	}
+	
+	public int getTypeId() {
+		return this.vtype;
 	}
 
 	@Override

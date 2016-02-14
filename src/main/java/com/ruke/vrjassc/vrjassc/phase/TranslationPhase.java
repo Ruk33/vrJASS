@@ -1,5 +1,6 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
+import com.ruke.vrjassc.translator.InterfaceMethodDefinition;
 import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
 import com.ruke.vrjassc.translator.expression.ChainExpression;
@@ -47,6 +48,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
@@ -75,6 +77,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.WhileLoopStatementContext;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
@@ -129,6 +132,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			
 			Statement structHashtable = new VariableStatement(symbol, new RawExpression("InitHashtable()", null));
 			this.container.addGlobal(structHashtable);
+			
+			Symbol vtype = new VariableSymbol("vtype", null, null);
+			vtype.setType(new BuiltInTypeSymbol("integer", null, null));
+			this.container.addGlobal(new VariableStatement(vtype, new RawExpression("-1")));
 		}
 
 		return this.container;
@@ -475,6 +482,24 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		}
 		
 		return new ReturnStatement(value);
+	}
+	
+	@Override
+	public Expression visitInterfaceDefinition(InterfaceDefinitionContext ctx) {
+		InterfaceSymbol _interface = (InterfaceSymbol) this.symbols.get(ctx);
+		
+		for (Symbol method : _interface.getChilds().values()) {
+			if (method instanceof FunctionSymbol == false) continue;
+			
+			this.container.add(
+				InterfaceMethodDefinition.build(
+					_interface, 
+					(FunctionSymbol) method
+				)
+			);
+		}
+		
+		return null;
 	}
 	
 	@Override

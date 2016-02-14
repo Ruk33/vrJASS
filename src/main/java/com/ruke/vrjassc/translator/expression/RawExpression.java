@@ -16,6 +16,10 @@ public class RawExpression extends Expression {
 		this(expression, null);
 	}
 	
+	public RawExpression(int expression) {
+		this(String.valueOf(expression), null);
+	}
+	
 	@Override
 	public Symbol getSymbol() {
 		return this.symbol;

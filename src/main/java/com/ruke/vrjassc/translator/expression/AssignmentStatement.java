@@ -20,7 +20,7 @@ public class AssignmentStatement extends Statement {
 		if (this.name instanceof ChainExpression) {
 			((ChainExpression) this.name).setValue(this.value);
 			
-			if (this.name.getSymbol().hasModifier(Modifier.STATIC)) {
+			if (this.name.getSymbol() != null && this.name.getSymbol().hasModifier(Modifier.STATIC)) {
 				return "set " + this.name.translate();
 			} else {
 				return "call " + this.name.translate();

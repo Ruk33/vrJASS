@@ -21,7 +21,7 @@ public class ChainExpressionTest {
 	@Test
 	public void property() {
 		VrJassScope scope = new VrJassScope();
-		ClassSymbol _class = new ClassSymbol("foo", scope, null);
+		ClassSymbol _class = new ClassSymbol("foo", 1, scope, null);
 		PropertySymbol property = new PropertySymbol("baz", _class, null);
 		MethodSymbol method = new MethodSymbol("bar", scope, null);
 		LocalVariableSymbol _this = new LocalVariableSymbol("this", method, null);
@@ -58,7 +58,7 @@ public class ChainExpressionTest {
 	@Test
 	public void method() {
 		VrJassScope scope = new VrJassScope();
-		ClassSymbol foo = new ClassSymbol("foo", scope, null);
+		ClassSymbol foo = new ClassSymbol("foo", 1, scope, null);
 		MethodSymbol bar = new MethodSymbol("bar", foo, null);
 		Symbol _this = new LocalVariableSymbol("this", bar, null);
 		

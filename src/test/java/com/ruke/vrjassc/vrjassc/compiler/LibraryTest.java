@@ -22,6 +22,7 @@ public class LibraryTest extends TestHelper {
 		String expected =
 			"globals\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function lorem takes nothing returns integer\n"
 				+ "return 0\n"
@@ -49,10 +50,11 @@ public class LibraryTest extends TestHelper {
 		String expected =
 			"globals\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
-			+ "function foo_bar takes nothing returns nothing\n"
-			+ "endfunction\n"
 			+ "function struct_foo_bee_baa takes nothing returns nothing\n"
+			+ "endfunction\n"
+			+ "function foo_bar takes nothing returns nothing\n"
 			+ "endfunction\n"
 			+ "function baz takes nothing returns nothing\n"
 				+ "call foo_bar()\n"

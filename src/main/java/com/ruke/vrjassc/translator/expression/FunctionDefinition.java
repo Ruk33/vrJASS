@@ -2,11 +2,14 @@ package com.ruke.vrjassc.translator.expression;
 
 import java.util.Collection;
 
+import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
 
@@ -43,6 +46,13 @@ public class FunctionDefinition extends StatementBody {
 				if (!this.function.hasModifier(Modifier.STATIC) && !thisAdded) {
 					this.getList().add(0, new RawExpression("integer this"));
 				}
+			} else if (this.function.getParentScope() instanceof InterfaceSymbol) {
+				this.getList().add(0, new RawExpression("integer this"));
+				this.getList().add(1, new RawExpression("integer " + Config.VTYPE_NAME));
+			}
+			
+			if (this.function.getName().equals("allocate")) {
+				this.getList().add(0, new RawExpression("integer vrjass_type"));
 			}
 			
 			if (this.expressions.isEmpty()) {
@@ -73,6 +83,23 @@ public class FunctionDefinition extends StatementBody {
 	
 	@Override
 	public void add(Statement e) {
+		if (this.function.getName().equals("allocate")) {
+			if (e instanceof ReturnStatement) {
+				ChainExpression vtype = new ChainExpression();
+				
+				vtype.setHashtableName(Config.STRUCT_HASHTABLE_NAME);
+				vtype.append(new VariableExpression(e.getSymbol(), null), null);
+				vtype.append(new RawExpression(Config.VTYPE_NAME), null);
+				
+				this.body.add(
+					new AssignmentStatement(
+						vtype, 
+						new RawExpression("vrjass_type")
+					)
+				);
+			}
+		}
+		
 		this.body.add(e);
 	}
 		

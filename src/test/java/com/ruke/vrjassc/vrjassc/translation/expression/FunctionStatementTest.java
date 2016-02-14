@@ -41,7 +41,7 @@ public class FunctionStatementTest {
 	@Test
 	public void method() {
 		VrJassScope scope = new VrJassScope();
-		ClassSymbol foo = new ClassSymbol("foo", scope, null);
+		ClassSymbol foo = new ClassSymbol("foo", 1, scope, null);
 		MethodSymbol bar = new MethodSymbol("bar", foo, null);
 		LocalVariableSymbol _this = new LocalVariableSymbol("this", bar, null);
 		

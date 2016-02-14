@@ -8,7 +8,132 @@ import org.junit.Test;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class ClassTest extends TestHelper {
+	
+	@Test
+	public void autoAssignType() {
+		String code =
+			"struct foo\n"
+				+ "static method allocate returns foo\n"
+					+ "local foo f\n"
+					+ "return f\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct bar extends foo\n"
+			+ "endstruct\n"
+			+ "function lorem\n"
+				+ "local foo f = foo.allocate()\n"
+				+ "local bar b = bar.allocate()\n"
+			+ "endfunction";
 		
+		String expected =
+			"globals\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
+			+ "endglobals\n"
+			+ "function struct_foo_allocate takes integer vrjass_type returns integer\n"
+				+ "local integer f=0\n"
+				+ "call SaveInteger(vrjass_structs,f,vtype,vrjass_type)\n"
+				+ "return f\n"
+			+ "endfunction\n"
+			+ "function lorem takes nothing returns nothing\n"
+				+ "local integer f=struct_foo_allocate(1)\n"
+				+ "local integer b=struct_foo_allocate(2)\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
+	public void interfaceReturnsNothing() {
+		String code =
+			"interface foo\n"
+				+ "public method bar\n"
+			+ "endinterface\n"
+			+ "struct a implements foo\n"
+				+ "public method bar\n"
+				+ "endmethod\n"
+			+ "endstruct";
+		
+		String expected =
+			"globals\n"
+			+ "hashtable vrjass_structs=InitHashtable()\n"
+			+ "integer vtype=-1\n"
+			+ "endglobals\n"
+			+ "function struct_a_bar takes integer this returns nothing\n"
+			+ "endfunction\n"
+			+ "function foo_bar takes integer this,integer vtype returns nothing\n"
+			+ "if false then\n"
+			+ "elseif vtype==1 then\n"
+			+ "call struct_a_bar(this)\n"
+			+ "endif\n"
+			+ "call struct_a_bar(this)\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
+	@Ignore
+	public void interfaceTranslation() {
+		String code =
+			"globals\n"
+				+ "lorem array lr\n"
+			+ "endglobals\n"
+			+ "interface lorem\n"
+				+ "public method ipsum takes boolean b\n"
+			+ "endinterface\n"
+			+ "struct foo implements lorem\n"
+				+ "public method ipsum takes boolean b\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct bar implements lorem\n"
+				+ "public method ipsum takes boolean b\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "function dolor\n"
+				+ "local foo f\n"
+				+ "local bar b\n"
+				+ "local lorem l = f\n"
+				+ "if (true) then\n"
+					+ "set l = b\n"
+				+ "endif\n"
+				+ "call lr[1].ipsum(false)\n"
+				+ "call l.ipsum(false)\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n"
+				+ "integer array lr\n"
+				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
+			+ "endglobals\n"
+			+ "function struct_foo_ipsum takes integer this,boolean b returns nothing\n"
+			+ "endfunction\n"
+			+ "function struct_bar_ipsum takes integer this,boolean b returns nothing\n"
+			+ "endfunction\n"
+			+ "function lorem_ipsum takes integer this,integer vtype,boolean b returns nothing\n"
+				+ "if false then\n"
+				+ "elseif vtype==2 then\n"
+					+ "return struct_bar_ipsum(this,b)\n"
+				+ "elseif vtype==1 then\n"
+					+ "return struct_foo_ipsum(this,b)\n"
+				+ "endif\n"
+				+ "return struct_foo_ipsum(this,b)\n"
+			+ "endfunction\n"
+			+ "function dolor takes nothing returns nothing\n"
+				+ "local integer f=0\n"
+				+ "local integer b=0\n"
+				+ "local integer l=f\n"
+				+ "if (true)!=false then\n"
+					+ "set l=b\n"
+				+ "endif\n"
+				+ "call lorem_ipsum(lr[1],LoadInteger(vrjass_structs,lr[1],vtype),false)\n"
+				+ "call lorem_ipsum(l,LoadInteger(vrjass_structs,l,vtype),false)\n"
+			+ "endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
 	@Test
 	public void staticPropertyArray() {
 		String code =
@@ -26,6 +151,7 @@ public class ClassTest extends TestHelper {
 			"real array struct_foo_bar\n"+
 			"integer array struct_foo_f\n"+
 			"hashtable vrjass_structs=InitHashtable()\n"+
+			"integer vtype=-1\n"+
 			"endglobals\n"+
 			"function struct_foo_lorem takes nothing returns nothing\n"+
 			"set struct_foo_bar[2]=2\n"+
@@ -52,6 +178,7 @@ public class ClassTest extends TestHelper {
 			"globals\n" +
 				"integer struct_object_e=1\n" +
 				"hashtable vrjass_structs=InitHashtable()\n" +
+				"integer vtype=-1\n" +
 			"endglobals\n" +
 			"function foo takes nothing returns nothing\n"
 				+ "local integer bar=0\n"
@@ -77,6 +204,7 @@ public class ClassTest extends TestHelper {
 			"globals\n" +
 				"integer struct_foo_p=1\n" +
 				"hashtable vrjass_structs=InitHashtable()\n" +
+				"integer vtype=-1\n" +
 			"endglobals\n" +
 			"function struct_foo_bar takes integer this returns nothing\n" +
 			"call SavePlayerHandle(vrjass_structs,this,struct_foo_p,LoadPlayerHandle(vrjass_structs,this,struct_foo_p))\n" +
@@ -105,6 +233,7 @@ public class ClassTest extends TestHelper {
 			"globals\n"
 				+ "integer struct_bar_l=1\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function struct_foo_foo_baz takes integer this returns nothing\n"
 			+ "endfunction\n"
@@ -129,6 +258,7 @@ public class ClassTest extends TestHelper {
 			"globals\n"
 				+ "integer struct_foo_baz=1\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function struct_foo_bar takes integer this,integer i returns nothing\n"
 				+ "call SaveInteger(vrjass_structs,i,struct_foo_baz,1)\n"
@@ -157,14 +287,16 @@ public class ClassTest extends TestHelper {
 			"globals\n"
 				+ "integer struct_foo_instances=0\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function struct_foo_bar takes integer this returns nothing\n"
 			+ "endfunction\n"
-			+ "function struct_foo_allocate takes nothing returns integer\n"
+			+ "function struct_foo_allocate takes integer vrjass_type returns integer\n"
 				+ "set struct_foo_instances=struct_foo_instances+1\n"
 				+ "call struct_foo_bar((0))\n"
 				+ "call struct_foo_bar((1))\n" // <-- the power
-				+ "call BJDebugMsg(\"instance \"+I2S(struct_foo_allocate()))\n"
+				+ "call BJDebugMsg(\"instance \"+I2S(struct_foo_allocate(1)))\n"
+				+ "call SaveInteger(vrjass_structs,struct_foo_instances,vtype,vrjass_type)\n"
 				+ "return struct_foo_instances\n"
 			+ "endfunction";
 		
@@ -192,6 +324,7 @@ public class ClassTest extends TestHelper {
 		String expected =
 			"globals\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function struct_foo_baz takes integer this returns nothing\n"
 			+ "endfunction\n"
@@ -228,6 +361,7 @@ public class ClassTest extends TestHelper {
 					+ "integer struct_foo_bar=1\n"
 					+ "integer struct_foo_that=2\n"
 					+ "hashtable vrjass_structs=InitHashtable()\n"
+					+ "integer vtype=-1\n"
 				+ "endglobals\n"
 				+ "function struct_foo_baz takes integer this returns nothing\n"
 					+ "call SaveInteger("
@@ -270,6 +404,7 @@ public class ClassTest extends TestHelper {
 				+ "integer struct_foo_bar=1\n"
 				+ "integer struct_foo_i=2\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function struct_foo_baz takes integer this returns nothing\n"
 				+ "call SaveInteger(vrjass_structs,this,struct_foo_bar*8191-IMinBJ(LoadInteger(vrjass_structs,this,struct_foo_i),8191),1)\n"
@@ -296,6 +431,7 @@ public class ClassTest extends TestHelper {
 		String expected =
 			"globals\n"
 				+ "hashtable vrjass_structs=InitHashtable()\n"
+				+ "integer vtype=-1\n"
 			+ "endglobals\n"
 			+ "function struct_bar_onInit takes nothing returns nothing\n"
 			+ "endfunction\n"

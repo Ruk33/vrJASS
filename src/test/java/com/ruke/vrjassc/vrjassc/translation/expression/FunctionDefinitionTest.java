@@ -29,7 +29,7 @@ public class FunctionDefinitionTest {
 		);
 		
 		Type integer = new BuiltInTypeSymbol("integer", null, null);
-		ClassSymbol bar = new ClassSymbol("bar", null, null);
+		ClassSymbol bar = new ClassSymbol("bar", 1, null, null);
 		Symbol baz = new LocalVariableSymbol("baz", null, null);
 		
 		baz.setType(integer);

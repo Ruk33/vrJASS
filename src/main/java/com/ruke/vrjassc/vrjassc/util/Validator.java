@@ -273,7 +273,7 @@ public class Validator {
 		this.validated = member;
 		
 		if (member.hasModifier(Modifier.STATIC)) {
-			if (prevSymbol instanceof ClassSymbol == false) {
+			if (prevSymbol instanceof ScopeSymbol == false) {
 				this.exception = new StaticNonStaticTypeException(token, member);
 				return false;
 			}
@@ -351,6 +351,11 @@ public class Validator {
 		boolean argsMatch;
 		
 		for (Symbol method : _interface.getChilds().values()) {
+			if (method instanceof FunctionSymbol == false) {
+				methods--;
+				continue;
+			}
+			
 			resolved = _class.resolveMember(_class, method.getName());
 			
 			if (resolved == null) {

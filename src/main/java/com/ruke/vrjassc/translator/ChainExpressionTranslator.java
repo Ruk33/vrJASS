@@ -91,6 +91,8 @@ public class ChainExpressionTranslator {
 			loadFunc = HashtableFunctionGetter.getLoadFunction(
 				property.getSymbol().getType()
 			);
+		} else {
+			loadFunc = HashtableFunctionGetter.getLoadFunction(null);
 		}
 		
 		args.push(this.getHashtableName());
@@ -115,12 +117,17 @@ public class ChainExpressionTranslator {
 	
 	protected String buildSetter() {
 		Chainable last = this.chain.peek();
-		Type symbolType = last.getSymbol().getType();
 		String result = this.buildGetter();
 		
-		if (last.getSymbol().hasModifier(Modifier.STATIC)) {
+		if (last.getSymbol() != null && last.getSymbol().hasModifier(Modifier.STATIC)) {
 			result += "=" + this.value;
 		} else {
+			Type symbolType = null;
+			
+			if (last.getSymbol() != null) {
+				symbolType = last.getSymbol().getType();
+			}
+			
 			result = result.replaceFirst(
 				HashtableFunctionGetter.getLoadFunction(symbolType), 
 				HashtableFunctionGetter.getSaveFunction(symbolType)

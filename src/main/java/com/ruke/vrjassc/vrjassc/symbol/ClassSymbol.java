@@ -2,17 +2,19 @@ package com.ruke.vrjassc.vrjassc.symbol;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.antlr.v4.runtime.Token;
 
 public class ClassSymbol extends UserTypeSymbol implements InitializerContainer {
 
 	private ClassSymbol _super;
-	private ArrayList<InterfaceSymbol> interfaces = new ArrayList<InterfaceSymbol>();
+	private Set<InterfaceSymbol> interfaces = new HashSet<InterfaceSymbol>();
 	protected Symbol onInit;
 	
-	public ClassSymbol(String name, Scope scope, Token token) {
-		super(name, scope, token);
+	public ClassSymbol(String name, int vtype, Scope scope, Token token) {
+		super(name, vtype, scope, token);
 		this.setModifier(Modifier.MEMBER, true);
 	}
 	
@@ -24,6 +26,7 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer 
 		
 		if (symbol instanceof InterfaceSymbol) {
 			this.interfaces.add((InterfaceSymbol) symbol);
+			((InterfaceSymbol) symbol).implementedBy(this);
 		}
 		
 		return super.define(symbol);
@@ -96,6 +99,11 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer 
 	
 	public ClassSymbol extendsFrom(ClassSymbol _super) {
 		this._super = _super;
+		
+		for (InterfaceSymbol _interface : _super.interfaces) {
+			_interface.implementedBy(this);
+		}
+		
 		return this;
 	}
 	

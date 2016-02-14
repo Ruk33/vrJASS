@@ -63,8 +63,8 @@ public class SymbolTest {
 		VrJassScope scope = new VrJassScope();
 		LibrarySymbol libA = new LibrarySymbol("a", scope, null);
 		
-		ClassSymbol classB = new ClassSymbol("b", libA, null);
-		ClassSymbol classC = new ClassSymbol("c", libA, null);
+		ClassSymbol classB = new ClassSymbol("b", 1, libA, null);
+		ClassSymbol classC = new ClassSymbol("c", 2, libA, null);
 		
 		libA.define(classB);
 		libA.define(classC);
