@@ -390,7 +390,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	@Override
 	public Expression visitWhileLoopStatement(WhileLoopStatementContext ctx) {
-		LoopStatement loop = new WhileLoopStatement(this.visit(ctx.expression()));
+		LoopStatement loop = new WhileLoopStatement(new BooleanExpression(this.visit(ctx.expression())));
 		Statement statement;
 		
 		for (StatementContext stat : ctx.statement()) {

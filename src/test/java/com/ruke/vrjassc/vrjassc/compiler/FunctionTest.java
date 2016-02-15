@@ -37,15 +37,22 @@ public class FunctionTest extends TestHelper {
 				+ "while true\n"
 					+ "call foo()\n"
 				+ "endwhile\n"
+				+ "local integer i\n"
+				+ "while i\n"
+				+ "endwhile\n"
 			+ "end";
 		
 		String expected =
 			"globals\n"
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
+				+ "local integer i=0\n"
 				+ "loop\n"
 					+ "exitwhen not true\n"
 					+ "call foo()\n"
+				+ "endloop\n"
+				+ "loop\n"
+					+ "exitwhen not i!=0\n"
 				+ "endloop\n"
 			+ "endfunction";
 		
