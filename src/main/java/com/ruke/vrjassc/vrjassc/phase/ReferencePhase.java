@@ -77,16 +77,21 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	 */
 	private Stack<ParserRuleContext> functionDefinitions;
 	private boolean definingSymbolTypes = true;
-			
+
+	public void setValidator(Validator validator) {
+		this.validator = validator;
+	}
+	
 	public ReferencePhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
-		this.validator = new Validator();
 		this.scope = scope;
 		this.scopes = new Stack<ScopeSymbol>();
 		this.enclosingScopes = new Stack<ScopeSymbol>();
 		this.functionDefinitions = new Stack<ParserRuleContext>();
 		
 		this.scopes.push(this.scope);
+		
+		this.setValidator(new Validator());
 		this.validator.scope = scope;
 	}
 	

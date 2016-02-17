@@ -9,6 +9,13 @@ public class VrJassScope extends ScopeSymbol {
 	
 	@Override
 	public Symbol define(Symbol symbol) {
+		if (symbol instanceof VrJassScope) {
+			for (Symbol s : ((VrJassScope) symbol).getChilds().values()) {
+				this.define(s);
+			}
+			return symbol;
+		}
+		
 		symbol.setModifier(Modifier.PUBLIC, true);
 		return super.define(symbol);
 	}

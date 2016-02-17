@@ -42,15 +42,19 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	private int classesCount;
 	
+	public void setValidator(Validator validator) {
+		this.validator = validator;
+	}
+	
 	public DefinitionPhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
-		this.validator = new Validator();
 		this.scope = scope;
+		this.setValidator(new Validator());
 		this.validator.scope = scope;
 	}
 		
 	private void defineOrThrowAlreadyDefinedException(Scope scope, Symbol child) {
-		if (!this.validator.mustNotBeDefined(scope, child.getName(), child.getToken())) {
+		if (this.validator != null && !this.validator.mustNotBeDefined(scope, child.getName(), child.getToken())) {
 			if (!(scope instanceof LibrarySymbol && child instanceof ClassSymbol)) { 
 				throw this.validator.getException();
 			}
