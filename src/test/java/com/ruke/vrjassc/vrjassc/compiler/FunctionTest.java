@@ -22,7 +22,7 @@ public class FunctionTest extends TestHelper {
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
 				+ "loop\n"
-					+ "exitwhen not false\n"
+					+ "exitwhen not (false)\n"
 					+ "exitwhen true\n"
 				+ "endloop\n"
 			+ "endfunction";
@@ -38,7 +38,7 @@ public class FunctionTest extends TestHelper {
 					+ "call foo()\n"
 				+ "endwhile\n"
 				+ "local integer i\n"
-				+ "while i\n"
+				+ "while (i)\n"
 				+ "endwhile\n"
 			+ "end";
 		
@@ -48,11 +48,11 @@ public class FunctionTest extends TestHelper {
 			+ "function foo takes nothing returns nothing\n"
 				+ "local integer i=0\n"
 				+ "loop\n"
-					+ "exitwhen not true\n"
+					+ "exitwhen not (true)\n"
 					+ "call foo()\n"
 				+ "endloop\n"
 				+ "loop\n"
-					+ "exitwhen not i!=0\n"
+					+ "exitwhen not ((i)!=0)\n"
 				+ "endloop\n"
 			+ "endfunction";
 		
@@ -85,13 +85,17 @@ public class FunctionTest extends TestHelper {
 		String code =
 			"function foo\n"
 				+ "local boolean f = not false\n"
+				+ "local integer i\n"
+				+ "local boolean e = not i\n"
 			+ "endfunction";
 		
 		String expected =
 			"globals\n"
 			+ "endglobals\n"
 			+ "function foo takes nothing returns nothing\n"
-				+ "local boolean f=not false\n"
+				+ "local boolean f=not (false)\n"
+				+ "local integer i=0\n"
+				+ "local boolean e=not (i!=0)\n"
 			+ "endfunction";
 		
 		assertEquals(expected, this.run(code));

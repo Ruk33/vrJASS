@@ -5,7 +5,7 @@ public class NotExpression extends Expression {
 	protected Expression expression;
 	
 	public NotExpression(Expression expression) {
-		this.expression = expression;
+		this.expression = new ParenthesisExpression(new BooleanExpression(expression));
 		this.expression.setParent(this);
 	}
 	

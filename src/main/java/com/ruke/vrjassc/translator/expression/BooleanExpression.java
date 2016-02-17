@@ -55,10 +55,11 @@ public class BooleanExpression extends Expression {
 				if (atype.getName().equals("string")) {
 					return "StringLength(" + this.a.translate() + ")!=0";
 				} else {
-					return 
-						this.a.translate() + 
-						"!=" + 
-						new DefaultValue(atype).translate();
+					return new BooleanExpression(
+						this.a, 
+						Operator.NOT_EQUAL,
+						new DefaultValue(atype)
+					).translate();
 				}
 			}
 			

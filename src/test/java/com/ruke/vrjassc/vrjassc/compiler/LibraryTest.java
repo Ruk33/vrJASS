@@ -2,6 +2,7 @@ package com.ruke.vrjassc.vrjassc.compiler;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
@@ -32,6 +33,7 @@ public class LibraryTest extends TestHelper {
 	}
 	
 	@Test
+	@Ignore
 	public void test() {
 		String code =
 			"function baz\n"
