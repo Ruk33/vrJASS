@@ -20,6 +20,7 @@ public class FunctionTest extends TestHelper {
 				+ "call TimerStart(CreateTimer(), 2, true, function\n"
 					+ "local integer i=1\n"
 				+ "endfunction)\n"
+				+ "call TimerStart(CreateTimer(), 3, true, bar)\n"
 			+ "endfunction";
 		
 		String expected =
@@ -35,6 +36,7 @@ public class FunctionTest extends TestHelper {
 				+ "local integer i=0\n"
 				+ "local code bar=function %s_1\n"
 				+ "call TimerStart(CreateTimer(),2,true,function %s_2)\n"
+				+ "call TimerStart(CreateTimer(),3,true,bar)\n"
 			+ "endfunction").replaceAll("%s", Config.ANONYMOUS_FUNCTIONS_PREFIX);
 		
 		assertEquals(expected, this.run(code));

@@ -1,10 +1,13 @@
 package com.ruke.vrjassc;
 
 import java.awt.Desktop;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -38,8 +41,8 @@ public class Main {
 		
 		Collection<String> files = new ArrayList<String>();
 		ArrayList<String> toCompile = new ArrayList<String>();
-		String resultPath = "compiled-vrjass.j";
-		String logPath = "log-vrjass.txt";
+		String resultPath = null;
+		String logPath = null;
 		boolean error = false;
 		
 		for (String arg : args) {
@@ -49,18 +52,33 @@ public class Main {
 				resultPath = arg.replace("-result=", "");
 			} else if (arg.startsWith("-log")) {
 				logPath = arg.replace("-log=", "");
+			} else if (arg.startsWith("-c")) {
+				try {
+					BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+					String s;
+					while ((s=r.readLine()) != null) {
+						toCompile.add(s);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else {
 				files.add(arg);
 			}
 		}
 		
-		File logFile = new File(logPath);
+		File logFile = null;
 		PrintWriter logWriter = null;
 		
-		try {
-			logWriter = new PrintWriter(logFile);
-		} catch (FileNotFoundException notFound) {
-			notFound.printStackTrace();
+		if (logPath != null) {
+			logFile = new File(logPath);
+			
+			try {
+				logWriter = new PrintWriter(logFile);
+			} catch (FileNotFoundException notFound) {
+				notFound.printStackTrace();
+			}
 		}
 		
 		for (String file : files) {
@@ -80,59 +98,78 @@ public class Main {
 				toCompile.add("\n");
 			} catch (IOException io) {
 				error = true;
-				logWriter.write(io.getMessage());
+				if (logWriter != null) {
+					logWriter.write(io.getMessage());
+				}
 			}
 		}
 		
 		try {
-			tmpFile = File.createTempFile("vrjass-compiled", null);
-			writer = new PrintWriter(tmpFile, "UTF-8");
-			
-			writer.write(compile.run(String.join("\n", toCompile) + "\n"));
-			writer.close();
-			
-			if (resultPath.endsWith("w3x") || resultPath.endsWith("w3m")) {
-				editor = new JmpqEditor(new File(resultPath));
-				editor.injectFile(tmpFile, "war3map.j");
-				editor.close();
+			if (resultPath == null) {
+				compile.run(String.join("\n", toCompile));
 			} else {
-				Files.copy(tmpFile.toPath(), new File(resultPath).toPath());
+				tmpFile = File.createTempFile("vrjass-compiled", null);
+				writer = new PrintWriter(tmpFile, "UTF-8");
+				
+				writer.write(compile.run(String.join("\n", toCompile)));
+				
+				writer.close();
+				
+				if (resultPath.endsWith("w3x") || resultPath.endsWith("w3m")) {
+					editor = new JmpqEditor(new File(resultPath));
+					editor.injectFile(tmpFile, "war3map.j");
+					editor.close();
+				} else {
+					Files.copy(tmpFile.toPath(), new File(resultPath).toPath());
+				}
 			}
 		} catch (CompileException ce) {
 			error = true;
-			logWriter.write(ce.getMessage()+System.lineSeparator());
+			System.out.println(ce.getMessage());
 			
-			for (int i = Math.max(0, ce.getLine() - 10), max = Math.min(toCompile.size(), ce.getLine() + 10); i < max; i++) {
-				if (i == ce.getLine()) {
-					String s = System.lineSeparator();
-					for (int p = 0; p < ce.getCharPos(); p++) {
-						s+= "-";
-					}
-					s += "^";
-					logWriter.write(s);
-				}
+			if (logWriter != null) {
+				logWriter.write(ce.getMessage()+System.lineSeparator());
 				
-				logWriter.write(System.lineSeparator() + toCompile.get(i).replace("\t", "    "));
+				for (int i = Math.max(0, ce.getLine() - 10), max = Math.min(toCompile.size(), ce.getLine() + 10); i < max; i++) {
+					if (i == ce.getLine()) {
+						String s = System.lineSeparator();
+						for (int p = 0; p < ce.getCharPos(); p++) {
+							s+= "-";
+						}
+						s += "^";
+						logWriter.write(s);
+					}
+					
+					logWriter.write(System.lineSeparator() + toCompile.get(i).replace("\t", "    "));
+				}
 			}
 		} catch (JmpqError jmpqe) {
 			error = true;
-			logWriter.write(jmpqe.getMessage());
-		} catch (IOException e) {
-			error = true;
-			logWriter.write("Could not load blizzard.j or common.j");
-		} catch (Exception e) {
-			error = true;
-			logWriter.write(e.getMessage());
-		}
-		
-		logWriter.close();
-		
-		try {
-			if (error) {
-				Desktop.getDesktop().edit(logFile);
+			if (logWriter != null) {
+				logWriter.write(jmpqe.getMessage());
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			error = true;
+			if (logWriter != null) {
+				logWriter.write("Could not load blizzard.j or common.j");
+			}
+		} catch (Exception e) {
+			error = true;
+			if (logWriter != null) {
+				logWriter.write(e.getMessage());
+			}
+		}
+		
+		if (logWriter != null) {
+			logWriter.close();
+			
+			try {
+				if (error) {
+					Desktop.getDesktop().edit(logFile);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
