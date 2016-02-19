@@ -21,7 +21,8 @@ variableDeclaration:
 	type=validType ARRAY? name=validName (EQ value=expression)?;
 
 expression:
-	INT #Integer
+	functionDefinitionExpression #AnonymousExpression
+	|INT #Integer
 	|REAL #Real
 	|STRING #String
 	|MINUS expression #Negative
@@ -145,13 +146,14 @@ arguments:
 	expression (COMMA expression)*;
 
 functionSignature: 
-	(PRIVATE | PUBLIC)? CONSTANT? NATIVE? STATIC? (FUNCTION | METHOD)? name=validName (TAKES parameters)? (RETURNS returnType)?;
+	(PRIVATE | PUBLIC)? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
 
-functionDefinition: 
+functionDefinitionExpression:
 	functionSignature NL
 		statement*
-	(ENDFUNCTION | ENDMETHOD | END) NL
-	;
+	(ENDFUNCTION | ENDMETHOD | END);
+
+functionDefinition: functionDefinitionExpression NL;
 
 
 statement:

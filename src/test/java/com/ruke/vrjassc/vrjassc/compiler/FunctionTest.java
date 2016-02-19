@@ -4,10 +4,42 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 
 public class FunctionTest extends TestHelper {
+	
+	@Test
+	public void anonymousFunction() {
+		String code =
+			"function foo\n"
+				+ "local integer i=0\n"
+				+ "local code bar = function\n"
+					+ "local integer baz = 1\n"
+				+ "endfunction\n"
+				+ "call TimerStart(CreateTimer(), 2, true, function\n"
+					+ "local integer i=1\n"
+				+ "endfunction)\n"
+			+ "endfunction";
 		
+		String expected =
+			("globals\n"
+			+ "endglobals\n"
+			+ "function %s_1 takes nothing returns nothing\n"
+				+ "local integer baz=1\n"
+			+ "endfunction\n"
+			+ "function %s_2 takes nothing returns nothing\n"
+				+ "local integer i=1\n"
+			+ "endfunction\n"
+			+ "function foo takes nothing returns nothing\n"
+				+ "local integer i=0\n"
+				+ "local code bar=function %s_1\n"
+				+ "call TimerStart(CreateTimer(),2,true,function %s_2)\n"
+			+ "endfunction").replaceAll("%s", Config.ANONYMOUS_FUNCTIONS_PREFIX);
+		
+		assertEquals(expected, this.run(code));
+	}
+	
 	@Test
 	public void breakStatement() {
 		String code =

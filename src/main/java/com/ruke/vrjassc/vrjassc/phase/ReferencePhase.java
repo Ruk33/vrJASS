@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AnonymousExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BreakStatementContext;
@@ -17,6 +18,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitWhenStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionSignatureContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
@@ -256,7 +258,13 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {		
+	public Symbol visitAnonymousExpression(AnonymousExpressionContext ctx) {
+		this.visit(ctx.functionDefinitionExpression());
+		return this.scopes.get(0).resolve("code");
+	}
+	
+	@Override
+	public Symbol visitFunctionDefinitionExpression(FunctionDefinitionExpressionContext ctx) {		
 		FunctionSymbol function = (FunctionSymbol) this.visit(ctx.functionSignature());
 		
 		if (!this.validator.mustReturn(function, ctx.statement())) {
@@ -269,13 +277,18 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		if (this.definingSymbolTypes) {
 			this.functionDefinitions.push(ctx);
 		} else {
-			super.visitFunctionDefinition(ctx);
+			super.visitFunctionDefinitionExpression(ctx);
 		}
 		
 		this.scopes.pop();
 		this.enclosingScopes.pop();
 		
 		return function;
+	}
+	
+	@Override
+	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {
+		return this.visit(ctx.functionDefinitionExpression());
 	}
 	
 	@Override

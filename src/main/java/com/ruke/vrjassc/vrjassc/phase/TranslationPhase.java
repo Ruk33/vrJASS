@@ -30,6 +30,7 @@ import com.ruke.vrjassc.translator.expression.StatementBody;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
 import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AnonymousExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ArgumentsContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
@@ -43,6 +44,7 @@ import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitWhenStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
@@ -521,9 +523,15 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		return null;
 	}
-
+	
 	@Override
-	public Expression visitFunctionDefinition(FunctionDefinitionContext ctx) {
+	public Expression visitAnonymousExpression(AnonymousExpressionContext ctx) {
+		this.container.add((Statement) this.visit(ctx.functionDefinitionExpression()));
+		return new FunctionExpression(this.symbols.get(ctx), true, new ExpressionList());
+	}
+	
+	@Override
+	public Expression visitFunctionDefinitionExpression(FunctionDefinitionExpressionContext ctx) {
 		FunctionSymbol symbol = (FunctionSymbol) this.symbols.get(ctx);
 		StatementBody function = new FunctionDefinition(symbol);
 		Expression e;
@@ -537,6 +545,11 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		}
 		
 		return function;
+	}
+	
+	@Override
+	public Expression visitFunctionDefinition(FunctionDefinitionContext ctx) {
+		return this.visit(ctx.functionDefinitionExpression());
 	}
 
 	@Override

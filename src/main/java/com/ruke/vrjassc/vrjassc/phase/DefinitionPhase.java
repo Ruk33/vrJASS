@@ -2,8 +2,11 @@ package com.ruke.vrjassc.vrjassc.phase;
 
 import org.antlr.v4.runtime.Token;
 
+import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AnonymousExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionExpressionContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionSignatureContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
@@ -38,9 +41,13 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	private Validator validator;
 	
+	private ScopeSymbol primaryScope;
+	
 	private ScopeSymbol scope;
 	
 	private int classesCount;
+
+	private int anonymousCount;
 	
 	public void setValidator(Validator validator) {
 		this.validator = validator;
@@ -48,6 +55,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	public DefinitionPhase(TokenSymbolBag symbols, ScopeSymbol scope) {
 		this.symbols = symbols;
+		this.primaryScope = scope;
 		this.scope = scope;
 		this.setValidator(new Validator());
 		this.validator.scope = scope;
@@ -169,8 +177,17 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitFunctionSignature(FunctionSignatureContext ctx) {		
-		String name = ctx.validName().getText();
-		Token token = ctx.validName().getStart();
+		String name = null;
+		Token token = null;
+		
+		if (ctx.validName() == null) {
+			this.anonymousCount++;
+			name = Config.ANONYMOUS_FUNCTIONS_PREFIX + "_" + String.valueOf(this.anonymousCount);
+			token = ctx.getStart();
+		} else {
+			name = ctx.validName().getText();
+			token = ctx.validName().getStart();
+		}
 		
 		FunctionSymbol function = new FunctionSymbol(name, null, token);
 		
@@ -211,7 +228,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	}
 	
 	@Override
-	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {
+	public Symbol visitFunctionDefinitionExpression(FunctionDefinitionExpressionContext ctx) {
 		FunctionSymbol function = (FunctionSymbol) this.visit(ctx.functionSignature());
 		
 		this.symbols.put(ctx, function);
@@ -227,7 +244,24 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		return function;
 	}
+
+	@Override
+	public Symbol visitAnonymousExpression(AnonymousExpressionContext ctx) {
+		ScopeSymbol prev = this.scope;
+		this.scope = this.primaryScope;
+		Symbol function = this.visit(ctx.functionDefinitionExpression());
+		this.symbols.put(ctx, function);
+		this.scope = prev;
+		return function;
+	}
 	
+	@Override
+	public Symbol visitFunctionDefinition(FunctionDefinitionContext ctx) {
+		Symbol function = this.visit(ctx.functionDefinitionExpression());
+		this.symbols.put(ctx, function);
+		return function;
+	}
+		
 	@Override
 	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
 		String name = ctx.validName().getText();
@@ -240,6 +274,10 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		if (type instanceof Type) {
 			variable.setType((Type) type);
+		}
+		
+		if (ctx.value != null) {
+			this.visit(ctx.value);
 		}
 		
 		this.symbols.put(ctx, variable);
