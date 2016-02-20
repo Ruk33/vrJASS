@@ -23,6 +23,8 @@ public class CompilerFacade {
 	
 	static VrJassScope nativeScope = null;
 	
+	public boolean translateCode = true;
+	
 	protected vrjassParser getParser(ANTLRInputStream is) {
 		vrjassLexer lexer = new vrjassLexer(is);
 		TokenStream token = new CommonTokenStream(lexer);
@@ -86,6 +88,10 @@ public class CompilerFacade {
 
 		refPhase.visit(parser.init());
 		parser.reset();
+		
+		if (!this.translateCode) {
+			return "";
+		}
 		
 		return tranPhase.visit(parser.init()).translate();
 	}

@@ -106,7 +106,7 @@ public class Main {
 		
 		try {
 			if (resultPath == null) {
-				compile.run(String.join("\n", toCompile));
+				compile.run(String.join("\n", toCompile), false);
 			} else {
 				tmpFile = File.createTempFile("vrjass-compiled", null);
 				writer = new PrintWriter(tmpFile, "UTF-8");

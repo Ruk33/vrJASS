@@ -11,11 +11,17 @@ public class Compile {
 
 	private CompilerFacade compiler = new CompilerFacade();
 	
-	public String run(String code) throws CompileException, IOException {
+	public String run(String code, boolean translate) throws CompileException, IOException {
 		String replacedTabs = code.replace("\t", "    ");
 		ANTLRInputStream is = new ANTLRInputStream(replacedTabs + "\n");
 		
+		this.compiler.translateCode = translate;
+		
 		return this.compiler.compile(is);
+	}
+	
+	public String run(String code) throws CompileException, IOException {
+		return this.run(code, true);
 	}
 
 	public String runFromFile(String path) throws CompileException, IOException {
