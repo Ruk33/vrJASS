@@ -187,6 +187,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			_class.extendsFrom((ClassSymbol) this.validator.getValidatedSymbol());
 		}
 		
+		super.visitStructDefinition(ctx);
+		
 		if (ctx.implementsList() != null) {
 			String interfaceName;
 			Token interfaceToken;
@@ -212,8 +214,6 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				_class.define(_interface);
 			}
 		}
-		
-		super.visitStructDefinition(ctx);
 		
 		this.scopes.pop();
 		

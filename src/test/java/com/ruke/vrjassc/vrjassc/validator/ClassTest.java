@@ -19,6 +19,30 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void checkInterfaceMethodReturnUserType() {
+		this.expectedEx.none();
+		this.run(
+			"interface iterable\n"
+				+ "public method it returns Iterator\n"
+			+ "endinterface\n"
+			+ "struct bar implements iterable\n"
+				+ "foo f\n"
+				+ "public method it returns Iterator\n"
+					+ "return this.f.it()\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct foo implements iterable\n"
+				+ "public method it returns Iterator\n"
+					+ "local Iterator i\n"
+					+ "return i\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct Iterator\n"
+			+ "endstruct"
+		);
+	}
+	
+	@Test
 	public void checkInterfaceMethodNoReturn() {
 		this.expectedEx.expect(IncompatibleTypeException.class);
 		this.expectedEx.expectMessage("5:14 Element <getAge> must not return anything");
