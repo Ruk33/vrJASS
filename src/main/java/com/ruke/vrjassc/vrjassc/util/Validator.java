@@ -376,6 +376,18 @@ public class Validator {
 				return false;
 			}
 			
+			if (method.getType() == null) {
+				if (resolved.getType() != null) {
+					this.exception = new IncompatibleTypeException(resolved.getToken(), method, null);
+					return false;
+				}
+			} else {
+				if (!method.getType().equals(resolved.getType())) {
+					this.exception = new IncompatibleTypeException(resolved.getToken(), method, resolved.getType());
+					return false;
+				}
+			}
+			
 			methods--;
 		}
 		

@@ -19,6 +19,38 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	public void checkInterfaceMethodNoReturn() {
+		this.expectedEx.expect(IncompatibleTypeException.class);
+		this.expectedEx.expectMessage("5:14 Element <getAge> must not return anything");
+		this.run(
+			"interface person\n"
+			+ "public method getAge\n"
+			+ "endinterface\n"
+			+ "struct foo implements person\n"
+				+ "public method getAge returns integer\n"
+					+ "return 10\n"
+				+ "endmethod\n"
+			+ "endstruct"
+		);
+	}
+	
+	@Test
+	public void checkInterfaceMethodReturnType() {
+		this.expectedEx.expect(IncompatibleTypeException.class);
+		this.expectedEx.expectMessage("5:14 Element <getAge> must have/return a value of type <integer> but given <string>");
+		this.run(
+			"interface person\n"
+			+ "public method getAge returns integer\n"
+			+ "endinterface\n"
+			+ "struct foo implements person\n"
+				+ "public method getAge returns string\n"
+					+ "return \"\"\n"
+				+ "endmethod\n"
+			+ "endstruct"
+		);
+	}
+	
+	@Test
 	public void checkTypeOnInterfaceImplementation() {
 		this.expectedEx.none();
 		this.run(

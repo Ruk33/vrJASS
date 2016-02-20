@@ -20,6 +20,10 @@ public class IncompatibleTypeException extends CompileException {
 
 	@Override
 	public String getErrorMessage() {
+		if (this.given == null) {
+			return "Element <" + this.symbol.getName() + "> must not return anything";
+		}
+		
 		return String.format(
 			"Element <%s> must have/return a value of type <%s> but given <%s>",
 			this.symbol.getName(),
