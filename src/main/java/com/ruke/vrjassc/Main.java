@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -22,8 +21,10 @@ import de.peeeq.jmpq.JmpqError;
 public class Main {
 
 	protected static void displayHelp() {
+		System.out.println("-help Display this help!");
 		System.out.println("-result Choose which file to store the compiled source code result. Example: -result=foo.txt");
 		System.out.println("-log Choose which file to store the errors. Example: -log=foo.txt");
+		System.out.println("-c Write code in console, when finish press Ctrl+Z+Enter");
 		System.out.println("You can pass .j files (containing vrJASS code) or an entire map. Example: file1.j file2.j file3.w3x");
 		
 		System.exit(0);
