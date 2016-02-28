@@ -1,6 +1,6 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
-import com.ruke.vrjassc.translator.InterfaceMethodDefinition;
+import com.ruke.vrjassc.translator.SymbolOverrideTranslator;
 import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
 import com.ruke.vrjassc.translator.expression.ChainExpression;
@@ -494,7 +494,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			if (method instanceof FunctionSymbol == false) continue;
 			
 			this.container.add(
-				InterfaceMethodDefinition.build(
+				SymbolOverrideTranslator.build(
 					_interface, 
 					(FunctionSymbol) method
 				)
@@ -535,6 +535,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		FunctionSymbol symbol = (FunctionSymbol) this.symbols.get(ctx);
 		StatementBody function = new FunctionDefinition(symbol);
 		Expression e;
+		
+		if (!symbol.getImplementations().isEmpty()) {
+			this.container.add(SymbolOverrideTranslator.build(symbol, symbol));
+		}
 		
 		for (StatementContext statement : ctx.statement()) {
 			e = this.visit(statement);

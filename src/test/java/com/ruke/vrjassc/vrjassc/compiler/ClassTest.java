@@ -10,6 +10,64 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 public class ClassTest extends TestHelper {
 	
 	@Test
+	@Ignore
+	public void methodOverwrite() {
+		String code =
+			"struct foo\n"
+				+ "public method lorem takes integer i\n"
+				+ "endmethod\n"
+				+ "public static method allocate returns foo\n"
+					+ "local foo f = 1 cast foo\n"
+					+ "return f\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct bar extends foo\n"
+				+ "public method lorem takes integer i\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "struct baz extends bar\n"
+				+ "public method lorem takes integer i\n"
+				+ "endmethod\n"
+			+ "endstruct\n"
+			+ "function ipsum\n"
+				+ "local baz f = bar.allocate()\n"
+				+ "call f.lorem(1)\n"
+			+ "endfunction";
+		
+		String expected =
+			"globals\n" + 
+				"hashtable vrjass_structs=InitHashtable()\n" +
+				"integer vtype=-1\n" +
+			"endglobals\n" +
+			"function struct_foo_lorem takes integer this,integer i returns nothing\n" +
+			"endfunction\n" +
+			"function struct_foo_bar_baz_lorem takes integer this,integer i returns nothing\n" +
+			"endfunction\n" +
+			"function struct_foo_bar_lorem takes integer this,integer i returns nothing\n" +
+			"endfunction\n" +
+			"function struct_foo_lorem_vtype takes integer this,integer vtype,integer i returns nothing\n" +
+				"if vtype==3 then\n" +
+					"call struct_foo_bar_baz_lorem(this,i)\n" +
+				"elseif vtype==2 then\n" +
+					"call struct_foo_bar_lorem(this,i)\n" +
+				"else\n" +
+					"call struct_foo_lorem(this,i)\n" +
+				"endif\n" +
+			"endfunction\n" +
+			"function struct_foo_allocate takes integer vrjass_type returns integer\n" +
+				"local integer f=1\n" +
+				"call SaveInteger(vrjass_structs,f,vtype,vrjass_type)\n" +
+				"return f\n" +
+			"endfunction\n" +
+			"function ipsum takes nothing returns nothing\n" +
+				"local integer f=struct_foo_allocate(2)\n" +
+				"call struct_foo_lorem_vtype(f,LoadInteger(vrjass_structs,f,vtype),1)\n" +
+			"endfunction";
+		
+		assertEquals(expected, this.run(code));
+	}
+	
+	@Test
 	public void autoAssignType() {
 		String code =
 			"struct foo\n"
@@ -61,7 +119,7 @@ public class ClassTest extends TestHelper {
 			+ "endglobals\n"
 			+ "function struct_a_bar takes integer this returns nothing\n"
 			+ "endfunction\n"
-			+ "function foo_bar takes integer this,integer vtype returns nothing\n"
+			+ "function foo_bar_vtype takes integer this,integer vtype returns nothing\n"
 				+ "if vtype==1 then\n"
 					+ "call struct_a_bar(this)\n"
 				+ "else\n"
@@ -111,7 +169,7 @@ public class ClassTest extends TestHelper {
 			+ "endfunction\n"
 			+ "function struct_foo_ipsum takes integer this,boolean b returns nothing\n"
 			+ "endfunction\n"
-			+ "function lorem_ipsum takes integer this,integer vtype,boolean b returns nothing\n"
+			+ "function lorem_ipsum_vtype takes integer this,integer vtype,boolean b returns nothing\n"
 				+ "if vtype==2 then\n"
 					+ "call struct_bar_ipsum(this,b)\n"
 				+ "else\n"
@@ -434,6 +492,13 @@ public class ClassTest extends TestHelper {
 			+ "function struct_bar_onInit takes nothing returns nothing\n"
 			+ "endfunction\n"
 			+ "function struct_bar_foo_onInit takes nothing returns nothing\n"
+			+ "endfunction\n"
+			+ "function struct_bar_onInit_vtype takes integer vtype returns nothing\n"
+				+ "if vtype==2 then\n"
+					+ "call struct_bar_foo_onInit()\n"
+				+ "else\n"
+					+ "call struct_bar_onInit()\n"
+				+ "endif\n"
 			+ "endfunction\n"
 			+ "function main takes nothing returns nothing\n"
 				+ "call main()\n"

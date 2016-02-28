@@ -6,6 +6,7 @@ import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
+import com.ruke.vrjassc.vrjassc.symbol.Overrideable;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
@@ -50,10 +51,11 @@ public class ChainExpression extends Expression {
 			
 			boolean isStatic = last.getSymbol().hasModifier(Modifier.STATIC);
 			boolean isInterface = last.getSymbol().getParentScope() instanceof InterfaceSymbol;
+			boolean isOverrided = last.getSymbol().hasModifier(Modifier.OVERRIDE);
 			FunctionExpression func = ((FunctionExpression) last);
 			
 			if (!isStatic) {
-				if (isInterface) {
+				if (isInterface || isOverrided) {
 					ChainExpression vtype = new ChainExpression();
 					vtype.setHashtableName(this.chainTranslator.getHashtableName());
 					

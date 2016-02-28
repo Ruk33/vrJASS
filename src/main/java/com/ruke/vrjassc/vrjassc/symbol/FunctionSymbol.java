@@ -1,19 +1,45 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
 
-public class FunctionSymbol extends ScopeSymbol {
+public class FunctionSymbol extends ScopeSymbol implements Overrideable {
 
+	protected Collection<Symbol> implementations;
+	
+	protected FunctionSymbol original;
+	
 	protected Stack<Symbol> params;
 	
 	protected Symbol _this;
 	
 	public FunctionSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
+		this.implementations = new HashSet<Symbol>();
 		this.params = new Stack<Symbol>();
+	}
+	
+	public Collection<Symbol> getImplementations() {
+		return this.implementations;
+	}
+	
+	public void addImplementation(FunctionSymbol f) {
+		this.implementations.add(f);
+	}
+	
+	public void setOriginal(FunctionSymbol f) {
+		this.original = f;
+	}
+	
+	public FunctionSymbol getOriginal() {
+		if (this.original != null) {
+			return this.original.getOriginal();
+		}
+		
+		return this;
 	}
 	
 	@Override

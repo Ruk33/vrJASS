@@ -1,5 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
+import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
@@ -9,6 +11,7 @@ public class FunctionExpression extends Expression {
 	protected Symbol function;
 	protected boolean isCode;
 	protected ExpressionList args;
+	public boolean useOverrideName;
 	
 	public FunctionExpression(Symbol function, boolean isCode, ExpressionList args) {
 		this.function = function;
@@ -29,13 +32,27 @@ public class FunctionExpression extends Expression {
 	
 	@Override
 	public String translate() {
-		String name = Prefix.build(this.getSymbol());
+		Symbol symbol = this.getSymbol();
+		
+		if (this.getSymbol().hasModifier(Modifier.OVERRIDE)) {
+			if (!this.useOverrideName) {
+				symbol = ((FunctionSymbol) this.getSymbol()).getOriginal();
+			}
+		}
+		
+		String name = Prefix.build(symbol);
 		
 		if (this.getParent() != null) {
 			MutualRecursion recursion = this.getParent().getMutualRecursion(this.getSymbol());
 			
 			if (recursion != null) {
 				name = recursion.getPrefix();
+			}
+		}
+		
+		if (this.getSymbol().hasModifier(Modifier.OVERRIDE)) {
+			if (!this.useOverrideName) {
+				name += "_vtype";
 			}
 		}
 		

@@ -2,13 +2,12 @@ package com.ruke.vrjassc.vrjassc.symbol;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.antlr.v4.runtime.Token;
 
-public class InterfaceSymbol extends UserTypeSymbol {
+public class InterfaceSymbol extends UserTypeSymbol implements Overrideable {
 
-	protected Set<ClassSymbol> implementedBy = new HashSet<ClassSymbol>();
+	protected Collection<Symbol> implementedBy = new HashSet<Symbol>();
 	
 	public InterfaceSymbol(String name, int vtype, Scope scope, Token token) {
 		super(name, vtype, scope, token);
@@ -18,7 +17,7 @@ public class InterfaceSymbol extends UserTypeSymbol {
 		this.implementedBy.add(symbol);
 	}
 	
-	public Collection<ClassSymbol> getImplementations() {
+	public Collection<Symbol> getImplementations() {
 		return this.implementedBy;
 	}
 	

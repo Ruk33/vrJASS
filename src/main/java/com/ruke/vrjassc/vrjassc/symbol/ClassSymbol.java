@@ -104,6 +104,23 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer 
 			_interface.implementedBy(this);
 		}
 		
+		
+		Symbol o;
+		FunctionSymbol original;
+		
+		for (Symbol f : _super.childs.values()) {
+			if (f instanceof FunctionSymbol == false) continue;
+			
+			if (this.childs.containsKey(f.getName())) {
+				o = this.childs.get(f.getName());
+				original = ((FunctionSymbol) f).getOriginal();
+				
+				o.setModifier(Modifier.OVERRIDE, true);
+				((FunctionSymbol) o).setOriginal(original);
+				original.addImplementation((FunctionSymbol) o);
+			}
+		}
+		
 		return this;
 	}
 	
