@@ -1,15 +1,29 @@
 package com.ruke.vrjassc.translator.expression;
 
+import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+
 public class CastExpression extends Expression {
 
-	public CastExpression(Expression original, Expression cast) {
+	protected Expression original;
+	
+	public CastExpression(Expression original, Expression cast) {		
+		this.original = new RawExpression(
+			original.translate(), 
+			new CastSymbol(original.getSymbol(), cast.getSymbol(), null)
+		);
 		
+		this.original.setParent(this);
+	}
+	
+	@Override
+	public Symbol getSymbol() {
+		return this.original.getSymbol();
 	}
 	
 	@Override
 	public String translate() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.original.translate();
 	}
 
 }

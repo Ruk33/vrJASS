@@ -1,8 +1,10 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
+import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.translator.SymbolOverrideTranslator;
 import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
+import com.ruke.vrjassc.translator.expression.CastExpression;
 import com.ruke.vrjassc.translator.expression.ChainExpression;
 import com.ruke.vrjassc.translator.expression.ElseIfStatement;
 import com.ruke.vrjassc.translator.expression.ElseStatement;
@@ -145,14 +147,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	@Override
 	public Expression visitCast(CastContext ctx) {		
-		Expression original = this.visit(ctx.original);		
-		Symbol symbol = original.getSymbol();
+		Expression expression = this.visit(ctx.original);
+		Expression cast = this.visit(ctx.casted);
 		
-		if (symbol instanceof BuiltInTypeSymbol) {
-			symbol = null;
-		}
-		
-		return new RawExpression(original.translate(), symbol);
+		return new CastExpression(expression, cast);
 	}
 
 	@Override
@@ -319,7 +317,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitChainExpression(ChainExpressionContext ctx) {
 		ChainExpression chain = new ChainExpression();
 		
-		chain.setHashtableName("vrjass_structs");
+		chain.setHashtableName(Config.STRUCT_HASHTABLE_NAME);
 		
 		for (ExpressionContext expr : ctx.expression()) {
 			Expression e = this.visit(expr);

@@ -523,7 +523,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	public Symbol visitCast(CastContext ctx) {		
 		Symbol original = this.visit(ctx.original);
 		Symbol cast = this.visit(ctx.casted);
-		return new CastSymbol(original, cast, ctx.getStart());
+		Symbol result = new CastSymbol(original, cast, ctx.getStart());
+		
+		this.symbols.put(ctx, result);
+		
+		return result;
 	}
 	
 	@Override

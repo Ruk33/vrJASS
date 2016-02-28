@@ -8,7 +8,7 @@ public class CastSymbol extends Symbol {
 	protected Symbol cast;
 	
 	public CastSymbol(Symbol original, Symbol cast, Token token) {
-		super("", original.getParentScope(), token);
+		super(original.getName(), original.getParentScope(), token);
 
 		this.original = original;
 		this.cast = cast;

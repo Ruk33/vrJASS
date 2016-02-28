@@ -4,12 +4,12 @@ import java.util.LinkedList;
 
 import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
+import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Overrideable;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
-import com.ruke.vrjassc.vrjassc.util.Prefix;
 
 public class ChainExpression extends Expression {
 
@@ -34,7 +34,7 @@ public class ChainExpression extends Expression {
 			
 			return;
 		}
-		
+
 		expression.setParent(this);
 		this.expressions.add(expression);
 	}
@@ -51,26 +51,31 @@ public class ChainExpression extends Expression {
 			
 			boolean isStatic = last.getSymbol().hasModifier(Modifier.STATIC);
 			boolean isInterface = last.getSymbol().getParentScope() instanceof InterfaceSymbol;
-			boolean isOverrided = last.getSymbol().hasModifier(Modifier.OVERRIDE);
+			boolean isOverrided = last.getSymbol().hasModifier(Modifier.OVERRIDE) || !((Overrideable) last.getSymbol()).getImplementations().isEmpty();
 			FunctionExpression func = ((FunctionExpression) last);
 			
 			if (!isStatic) {
 				if (isInterface || isOverrided) {
-					ChainExpression vtype = new ChainExpression();
-					vtype.setHashtableName(this.chainTranslator.getHashtableName());
-					
-					Expression lastInstance = null;
-					
-					for (Expression i : this.expressions) {
-						if (i.getSymbol().getType() instanceof UserTypeSymbol) {
-							lastInstance = i;
+					if (this.expressions.getLast().getSymbol() instanceof CastSymbol) {
+						int id = ((UserTypeSymbol) this.expressions.getLast().getSymbol().getType()).getTypeId();
+						func.getArguments().getList().addFirst(new RawExpression(id));
+					} else {
+						ChainExpression vtype = new ChainExpression();
+						vtype.setHashtableName(this.chainTranslator.getHashtableName());
+						
+						Expression lastInstance = null;
+						
+						for (Expression i : this.expressions) {
+							if (i.getSymbol().getType() instanceof UserTypeSymbol) {
+								lastInstance = i;
+							}
 						}
+						
+						vtype.append(lastInstance, null);
+						vtype.append(new RawExpression(Config.VTYPE_NAME), null);
+						
+						func.getArguments().getList().addFirst(vtype);
 					}
-					
-					vtype.append(lastInstance, null);
-					vtype.append(new RawExpression(Config.VTYPE_NAME), null);
-					
-					func.getArguments().getList().addFirst(vtype);
 				}
 				
 				func.getArguments().getList().addFirst(this);
@@ -95,7 +100,7 @@ public class ChainExpression extends Expression {
 			if (!isStatic) {
 				func.getArguments().getList().removeFirst();
 				
-				if (isInterface) {
+				if (isInterface || isOverrided) {
 					func.getArguments().getList().removeFirst();
 				}
 			}
@@ -130,16 +135,10 @@ public class ChainExpression extends Expression {
 				}
 			}
 			
-			if (expression.getSymbol() == null) {
-				name = expression.translate();
-			} else {
-				name = Prefix.build(expression.getSymbol());
-			}
-			
 			this.chainTranslator.append(
 				expression.getSymbol(),
 				index,
-				name
+				expression.translate()
 			);
 		}
 		

@@ -1,6 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
 import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
@@ -34,7 +35,7 @@ public class FunctionExpression extends Expression {
 	public String translate() {
 		Symbol symbol = this.getSymbol();
 		
-		if (this.getSymbol().hasModifier(Modifier.OVERRIDE)) {
+		if (this.getSymbol().hasModifier(Modifier.OVERRIDE) || !((FunctionSymbol) this.getSymbol()).getImplementations().isEmpty()) {
 			if (!this.useOverrideName) {
 				symbol = ((FunctionSymbol) this.getSymbol()).getOriginal();
 			}
@@ -50,7 +51,10 @@ public class FunctionExpression extends Expression {
 			}
 		}
 		
-		if (this.getSymbol().hasModifier(Modifier.OVERRIDE)) {
+		boolean isInterface = this.getSymbol().getParentScope() instanceof InterfaceSymbol;
+		boolean isOverrideable = this.getSymbol().hasModifier(Modifier.OVERRIDE) || !((FunctionSymbol) this.getSymbol()).getImplementations().isEmpty();
+		
+		if (isInterface || isOverrideable) {
 			if (!this.useOverrideName) {
 				name += "_vtype";
 			}

@@ -71,6 +71,7 @@ public class SymbolOverrideTranslator {
 		
 		e.defineParam(vtype);
 		e.defineParam(method.getParams());
+		e.setType(method.getType());
 		
 		FunctionDefinition function = new FunctionDefinition(e);
 		LinkedList<Symbol> implementations = new LinkedList<Symbol>(original.getImplementations());
