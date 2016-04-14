@@ -1,9 +1,5 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.translator.expression.GlobalStatement;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.StatementList;
@@ -11,6 +7,9 @@ import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class GlobalStatementTest {
 

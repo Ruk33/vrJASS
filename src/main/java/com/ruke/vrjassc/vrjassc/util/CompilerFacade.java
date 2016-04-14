@@ -1,23 +1,17 @@
 package com.ruke.vrjassc.vrjassc.util;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.TokenStream;
-
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassLexer;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.exception.SyntaxErrorException;
-import com.ruke.vrjassc.vrjassc.phase.ReferencePhase;
 import com.ruke.vrjassc.vrjassc.phase.DefinitionPhase;
+import com.ruke.vrjassc.vrjassc.phase.ReferencePhase;
 import com.ruke.vrjassc.vrjassc.phase.TranslationPhase;
 import com.ruke.vrjassc.vrjassc.symbol.VrJassScope;
+import org.antlr.v4.runtime.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class CompilerFacade {
 	

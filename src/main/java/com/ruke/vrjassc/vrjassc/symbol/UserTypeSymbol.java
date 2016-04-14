@@ -1,9 +1,9 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import org.antlr.v4.runtime.Token;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.antlr.v4.runtime.Token;
 
 public abstract class UserTypeSymbol extends ScopeSymbol implements Type {
 

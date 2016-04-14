@@ -1,9 +1,9 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import org.antlr.v4.runtime.Token;
+
 import java.util.ArrayList;
 import java.util.Collection;
-
-import org.antlr.v4.runtime.Token;
 
 public class LibrarySymbol extends ScopeSymbol implements InitializerContainer {
 

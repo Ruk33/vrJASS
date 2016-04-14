@@ -1,9 +1,5 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.translator.expression.BooleanExpression;
 import com.ruke.vrjassc.translator.expression.RawExpression;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
@@ -11,6 +7,9 @@ import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class BooleanExpressionTest {
 

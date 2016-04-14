@@ -1,8 +1,8 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
-import java.util.HashMap;
-
 import org.antlr.v4.runtime.Token;
+
+import java.util.HashMap;
 
 public class Symbol {
 
@@ -38,6 +38,10 @@ public class Symbol {
 	
 	public String getName() {
 		return this.name;
+	}
+
+	public void setScope(Scope scope) {
+		this.scope = scope;
 	}
 
 	public Symbol setType(Type type) {

@@ -1,12 +1,12 @@
 package com.ruke.vrjassc.vrjassc.util;
 
+import com.ruke.vrjassc.vrjassc.symbol.InitializerContainer;
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.ruke.vrjassc.vrjassc.symbol.InitializerContainer;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
 public class InitializerHandler {
 	

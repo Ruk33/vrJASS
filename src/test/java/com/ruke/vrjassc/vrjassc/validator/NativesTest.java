@@ -1,8 +1,7 @@
 package com.ruke.vrjassc.vrjassc.validator;
 
-import org.junit.Test;
-
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
+import org.junit.Test;
 
 public class NativesTest extends TestHelper {
 

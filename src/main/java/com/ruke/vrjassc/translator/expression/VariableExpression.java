@@ -1,7 +1,6 @@
 package com.ruke.vrjassc.translator.expression;
 
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 
 public class VariableExpression extends Expression {

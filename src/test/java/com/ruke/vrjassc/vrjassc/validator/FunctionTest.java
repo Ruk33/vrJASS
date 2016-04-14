@@ -1,16 +1,8 @@
 package com.ruke.vrjassc.vrjassc.validator;
 
-import org.junit.Test;
-
-import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
-import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidMathException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidStringConcatenationException;
-import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
-import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
-import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
+import com.ruke.vrjassc.vrjassc.exception.*;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
+import org.junit.Test;
 
 public class FunctionTest extends TestHelper {
 

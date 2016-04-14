@@ -1,9 +1,8 @@
 package com.ruke.vrjassc.vrjassc.exception;
 
-import org.antlr.v4.runtime.Token;
-
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import org.antlr.v4.runtime.Token;
 
 public class StaticNonStaticTypeException extends CompileException {
 

@@ -1,12 +1,12 @@
 package com.ruke.vrjassc.translator;
 
-import java.util.Stack;
-
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.symbol.Type;
 import com.ruke.vrjassc.vrjassc.util.HashtableFunctionGetter;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
+
+import java.util.Stack;
 
 public class ChainExpressionTranslator {
 	

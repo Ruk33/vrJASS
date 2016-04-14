@@ -1,8 +1,8 @@
 package com.ruke.vrjassc.vrjassc.util;
 
-import java.util.Hashtable;
-
 import com.ruke.vrjassc.vrjassc.symbol.Type;
+
+import java.util.Hashtable;
 
 public class HashtableFunctionGetter {
 

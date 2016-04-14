@@ -1,16 +1,17 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import org.antlr.v4.runtime.Token;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.antlr.v4.runtime.Token;
-
-public class ClassSymbol extends UserTypeSymbol implements InitializerContainer {
+public class ClassSymbol extends UserTypeSymbol implements InitializerContainer, AbstractMethodContainer {
 
 	private ClassSymbol _super;
 	private Set<InterfaceSymbol> interfaces = new HashSet<InterfaceSymbol>();
+	private Set<Symbol> abstracts = new HashSet<Symbol>();
 	protected Symbol onInit;
 	
 	public ClassSymbol(String name, int vtype, Scope scope, Token token) {
@@ -28,6 +29,10 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer 
 			this.interfaces.add((InterfaceSymbol) symbol);
 			((InterfaceSymbol) symbol).implementedBy(this);
 		}
+
+		if (symbol instanceof FunctionSymbol && symbol.hasModifier(Modifier.ABSTRACT)) {
+			this.abstracts.add(symbol);
+		}
 		
 		return super.define(symbol);
 	}
@@ -42,6 +47,8 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer 
 	}
 	
 	public boolean hasAccessToMember(Symbol member) {
+		if (member == null) return false;
+
 		if (member.hasModifier(Modifier.PROTECTED)) {
 			ClassSymbol _class = this;
 			Scope memberParent = member.getParentScope();
@@ -82,7 +89,7 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer 
 	public Symbol resolveMember(ClassSymbol requesting, String name) {
 		Symbol member = this.childs.get(name);
 		
-		if (member == null || !requesting.hasAccessToMember(member)) {
+		if (!requesting.hasAccessToMember(member)) {
 			member = null;
 			
 			if (this.getSuper() != null) {
@@ -156,6 +163,10 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer 
 	@Override
 	public Collection<InitializerContainer> getInitializersToLoadFirst() {
 		return new ArrayList<InitializerContainer>();
+	}
+
+	public Collection<Symbol> getAbstractMethods() {
+		return this.abstracts;
 	}
 
 }

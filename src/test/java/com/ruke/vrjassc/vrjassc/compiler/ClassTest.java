@@ -1,11 +1,10 @@
 package com.ruke.vrjassc.vrjassc.compiler;
 
-import static org.junit.Assert.*;
-
+import com.ruke.vrjassc.vrjassc.util.TestHelper;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.ruke.vrjassc.vrjassc.util.TestHelper;
+import static org.junit.Assert.assertEquals;
 
 public class ClassTest extends TestHelper {
 		
@@ -42,15 +41,15 @@ public class ClassTest extends TestHelper {
 			"endglobals\n" +
 			"function struct_foo_lorem takes integer this,integer i returns nothing\n" +
 			"endfunction\n" +
-			"function struct_foo_bar_lorem takes integer this,integer i returns nothing\n" +
-			"endfunction\n" +
 			"function struct_foo_bar_baz_lorem takes integer this,integer i returns nothing\n" +
 			"endfunction\n" +
+			"function struct_foo_bar_lorem takes integer this,integer i returns nothing\n" +
+			"endfunction\n" +
 			"function struct_foo_lorem_vtype takes integer this,integer vtype,integer i returns nothing\n" +
-				"if vtype==2 then\n" +
-					"call struct_foo_bar_lorem(this,i)\n" +
-				"elseif vtype==3 then\n" +
+				"if vtype==3 then\n" +
 					"call struct_foo_bar_baz_lorem(this,i)\n" +
+				"elseif vtype==2 then\n" +
+					"call struct_foo_bar_lorem(this,i)\n" +
 				"else\n" +
 					"call struct_foo_lorem(this,i)\n" +
 				"endif\n" +
@@ -472,7 +471,6 @@ public class ClassTest extends TestHelper {
 	}
 	
 	@Test
-	@Ignore
 	public void onInit() {
 		String code =
 			"struct bar\n"
@@ -492,16 +490,9 @@ public class ClassTest extends TestHelper {
 				+ "hashtable vrjass_structs=InitHashtable()\n"
 				+ "integer vtype=-1\n"
 			+ "endglobals\n"
-			+ "function struct_bar_foo_onInit takes nothing returns nothing\n"
-			+ "endfunction\n"
 			+ "function struct_bar_onInit takes nothing returns nothing\n"
 			+ "endfunction\n"
-			+ "function struct_bar_onInit_vtype takes integer vtype returns nothing\n"
-				+ "if vtype==2 then\n"
-					+ "call struct_bar_foo_onInit()\n"
-				+ "else\n"
-					+ "call struct_bar_onInit()\n"
-				+ "endif\n"
+			+ "function struct_bar_foo_onInit takes nothing returns nothing\n"
 			+ "endfunction\n"
 			+ "function main takes nothing returns nothing\n"
 				+ "call main()\n"

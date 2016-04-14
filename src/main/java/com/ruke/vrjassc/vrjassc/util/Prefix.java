@@ -1,10 +1,10 @@
 package com.ruke.vrjassc.vrjassc.util;
 
-import java.util.LinkedList;
-
 import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+
+import java.util.LinkedList;
 
 public class Prefix {
 
@@ -17,7 +17,7 @@ public class Prefix {
 				e.addFirst(parent.getName());
 				parent = (Symbol) parent.getParentScope();
 			}
-			
+
 			if (symbol.getParentScope() instanceof ClassSymbol) {
 				e.addFirst("struct");
 			}

@@ -1,39 +1,15 @@
 package com.ruke.vrjassc.vrjassc.util;
 
-import java.util.List;
-import java.util.Stack;
-
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
-
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
-import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
-import com.ruke.vrjassc.vrjassc.exception.CompileException;
-import com.ruke.vrjassc.vrjassc.exception.IncompatibleTypeException;
-import com.ruke.vrjassc.vrjassc.exception.IncorrectArgumentCountException;
-import com.ruke.vrjassc.vrjassc.exception.InterfaceMethodException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidExtendTypeException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidImplementTypeException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidMathException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidStatementException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidStringConcatenationException;
-import com.ruke.vrjassc.vrjassc.exception.InvalidTypeException;
-import com.ruke.vrjassc.vrjassc.exception.MissReturnException;
-import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
-import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
-import com.ruke.vrjassc.vrjassc.exception.StaticNonStaticTypeException;
-import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
-import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.Scope;
-import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.exception.*;
+import com.ruke.vrjassc.vrjassc.symbol.*;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Maintain all the validation (type compatible, amount of arguments
@@ -343,14 +319,18 @@ public class Validator {
 		return true;
 	}
 
-	public boolean mustImplementAllMethods(ScopeSymbol _interface, ClassSymbol _class, Token token) {
+	public boolean mustImplementAllMethods(AbstractMethodContainer from, ClassSymbol _class, Token token) {
 		this.validated = _class;
+
+		if (_class.hasModifier(Modifier.ABSTRACT)) {
+			return true;
+		}
 		
-		int methods = _interface.getChilds().size();
+		int methods = from.getAbstractMethods().size();
 		Symbol resolved;
 		boolean argsMatch;
 		
-		for (Symbol method : _interface.getChilds().values()) {
+		for (Symbol method : from.getAbstractMethods()) {
 			if (method instanceof FunctionSymbol == false) {
 				methods--;
 				continue;
@@ -392,7 +372,7 @@ public class Validator {
 		}
 		
 		if (methods > 0) {
-			this.exception = new InterfaceMethodException(_interface, _class, token);
+			this.exception = new AbstractMethodException((Symbol) from, _class, token);
 			return false;
 		}
 		

@@ -1,10 +1,10 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import org.antlr.v4.runtime.Token;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Stack;
-
-import org.antlr.v4.runtime.Token;
 
 public class FunctionSymbol extends ScopeSymbol implements Overrideable {
 
@@ -27,6 +27,15 @@ public class FunctionSymbol extends ScopeSymbol implements Overrideable {
 	}
 	
 	public void addImplementation(FunctionSymbol f) {
+		// Dont override initializers
+		if ("onInit".equals(this.getName())) {
+			return;
+		}
+
+		if (f.hasModifier(Modifier.ABSTRACT)) {
+			return;
+		}
+
 		this.implementations.add(f);
 	}
 	

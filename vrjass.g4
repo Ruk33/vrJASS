@@ -115,12 +115,12 @@ propertyStatement:
 structStatement:
 	propertyStatement
 	|functionDefinition
-	;
+	|functionSignature;
 
 implementsList: validName (COMMA validName)*;
 
 structDefinition:
-	(PRIVATE|PUBLIC)? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
+	(PRIVATE|PUBLIC)? ABSTRACT? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
 		(NL | structStatement)*
 	(ENDSTRUCT | END) NL
 	;
@@ -146,7 +146,7 @@ arguments:
 	expression (COMMA expression)*;
 
 functionSignature: 
-	(PRIVATE | PUBLIC)? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
+	(PRIVATE | PUBLIC)? ABSTRACT? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
 
 functionDefinitionExpression:
 	functionSignature NL
@@ -214,6 +214,7 @@ returnStatement:
 	RETURN (expression)? NL;
 
 
+ABSTRACT: 'abstract';
 BREAK: 'break';
 WHILE: 'while';
 ENDWHILE: 'endwhile';

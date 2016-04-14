@@ -1,11 +1,11 @@
 package com.ruke.vrjassc.vrjassc.util;
 
+import com.ruke.vrjassc.vrjassc.exception.CompileException;
+import org.antlr.v4.runtime.ANTLRInputStream;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-import org.antlr.v4.runtime.ANTLRInputStream;
-import com.ruke.vrjassc.vrjassc.exception.CompileException;
 
 public class Compile {
 

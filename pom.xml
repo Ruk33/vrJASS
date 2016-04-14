@@ -26,7 +26,7 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
-			<scope>test</scope>
+			<!--<scope>test</scope>-->
 		</dependency>
 
 		<dependency>
@@ -38,7 +38,7 @@
 		<dependency>
 	    	<groupId>com.github.peq</groupId>
 	    	<artifactId>jMpq</artifactId>
-	    	<version>e9ddcaa0cf</version>
+	    	<version>e9ddcaa0cf2a3d860d2bc59779690312bbbb3c20</version>
 		</dependency>
 	</dependencies>
 	

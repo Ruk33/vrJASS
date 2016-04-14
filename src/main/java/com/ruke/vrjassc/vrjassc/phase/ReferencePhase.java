@@ -1,63 +1,15 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
-import java.util.Stack;
-
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.*;
+import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
+import com.ruke.vrjassc.vrjassc.symbol.*;
+import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
+import com.ruke.vrjassc.vrjassc.util.Validator;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AnonymousExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BreakStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitWhenStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionSignatureContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PlusContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidNameContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ValidTypeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
-import com.ruke.vrjassc.vrjassc.exception.NoFunctionException;
-import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InitTrigSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Scope;
-import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
-import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
-import com.ruke.vrjassc.vrjassc.util.Validator;
+import java.util.Stack;
 
 public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 
@@ -183,10 +135,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			if (!this.validator.mustBeExtendableValid(this.validator.getValidatedSymbol(), extendsToken)) {
 				throw this.validator.getException();
 			}
+
+			ClassSymbol parent = (ClassSymbol) this.validator.getValidatedSymbol();
+
+			if (!this.validator.mustImplementAllMethods(parent, _class, token)) {
+				throw this.validator.getException();
+			}
 			
-			_class.extendsFrom((ClassSymbol) this.validator.getValidatedSymbol());
+			_class.extendsFrom(parent);
 		}
-		
+
 		super.visitStructDefinition(ctx);
 		
 		if (ctx.implementsList() != null) {
@@ -200,14 +158,14 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				if (!this.validator.mustBeDefined(_class, interfaceName, interfaceToken)) {
 					throw this.validator.getException();
 				}
-				
-				Symbol _interface = this.validator.getValidatedSymbol();
-				
-				if (!this.validator.mustBeImplementableTypeValid(_interface, interfaceToken)) {
+
+				if (!this.validator.mustBeImplementableTypeValid(this.validator.getValidatedSymbol(), interfaceToken)) {
 					throw this.validator.getException();
 				}
+
+				InterfaceSymbol _interface = (InterfaceSymbol) this.validator.getValidatedSymbol();
 				
-				if (!this.validator.mustImplementAllMethods((ScopeSymbol) _interface, _class, token)) {
+				if (!this.validator.mustImplementAllMethods(_interface, _class, token)) {
 					throw this.validator.getException();
 				}
 				
@@ -239,7 +197,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitFunctionSignature(FunctionSignatureContext ctx) {
 		FunctionSymbol function = (FunctionSymbol) this.symbols.get(ctx);
-		
+
 		this.scopes.push(function);
 		this.enclosingScopes.push(function);
 		
@@ -266,7 +224,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitFunctionDefinitionExpression(FunctionDefinitionExpressionContext ctx) {		
 		FunctionSymbol function = (FunctionSymbol) this.visit(ctx.functionSignature());
-		
+
 		if (!this.validator.mustReturn(function, ctx.statement())) {
 			throw this.validator.getException();
 		}
@@ -629,5 +587,4 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		return expr;
 	}
-
 }

@@ -1,9 +1,9 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
+import org.antlr.v4.runtime.Token;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.antlr.v4.runtime.Token;
 
 public class ScopeSymbol extends Symbol implements Scope {
 
@@ -36,7 +36,7 @@ public class ScopeSymbol extends Symbol implements Scope {
 			this.childs.put(symbol.getName(), symbol);
 			
 			if (symbol.scope == null) {
-				symbol.scope = this;
+				symbol.setScope(this);
 			}
 		}
 		

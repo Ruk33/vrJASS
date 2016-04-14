@@ -1,11 +1,10 @@
 package com.ruke.vrjassc.vrjassc.validator;
 
-import org.junit.Test;
-
 import com.ruke.vrjassc.vrjassc.exception.AlreadyDefinedException;
 import com.ruke.vrjassc.vrjassc.exception.NoAccessException;
 import com.ruke.vrjassc.vrjassc.exception.UndefinedSymbolException;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
+import org.junit.Test;
 
 public class LibraryTest extends TestHelper {
 

@@ -1,8 +1,7 @@
 package com.ruke.vrjassc.vrjassc.symbol;
 
-import org.antlr.v4.runtime.Token;
-
 import com.ruke.vrjassc.vrjassc.util.TypeCompatibleChecker;
+import org.antlr.v4.runtime.Token;
 
 public class BuiltInTypeSymbol extends Symbol implements Type {
 

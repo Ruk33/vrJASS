@@ -1,19 +1,13 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.translator.expression.ExpressionList;
 import com.ruke.vrjassc.translator.expression.FunctionDefinition;
 import com.ruke.vrjassc.translator.expression.FunctionExpression;
 import com.ruke.vrjassc.translator.expression.FunctionStatement;
-import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
+import com.ruke.vrjassc.vrjassc.symbol.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class FunctionDefinitionTest {
 

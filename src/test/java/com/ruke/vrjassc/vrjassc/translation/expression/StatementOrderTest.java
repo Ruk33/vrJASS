@@ -1,27 +1,10 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
+import com.ruke.vrjassc.translator.expression.*;
+import com.ruke.vrjassc.vrjassc.symbol.*;
 import org.junit.Test;
 
-import com.ruke.vrjassc.translator.expression.AssignmentStatement;
-import com.ruke.vrjassc.translator.expression.Expression;
-import com.ruke.vrjassc.translator.expression.ExpressionList;
-import com.ruke.vrjassc.translator.expression.FunctionDefinition;
-import com.ruke.vrjassc.translator.expression.FunctionExpression;
-import com.ruke.vrjassc.translator.expression.FunctionStatement;
-import com.ruke.vrjassc.translator.expression.JassContainer;
-import com.ruke.vrjassc.translator.expression.RawExpression;
-import com.ruke.vrjassc.translator.expression.ReturnStatement;
-import com.ruke.vrjassc.translator.expression.Statement;
-import com.ruke.vrjassc.translator.expression.StatementBody;
-import com.ruke.vrjassc.translator.expression.VariableExpression;
-import com.ruke.vrjassc.translator.expression.VariableStatement;
-import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
+import static org.junit.Assert.assertEquals;
 
 public class StatementOrderTest {
 

@@ -1,11 +1,10 @@
 package com.ruke.vrjassc.vrjassc.compiler;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class FunctionTest extends TestHelper {
 	

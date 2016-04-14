@@ -1,10 +1,9 @@
 package com.ruke.vrjassc.vrjassc.compiler;
 
-import static org.junit.Assert.*;
-
+import com.ruke.vrjassc.vrjassc.util.TestHelper;
 import org.junit.Test;
 
-import com.ruke.vrjassc.vrjassc.util.TestHelper;
+import static org.junit.Assert.assertEquals;
 
 public class GlobalsTest extends TestHelper {
 

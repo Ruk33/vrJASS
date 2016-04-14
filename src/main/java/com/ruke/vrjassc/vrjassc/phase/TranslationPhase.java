@@ -2,99 +2,20 @@ package com.ruke.vrjassc.vrjassc.phase;
 
 import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.translator.SymbolOverrideTranslator;
-import com.ruke.vrjassc.translator.expression.AssignmentStatement;
-import com.ruke.vrjassc.translator.expression.BooleanExpression;
-import com.ruke.vrjassc.translator.expression.CastExpression;
-import com.ruke.vrjassc.translator.expression.ChainExpression;
-import com.ruke.vrjassc.translator.expression.ElseIfStatement;
-import com.ruke.vrjassc.translator.expression.ElseStatement;
-import com.ruke.vrjassc.translator.expression.ExitWhenStatement;
-import com.ruke.vrjassc.translator.expression.Expression;
-import com.ruke.vrjassc.translator.expression.ExpressionList;
-import com.ruke.vrjassc.translator.expression.FunctionDefinition;
-import com.ruke.vrjassc.translator.expression.FunctionExpression;
-import com.ruke.vrjassc.translator.expression.FunctionStatement;
-import com.ruke.vrjassc.translator.expression.IfStatement;
-import com.ruke.vrjassc.translator.expression.InitializerList;
-import com.ruke.vrjassc.translator.expression.JassContainer;
-import com.ruke.vrjassc.translator.expression.LogicalExpression;
-import com.ruke.vrjassc.translator.expression.LoopStatement;
-import com.ruke.vrjassc.translator.expression.MathExpression;
-import com.ruke.vrjassc.translator.expression.WhileLoopStatement;
+import com.ruke.vrjassc.translator.expression.*;
 import com.ruke.vrjassc.translator.expression.MathExpression.Operator;
-import com.ruke.vrjassc.translator.expression.NegativeExpression;
-import com.ruke.vrjassc.translator.expression.NotExpression;
-import com.ruke.vrjassc.translator.expression.ParenthesisExpression;
-import com.ruke.vrjassc.translator.expression.RawExpression;
-import com.ruke.vrjassc.translator.expression.ReturnStatement;
-import com.ruke.vrjassc.translator.expression.Statement;
-import com.ruke.vrjassc.translator.expression.StatementBody;
-import com.ruke.vrjassc.translator.expression.VariableExpression;
-import com.ruke.vrjassc.translator.expression.VariableStatement;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AnonymousExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ArgumentsContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AssignmentStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BooleanContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.BreakStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CastContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.CodeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ComparisonContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.DivContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseIfStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ElseStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExitWhenStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IfStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InitContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LogicalContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LoopStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MinusContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.MultContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NegativeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NotContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NullContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParenthesisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PlusContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.RealContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StringContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TopDeclarationContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ChainExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.IntegerContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.WhileLoopStatementContext;
-import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
-import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.*;
+import com.ruke.vrjassc.vrjassc.symbol.*;
 import com.ruke.vrjassc.vrjassc.util.InitializerHandler;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 
 public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	
 	protected TokenSymbolBag symbols;
-	
+
+	protected ClassSymbol _class;
+
 	protected ScopeSymbol scope;
 	
 	protected InitializerHandler initializerHandler;
@@ -284,8 +205,15 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		} else {
 			args = (ExpressionList) this.visit(ctx.arguments());
 		}
-		
-		return new FunctionExpression(symbol, false, args);
+
+		if (symbol == null) {
+			String name = ctx.validName().getText();
+			symbol = this._class.resolve(name);
+		}
+
+		Expression result = new FunctionExpression(symbol, false, args);
+
+		return result;
 	}
 
 	@Override
@@ -501,7 +429,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		return null;
 	}
-	
+
 	@Override
 	public Expression visitStructDefinition(StructDefinitionContext ctx) {
 		Statement statement;
@@ -510,15 +438,29 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		ClassSymbol _class = (ClassSymbol) this.symbols.get(ctx);
 		this.initializerHandler.add(_class);
-		
+
+		ClassSymbol prevClass = this._class;
+		this._class = _class;
+
+		for (Symbol _abstract : _class.getAbstractMethods()) {
+			this.container.add(
+				SymbolOverrideTranslator.build(
+				(FunctionSymbol) _abstract,
+				(FunctionSymbol) _abstract
+				)
+			);
+		}
+
 		for (StructStatementContext ssc : ctx.structStatement()) {
 			statement = (Statement) this.visit(ssc);
-			
+
 			if (statement != null) {
 				this.container.add(statement);
 			}
 		}
-		
+
+		this._class = prevClass;
+
 		return null;
 	}
 	
@@ -534,7 +476,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		StatementBody function = new FunctionDefinition(symbol);
 		Expression e;
 		
-		if (!symbol.getImplementations().isEmpty()) {
+		if (!symbol.getImplementations().isEmpty() || symbol.hasModifier(Modifier.ABSTRACT)) {
 			this.container.add(SymbolOverrideTranslator.build(symbol, symbol));
 		}
 		

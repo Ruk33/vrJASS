@@ -1,15 +1,10 @@
 package com.ruke.vrjassc.translator.expression;
 
-import java.util.LinkedList;
-
 import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.translator.ChainExpressionTranslator;
-import com.ruke.vrjassc.vrjassc.symbol.CastSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.Overrideable;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.*;
+
+import java.util.LinkedList;
 
 public class ChainExpression extends Expression {
 
@@ -52,6 +47,7 @@ public class ChainExpression extends Expression {
 			boolean isStatic = last.getSymbol().hasModifier(Modifier.STATIC);
 			boolean isInterface = last.getSymbol().getParentScope() instanceof InterfaceSymbol;
 			boolean isOverrided = last.getSymbol().hasModifier(Modifier.OVERRIDE) || !((Overrideable) last.getSymbol()).getImplementations().isEmpty();
+
 			FunctionExpression func = ((FunctionExpression) last);
 			
 			if (!isStatic) {

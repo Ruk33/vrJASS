@@ -1,13 +1,12 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.translator.expression.ExitWhenStatement;
 import com.ruke.vrjassc.translator.expression.FunctionStatement;
 import com.ruke.vrjassc.translator.expression.LoopStatement;
 import com.ruke.vrjassc.translator.expression.RawExpression;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class LoopStatementTest {
 

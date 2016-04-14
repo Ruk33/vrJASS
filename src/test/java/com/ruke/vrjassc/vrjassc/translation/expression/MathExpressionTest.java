@@ -1,11 +1,10 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.translator.expression.MathExpression;
 import com.ruke.vrjassc.translator.expression.RawExpression;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class MathExpressionTest {
 

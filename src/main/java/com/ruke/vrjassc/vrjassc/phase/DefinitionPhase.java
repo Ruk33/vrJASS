@@ -1,39 +1,12 @@
 package com.ruke.vrjassc.vrjassc.phase;
 
-import org.antlr.v4.runtime.Token;
-
 import com.ruke.vrjassc.Config;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassBaseVisitor;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.AnonymousExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionSignatureContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.InterfaceDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.NativeDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ReturnTypeContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.TypeDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableDeclarationContext;
-import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LibrarySymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.Scope;
-import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
-import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.VariableSymbol;
+import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.*;
+import com.ruke.vrjassc.vrjassc.symbol.*;
 import com.ruke.vrjassc.vrjassc.util.TokenSymbolBag;
 import com.ruke.vrjassc.vrjassc.util.Validator;
+import org.antlr.v4.runtime.Token;
 
 public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	
@@ -129,14 +102,16 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		return _interface;
 	}
-	
+
 	@Override
 	public Symbol visitStructDefinition(StructDefinitionContext ctx) {		
 		String name = ctx.name.getText();
 		Token token = ctx.name.getStart();
 		
 		ClassSymbol _class = new ClassSymbol(name, ++this.classesCount, null, token);
+
 		_class.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		_class.setModifier(Modifier.ABSTRACT, ctx.ABSTRACT() != null);
 		
 		this.defineOrThrowAlreadyDefinedException(this.scope, _class);
 		
@@ -192,13 +167,21 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		FunctionSymbol function = new FunctionSymbol(name, null, token);
 		
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
-		
+		function.setModifier(Modifier.ABSTRACT, this.scope instanceof InterfaceSymbol);
+
+		if (this.scope instanceof ClassSymbol) {
+			// Check for abstract definition
+			if("StructStatementContext".equals(ctx.getParent().getClass().getSimpleName())) {
+				function.setModifier(Modifier.ABSTRACT, true);
+			}
+		}
+
 		if (this.scope instanceof UserTypeSymbol) {
 			function.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		} else {
 			function.setModifier(Modifier.STATIC, true);
 		}
-		
+
 		this.defineOrThrowAlreadyDefinedException(this.scope, function);
 		
 		ScopeSymbol prev = this.scope;
@@ -230,7 +213,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitFunctionDefinitionExpression(FunctionDefinitionExpressionContext ctx) {
 		FunctionSymbol function = (FunctionSymbol) this.visit(ctx.functionSignature());
-		
+
 		this.symbols.put(ctx, function);
 		
 		ScopeSymbol prev = this.scope;

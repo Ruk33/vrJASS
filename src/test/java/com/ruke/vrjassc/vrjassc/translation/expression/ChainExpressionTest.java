@@ -1,20 +1,13 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.translator.expression.ChainExpression;
 import com.ruke.vrjassc.translator.expression.ExpressionList;
 import com.ruke.vrjassc.translator.expression.FunctionExpression;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
-import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.LocalVariableSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.MethodSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.PropertySymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.VrJassScope;
+import com.ruke.vrjassc.vrjassc.symbol.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class ChainExpressionTest {
 

@@ -33,11 +33,11 @@ public class FunctionExpression extends Expression {
 	
 	@Override
 	public String translate() {
-		Symbol symbol = this.getSymbol();
+		FunctionSymbol symbol = (FunctionSymbol) this.getSymbol();
 		
-		if (this.getSymbol().hasModifier(Modifier.OVERRIDE) || !((FunctionSymbol) this.getSymbol()).getImplementations().isEmpty()) {
+		if (symbol.hasModifier(Modifier.OVERRIDE) || !symbol.getImplementations().isEmpty()) {
 			if (!this.useOverrideName) {
-				symbol = ((FunctionSymbol) this.getSymbol()).getOriginal();
+				symbol = symbol.getOriginal();
 			}
 		}
 		

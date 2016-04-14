@@ -57,3 +57,6 @@ local.properties
 # Antlr4
 META-INF/
 org/antlr/v4/tool/templates/
+
+# Intellij
+.idea/*

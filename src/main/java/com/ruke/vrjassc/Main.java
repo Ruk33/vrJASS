@@ -1,22 +1,16 @@
 package com.ruke.vrjassc;
 
-import java.awt.Desktop;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import com.ruke.vrjassc.vrjassc.exception.CompileException;
+import com.ruke.vrjassc.vrjassc.util.Compile;
+import de.peeeq.jmpq.JmpqEditor;
+import de.peeeq.jmpq.JmpqError;
+
+import java.awt.*;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import com.ruke.vrjassc.vrjassc.exception.CompileException;
-import com.ruke.vrjassc.vrjassc.util.Compile;
-
-import de.peeeq.jmpq.JmpqEditor;
-import de.peeeq.jmpq.JmpqError;
 
 public class Main {
 

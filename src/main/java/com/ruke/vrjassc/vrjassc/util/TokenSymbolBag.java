@@ -1,24 +1,10 @@
 package com.ruke.vrjassc.vrjassc.util;
 
-import java.util.Hashtable;
-
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.FunctionExpressionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.GlobalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LibraryDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.LocalVariableStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ParameterContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.PropertyStatementContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.StructDefinitionContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.ThisContext;
-import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser.VariableExpressionContext;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import java.util.Hashtable;
 
 /**
  * Avoid classes having to know how to store and get symbols from tokens

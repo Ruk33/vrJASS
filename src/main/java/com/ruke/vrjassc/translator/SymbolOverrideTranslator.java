@@ -1,30 +1,12 @@
 package com.ruke.vrjassc.translator;
 
-import java.util.LinkedList;
-
 import com.ruke.vrjassc.Config;
-import com.ruke.vrjassc.translator.expression.BooleanExpression;
+import com.ruke.vrjassc.translator.expression.*;
 import com.ruke.vrjassc.translator.expression.BooleanExpression.Operator;
-import com.ruke.vrjassc.translator.expression.ElseIfStatement;
-import com.ruke.vrjassc.translator.expression.ElseStatement;
-import com.ruke.vrjassc.translator.expression.ExpressionList;
-import com.ruke.vrjassc.translator.expression.FunctionDefinition;
-import com.ruke.vrjassc.translator.expression.FunctionExpression;
-import com.ruke.vrjassc.translator.expression.FunctionStatement;
-import com.ruke.vrjassc.translator.expression.IfStatement;
-import com.ruke.vrjassc.translator.expression.RawExpression;
-import com.ruke.vrjassc.translator.expression.ReturnStatement;
-import com.ruke.vrjassc.translator.expression.Statement;
-import com.ruke.vrjassc.translator.expression.StatementBody;
-import com.ruke.vrjassc.translator.expression.VariableExpression;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.Overrideable;
-import com.ruke.vrjassc.vrjassc.symbol.ScopeSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
-import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.*;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
+
+import java.util.LinkedList;
 
 public class SymbolOverrideTranslator {
 
@@ -83,7 +65,7 @@ public class SymbolOverrideTranslator {
 		Symbol first = null;
 		Symbol last = null;
 		
-		if (original instanceof FunctionSymbol) {
+		if (original instanceof FunctionSymbol && !((FunctionSymbol) original).hasModifier(Modifier.ABSTRACT)) {
 			implementations.add((Symbol) original);
 		}
 		

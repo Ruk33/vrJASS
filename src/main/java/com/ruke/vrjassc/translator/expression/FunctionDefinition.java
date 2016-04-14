@@ -1,17 +1,11 @@
 package com.ruke.vrjassc.translator.expression;
 
-import java.util.Collection;
-
 import com.ruke.vrjassc.Config;
-import com.ruke.vrjassc.vrjassc.symbol.ClassSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.symbol.Type;
-import com.ruke.vrjassc.vrjassc.symbol.UserTypeSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.*;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
+
+import java.util.Collection;
 
 public class FunctionDefinition extends StatementBody {
 
@@ -41,7 +35,7 @@ public class FunctionDefinition extends StatementBody {
 				
 				if (param.getName().equals("this")) thisAdded = true;
 			}
-			
+
 			if (this.function.getParentScope() instanceof ClassSymbol) {
 				if (!this.function.hasModifier(Modifier.STATIC) && !thisAdded) {
 					this.getList().add(0, new RawExpression("integer this"));
@@ -50,7 +44,7 @@ public class FunctionDefinition extends StatementBody {
 				this.getList().add(0, new RawExpression("integer this"));
 				this.getList().add(1, new RawExpression("integer " + Config.VTYPE_NAME));
 			}
-			
+
 			if (this.function.getName().equals("allocate")) {
 				this.getList().add(0, new RawExpression("integer vrjass_type"));
 			}

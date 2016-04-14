@@ -1,11 +1,11 @@
 package com.ruke.vrjassc.translator.expression;
 
+import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
-import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
 
 public abstract class Expression {
 

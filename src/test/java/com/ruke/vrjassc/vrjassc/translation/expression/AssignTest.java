@@ -1,15 +1,13 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.ruke.vrjassc.translator.expression.AssignmentStatement;
 import com.ruke.vrjassc.translator.expression.ChainExpression;
 import com.ruke.vrjassc.translator.expression.Expression;
 import com.ruke.vrjassc.translator.expression.VariableExpression;
-import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class AssignTest {
 
