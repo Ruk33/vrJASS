@@ -7,6 +7,41 @@ import org.junit.Test;
 public class AbstractClassTest extends TestHelper {
 
     @Test
+    public void onInit() {
+        String code =
+        "abstract struct foo\n" +
+            "public static method onInit\n" +
+                "call GetLocalPlayer()\n" +
+            "end\n" +
+        "end\n" +
+        "struct bar extends foo\n" +
+            "public static method onInit\n" +
+                "call Player(0)\n" +
+            "end\n" +
+        "end\n" +
+        "function main\n" +
+        "endfunction";
+
+        String expected =
+        "globals\n" +
+            "hashtable vrjass_structs=InitHashtable()\n" +
+            "integer vtype=-1\n" +
+        "endglobals\n" +
+        "function struct_foo_onInit takes nothing returns nothing\n" +
+            "call GetLocalPlayer()\n" +
+        "endfunction\n" +
+        "function struct_foo_bar_onInit takes nothing returns nothing\n" +
+            "call Player(0)\n" +
+        "endfunction\n" +
+        "function main takes nothing returns nothing\n" +
+            "call ExecuteFunc(\"struct_foo_onInit\")\n" +
+            "call ExecuteFunc(\"struct_foo_bar_onInit\")\n" +
+        "endfunction";
+
+        Assert.assertEquals(expected, this.run(code));
+    }
+
+    @Test
     public void test() {
         String code =
             "abstract struct foo\n" +
