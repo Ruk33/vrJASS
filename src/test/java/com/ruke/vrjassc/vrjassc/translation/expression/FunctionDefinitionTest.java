@@ -1,9 +1,6 @@
 package com.ruke.vrjassc.vrjassc.translation.expression;
 
-import com.ruke.vrjassc.translator.expression.ExpressionList;
-import com.ruke.vrjassc.translator.expression.FunctionDefinition;
-import com.ruke.vrjassc.translator.expression.FunctionExpression;
-import com.ruke.vrjassc.translator.expression.FunctionStatement;
+import com.ruke.vrjassc.translator.expression.*;
 import com.ruke.vrjassc.vrjassc.symbol.*;
 import org.junit.Test;
 
@@ -52,12 +49,16 @@ public class FunctionDefinitionTest {
 			+ "endfunction",
 			translator.translate()
 		);
-		
-		translator.add(new FunctionStatement(new FunctionExpression(function, false, new ExpressionList())));
+
+		ExpressionList args = new ExpressionList();
+		args.add(new RawExpression("1"));
+		args.add(new RawExpression("2"));
+
+		translator.add(new FunctionStatement(new FunctionExpression(function, false, args)));
 		
 		assertEquals(
 			"function foo takes integer bar,integer baz returns integer\n"
-				+ "call foo()\n"
+				+ "call foo(1,2)\n"
 			+ "endfunction",
 			translator.translate()
 		);

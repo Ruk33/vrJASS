@@ -223,12 +223,15 @@ public class ClassTest extends TestHelper {
 		String code =
 			"struct object\n"
 				+ "public object e\n"
-			+ "endstruct\n"
+			+ "endstruct\n" +
+			"function baz takes object o\n" +
+			"endfunction\n"
 			+ "function foo\n"
 				+ "local object bar = null\n"
 				+ "if (bar==null or null==bar) then\n"
 				+ "endif\n"
-				+ "set bar.e=null\n"
+				+ "set bar.e=null\n" +
+				"call baz(null)\n"
 			+ "endfunction";
 		
 		String expected =
@@ -237,11 +240,14 @@ public class ClassTest extends TestHelper {
 				"hashtable vrjass_structs=InitHashtable()\n" +
 				"integer vtype=-1\n" +
 			"endglobals\n" +
+			"function baz takes integer o returns nothing\n" +
+			"endfunction\n" +
 			"function foo takes nothing returns nothing\n"
 				+ "local integer bar=0\n"
 				+ "if (bar==0 or 0==bar) then\n"
 				+ "endif\n"
-				+ "call SaveInteger(vrjass_structs,bar,struct_object_e,0)\n"
+				+ "call SaveInteger(vrjass_structs,bar,struct_object_e,0)\n" +
+				"call baz(0)\n"
 			+ "endfunction";
 		
 		assertEquals(expected, this.run(code));

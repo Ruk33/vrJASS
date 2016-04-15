@@ -6,6 +6,10 @@ import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
+import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
+
+import java.util.LinkedList;
+import java.util.Stack;
 
 public class FunctionExpression extends Expression {
 	
@@ -29,6 +33,42 @@ public class FunctionExpression extends Expression {
 	
 	public ExpressionList getArguments() {
 		return this.args;
+	}
+
+	/*
+	 * Since null can be used as object instance we have to translate it to
+	 * a default value first
+	 */
+	private String translateArguments() {
+		FunctionSymbol function = (FunctionSymbol) this.getSymbol();
+		Stack<Symbol> params = function.getParams();
+
+		if (params.size() == 0) {
+			return this.args.translate();
+		}
+
+		ExpressionList translatedArgs = new ExpressionList();
+		LinkedList<Expression> tal = translatedArgs.getList();
+
+		tal.addAll(this.args.getList());
+
+		for (int i = 0, max = params.size() - 1; i <= max; i++) {
+			if (!VariableTypeDetector.isUserType(params.get(i).getType().getName())) {
+				continue;
+			}
+
+			if (tal.get(i).getSymbol() == null) {
+				continue;
+			}
+
+			if (!"null".equals(tal.get(i).getSymbol().getType().getName())) {
+				continue;
+			}
+
+			tal.set(i, new DefaultValue(params.get(i).getType()));
+		}
+
+		return translatedArgs.translate();
 	}
 	
 	@Override
@@ -64,7 +104,7 @@ public class FunctionExpression extends Expression {
 			return "function " + name;
 		}
 		
-		return name + "(" + this.args.translate() + ")";
+		return name + "(" + this.translateArguments() + ")";
 	}
 
 	@Override
