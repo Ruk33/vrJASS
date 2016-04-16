@@ -39,9 +39,10 @@ common.j and Blizzard.j files.
 
 ```bash
 resources
-    common.j
-    Blizzard.j
-vrjassc.jar```
+|--common.j
+|--Blizzard.j
+vrjassc.jar
+```
 
 Use no options to get all the available commands.
 
