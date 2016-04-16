@@ -22,24 +22,39 @@ Pick the one you like the most:
 - Vexorian r$~%d-newbetterversionftw
 - Vexorian (creator of vJASS, respect) Ruke
 
-##How to compile it?
-###Eclipse
-- Right click to pom.xml
-- Run as...
-- Maven install
+##How to compile the grammar?
+```bash
+$ antlr4 vrjass.g4 -no-listener -visitor -o src/main/java/com/ruke/vrjassc/vrjassc/antlr4 -package com.ruke.vrjassc.vrjassc.antlr4 -encoding UTF-8
+```
 
+##How to compile the project?
+(Requires compiled grammar)
+```bash
+$ gradle build
+```
 
 ##How to use the compiled vrjass?
+DO remember that the compiler requires a folder called "resources" with the
+common.j and Blizzard.j files.
+
 ```bash
-$ cd path/to/vrjassc-jar-with-dependencies.jar
-$ java -jar vrjassc-jar-with-dependencies.jar file1.j [file2.j file3.w3x file4.w3m]
+resources
+    common.j
+    Blizzard.j
+vrjassc.jar```
+
+Use no options to get all the available commands.
+
+```bash
+$ cd path/to/vrjassc.jar
+$ java -jar vrjassc.jar file1.j [file2.j file3.w3x file4.w3m]
 ```
 
 You can pass .j files as well as entire maps.
 If you want the compiled source code to be applied in the map, just use the -result option
 
 ```bash
-$ java -jar vrjassc-jar-with-dependencies.jar file1.j file2.j -result=map.w3x
+$ java -jar vrjassc.jar file1.j file2.j -result=map.w3x
 ```
 
 If no -result is passed the compiled output will be written in compiled-vrjass.j 
@@ -55,11 +70,7 @@ for some examples).
 ###New keyword/statement/expression
 See vrjass.g4
 
-Modify and then compile it with this parameters:
-
-```bash
-$ -no-listener -visitor -o src/main/java/com/ruke/vrjassc/vrjassc/antlr4 -package com.ruke.vrjassc.vrjassc.antlr4 -encoding UTF-8
-```
+Modify and then compile the grammar.
 
 Example: lets allow users to call a function/method using a 'doCall' keyword
 
@@ -70,14 +81,14 @@ functionStatement:
 	CALL expression NL;
  ```
  
- Now add the new call alternative:
+Now add the new call alternative:
  
  ```
 functionStatement:
 	CALL|'doCall' expression NL;
  ```
  
- Save, compile the grammar and boala!
+Save, compile the grammar and boala!
  
 ##Validation
 For the most part, validations are executed in the reference phase (see 
