@@ -7,6 +7,7 @@ import de.peeeq.jmpq.JmpqError;
 
 import java.awt.*;
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -91,10 +92,10 @@ public class Main {
 					editor.close();
 				}
 				toCompile.add("\n");
-			} catch (IOException io) {
+			} catch (Exception e) {
 				error = true;
 				if (logWriter != null) {
-					logWriter.write(io.getMessage());
+					logWriter.write(e.getMessage());
 				}
 			}
 		}
