@@ -7,7 +7,29 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class LibraryTest extends TestHelper {
-	
+
+	@Test
+	public void onInit() {
+		String code =
+		"library foo\n" +
+			"function onInit\n" +
+			"end\n" +
+		"end\n" +
+		"function main\n" +
+		"end\n";
+
+		String expected =
+		"globals\n" +
+		"endglobals\n" +
+		"function foo_onInit takes nothing returns nothing\n" +
+		"endfunction\n" +
+		"function main takes nothing returns nothing\n" +
+			"call ExecuteFunc(\"foo_onInit\")\n" +
+		"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
+
 	@Test
 	public void returnUsingNamespace() {
 		String code =

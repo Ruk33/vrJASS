@@ -13,7 +13,16 @@ public class LibrarySymbol extends ScopeSymbol implements InitializerContainer {
 	public LibrarySymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
 	}
-	
+
+	@Override
+	public Symbol define(Symbol symbol) {
+		if (symbol.getName().equals("onInit")) {
+			this.setInitializer(symbol);
+		}
+
+		return super.define(symbol);
+	}
+
 	public void defineRequirement(LibrarySymbol requirement) {
 		this.requirements.add(requirement);
 	}
