@@ -55,6 +55,17 @@ public class Validator {
 		
 		return true;
 	}
+
+	public boolean mustBeValidInitializer(Symbol initializer, Token token) {
+		this.validated = initializer;
+
+		if (!initializer.hasModifier(Modifier.STATIC)) {
+			this.exception = new StaticNonStaticTypeException(token, initializer);
+			return false;
+		}
+
+		return true;
+	}
 	
 	public boolean mustBeInsideOfLoop(ParserRuleContext ctx, Token token) {
 		this.validated = null;

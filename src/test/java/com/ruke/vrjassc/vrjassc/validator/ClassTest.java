@@ -5,7 +5,19 @@ import com.ruke.vrjassc.vrjassc.util.TestHelper;
 import org.junit.Test;
 
 public class ClassTest extends TestHelper {
-	
+
+	@Test
+	public void onInitMustBeStatic() {
+		this.expectedEx.expect(StaticNonStaticTypeException.class);
+		this.expectedEx.expectMessage("2:7 Element <onInit> is not static");
+		this.run(
+		"struct foo\n" +
+			"method onInit\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
 	@Test
 	public void checkInterfaceMethodReturnUserType() {
 		this.expectedEx.none();

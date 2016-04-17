@@ -172,6 +172,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				_class.define(_interface);
 			}
 		}
+
+		Symbol initializer = _class.getInitializer();
+		if (initializer != null && !this.validator.mustBeValidInitializer(initializer, initializer.getToken())) {
+			throw this.validator.getException();
+		}
 		
 		this.scopes.pop();
 		
