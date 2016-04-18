@@ -9,6 +9,9 @@ _Even better flavor than before_
 A new and just-for-fun/learning-intended-to-project compiler which aims 
 to improve and rebuild from scratch the old and loved vJASS.
 
+##Manual/wiki?
+Here https://github.com/Ruk33/vrJASS/wiki
+
 ##How can I help you?
 If you know Java or Antlr4 you can check the repository and send 
 me pull requests (don't worry if you don't know too much about them, 
