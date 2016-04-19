@@ -18,6 +18,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	private Validator validator;
 	
 	private ScopeSymbol scope;
+
+	private ClassSymbol _class;
 	
 	private Stack<ScopeSymbol> scopes;
 	
@@ -121,8 +123,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	public Symbol visitStructDefinition(StructDefinitionContext ctx) {		
 		ClassSymbol _class = (ClassSymbol) this.symbols.get(ctx);
 		Token token = ctx.name.getStart();
-		
+
 		this.scopes.push(_class);
+
+		ClassSymbol prevClass = this._class;
+		this._class = _class;
 		
 		if (ctx.extendsFrom != null) {
 			String extendsName = ctx.extendsFrom.getText();
@@ -179,6 +184,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		}
 		
 		this.scopes.pop();
+		this._class = prevClass;
 		
 		return _class;
 	}
@@ -236,6 +242,12 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		this.scopes.push(function);
 		this.enclosingScopes.push(function);
+
+		ClassSymbol prevClass = this._class;
+
+		if (function.getParentScope() instanceof ClassSymbol) {
+			this._class = (ClassSymbol) function.getParentScope();
+		}
 		
 		if (this.definingSymbolTypes) {
 			this.functionDefinitions.push(ctx);
@@ -245,6 +257,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		this.scopes.pop();
 		this.enclosingScopes.pop();
+
+		this._class = prevClass;
 		
 		return function;
 	}
@@ -399,7 +413,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		}
 		return this.scopes.get(0).resolve("code");
 	}
-	
+
+	@Override
+	public Symbol visitSuper(SuperContext ctx) {
+		if (!this.validator.mustBeAbleToUseSuper(this._class, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+
+		return this._class.getSuper();
+	}
+
 	@Override
 	public Symbol visitThis(ThisContext ctx) {
 		return this.scopes.peek().resolve("this");
@@ -507,6 +530,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol prevSymbol = null;
 		Symbol symbol = null;
 		int pushed = 0;
+
+		if (!this.validator.mustBeValidSuperChainExpression(ctx)) {
+			throw this.validator.getException();
+		}
 		
 		for (ExpressionContext expr : ctx.expression()) {
 			symbol = this.visit(expr);

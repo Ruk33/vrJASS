@@ -30,6 +30,7 @@ expression:
 	|(TRUE | FALSE) #Boolean	
 	|NULL #Null
 	|THIS #This
+	|SUPER #Super
 	|validName (BRACKET_LEFT index=expression BRACKET_RIGHT)? #VariableExpression
 	|validName PAREN_LEFT arguments? PAREN_RIGHT #FunctionExpression
 	|expression DOT expression #ChainExpression

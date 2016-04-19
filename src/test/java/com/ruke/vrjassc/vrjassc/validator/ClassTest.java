@@ -7,6 +7,32 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void superMustBeFirst() {
+		this.expectedEx.expect(InvalidStatementException.class);
+		this.expectedEx.expectMessage("3:5 'super' must be the first element in chain expression");
+		this.run(
+		"struct foo\n" +
+			"method bar\n" +
+				"call this.super.bar()\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
+	@Test
+	public void superOnNoExtend() {
+		this.expectedEx.expect(SuperException.class);
+		this.expectedEx.expectMessage("3:5 Struct <foo> can not use super since it does not extends from anything");
+		this.run(
+		"struct foo\n" +
+			"method bar\n" +
+				"call super.bar()\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
+	@Test
 	public void onInitMustBeStatic() {
 		this.expectedEx.expect(StaticNonStaticTypeException.class);
 		this.expectedEx.expectMessage("2:7 Element <onInit> is not static");

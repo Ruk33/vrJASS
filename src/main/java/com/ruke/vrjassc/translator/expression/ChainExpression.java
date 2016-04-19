@@ -47,11 +47,16 @@ public class ChainExpression extends Expression {
 			boolean isStatic = last.getSymbol().hasModifier(Modifier.STATIC);
 			boolean isInterface = last.getSymbol().getParentScope() instanceof InterfaceSymbol;
 			boolean isOverrided = last.getSymbol().hasModifier(Modifier.OVERRIDE) || !((Overrideable) last.getSymbol()).getImplementations().isEmpty();
+			boolean isSuper = this.expressions.getFirst() instanceof SuperExpression;
+
 
 			FunctionExpression func = ((FunctionExpression) last);
-			
+			boolean useOverrideNamePrev = func.useOverrideName;
+
 			if (!isStatic) {
-				if (isInterface || isOverrided) {
+				if (isSuper) {
+					func.useOverrideName = true;
+				} else if (isInterface || isOverrided) {
 					if (this.expressions.getLast().getSymbol() instanceof CastSymbol) {
 						int id = ((UserTypeSymbol) this.expressions.getLast().getSymbol().getType()).getTypeId();
 						func.getArguments().getList().addFirst(new RawExpression(id));
@@ -96,12 +101,14 @@ public class ChainExpression extends Expression {
 			if (!isStatic) {
 				func.getArguments().getList().removeFirst();
 				
-				if (isInterface || isOverrided) {
+				if (!isSuper && (isInterface || isOverrided)) {
 					func.getArguments().getList().removeFirst();
 				}
 			}
 			
 			this.expressions.add(last);
+
+			func.useOverrideName = useOverrideNamePrev;
 			
 			return result;
 		} else {

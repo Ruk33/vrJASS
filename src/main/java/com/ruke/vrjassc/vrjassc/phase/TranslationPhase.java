@@ -229,6 +229,11 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
+	public Expression visitSuper(SuperContext ctx) {
+		return new SuperExpression(this._class.getSuper());
+	}
+
+	@Override
 	public Expression visitThis(ThisContext ctx) {
 		Symbol _this = this.symbols.get(ctx);
 		

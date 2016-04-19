@@ -7,7 +7,54 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class ClassTest extends TestHelper {
-		
+
+	@Test
+	@Ignore
+	public void _super() {
+		String code =
+		"struct bar extends foo\n" +
+			"public method ipsum\n" +
+			"end\n" +
+			"public method lorem\n" +
+				"call super.lorem()\n" +
+				"call super.ipsum()\n" +
+			"end\n" +
+		"end\n" +
+		"struct foo extends baz\n" +
+			"public method ipsum\n" +
+			"end\n" +
+		"end\n" +
+		"struct baz\n" +
+			"public method lorem\n" +
+			"end\n" +
+		"end";
+
+		String expected =
+		"globals\n" +
+			"hashtable vrjass_structs=InitHashtable()\n" +
+			"integer vtype=-1\n" +
+		"endglobals\n" +
+		"function struct_baz_foo_bar_ipsum takes integer this returns nothing\n" +
+		"endfunction\n" +
+		"function struct_baz_lorem takes integer this returns nothing\n" +
+		"endfunction\n" +
+		"function struct_baz_foo_ipsum takes integer this returns nothing\n" +
+		"endfunction\n" +
+		"function struct_baz_foo_bar_lorem takes integer this returns nothing\n" +
+			"call struct_baz_lorem(this)\n" +
+			"call struct_baz_foo_ipsum(this)\n" +
+		"endfunction\n" +
+		"function struct_baz_foo_ipsum_vtype takes integer this,integer vtype returns nothing\n" +
+			"if vtype==1 then\n" +
+				"call struct_baz_foo_bar_ipsum(this)\n" +
+			"else\n" +
+				"call struct_baz_foo_ipsum(this)\n" +
+			"endif\n" +
+		"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
+
 	@Test
 	@Ignore
 	public void methodOverwrite() {

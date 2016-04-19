@@ -32,7 +32,33 @@ public class Validator {
 	public CompileException getException() {
 		return this.exception;
 	}
-	
+
+	public boolean mustBeValidSuperChainExpression(vrjassParser.ChainExpressionContext ctx) {
+		boolean first = true;
+
+		for (vrjassParser.ExpressionContext expression : ctx.expression()) {
+			if (expression instanceof vrjassParser.SuperContext && !first) {
+				this.exception = new InvalidStatementException("'super' must be the first element in chain expression", ctx.getStart());
+				return false;
+			}
+
+			first = false;
+		}
+
+		return true;
+	}
+
+	public boolean mustBeAbleToUseSuper(ClassSymbol _class, Token token) {
+		this.validated = _class;
+
+		if (_class.getSuper() == null) {
+			this.exception = new SuperException(token, _class);
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Verifiy that the variable is declared before being used in token
 	 * 

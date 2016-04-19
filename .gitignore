@@ -65,3 +65,4 @@ org/antlr/v4/tool/templates/
 gen/*
 build/*
 out/*
+src/main/java/com/ruke/vrjassc/vrjassc/antlr4/*
