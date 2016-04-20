@@ -102,3 +102,18 @@ the logic of these validations is stored in the Validator class.
 ##Translation
 For this, you might wanna check the com.ruke.vrjassc.translator.expression package  
 and the TranslationPhase class.
+
+## Travis
+To create and upload a new release
+```
+$ // make changes
+$ git add ...
+$ git commit ...
+$ git tag release-name
+$ git push origin release-name
+```
+
+To delete a release
+```
+$ git push origin release-name --delete
+```
