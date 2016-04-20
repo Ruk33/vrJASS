@@ -1,19 +1,21 @@
 language: java
 
 script:
-    - gradle build
+- gradle build
 
 jdk:
-    - oraclejdk8
+- oraclejdk8
 
 before_install:
-    - wget http://www.antlr.org/download/antlr-4.5.3-complete.jar
-    - java -jar antlr-4.5.3-complete.jar vrjass.g4 -no-listener -visitor -o src/main/java/com/ruke/vrjassc/vrjassc/antlr4 -package com.ruke.vrjassc.vrjassc.antlr4 -encoding UTF-8
+- wget http://www.antlr.org/download/antlr-4.5.3-complete.jar
+- java -jar antlr-4.5.3-complete.jar vrjass.g4 -no-listener -visitor -o src/main/java/com/ruke/vrjassc/vrjassc/antlr4 -package com.ruke.vrjassc.vrjassc.antlr4 -encoding UTF-8
 
 deploy:
   provider: releases
-  api_key: "c55b09fcc0b8d9b253d83ca9fda8ef9d8baa07f7"
-  file: "build/libs/vrjassc-jar-with-dependencies.jar"
+  api_key:
+    secure: 2ZNAv1L2XQ+ysIqWx9QWK6YG/ESZXH0X+trISRzROvmD58GyHkR2Ttqb414nQd/n9xERm9caKowvt6FgJ/yrtJLm9KifNpncuQIuAKSZCQpUFK0jOgPoFu0Y4r0FvS4frD+Gwcq1Fa34W7LOOANQ72GF3qGPmx7IuLyjYhwdaPxsZHqQd4GZ36ZThcnYIM1jpvsvFJ72q9DtHOT+wYObxi4hNwSHcC2YKLq6sZRbCl0Maf+gBaztmuney9ZB33n/ZN+5ag1xv3htB4uykxMoLX0swJWS4yFFX/yJN6Uae15TgtSE8M/jKooh4uaxfkSOwUPC+LHEYRAHEQXzT456AHdtRCer3TMlzoGY0hFYF9BXg1EUwQp1dNicURKsobYF+pjAZwL16CPNDyHhx4taExRITzDu3sqF84obsHbL4i6x+dmGeNF88BNJh0rf3hBApoGXqPiwtCXA4eKCNOU3NPUBFfpCV3oZUazv/nBoY/9wyaKWvaujnOAvZCs4PYCPy9uPBt68sQ7M1fIrYzStzXDQy5oSUpHhrc/KglWSsUh3DbRZv6KeZZBpQoU6XxPjnUOvOfslbX+ZZgU4BNcSLv7VlNNNL88G0zRHSenaAYAhsDNB0DAo/shH/wgJMvwbSjIrA1qTB6jquYkPltHnwxbJ7u30bIdzR7poTaGpM0E=
+  file: build/libs/vrjassc-jar-with-dependencies.jar
   skip_cleanup: true
   on:
+    repo: Ruk33/vrJASS
     tags: true
