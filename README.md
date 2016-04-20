@@ -1,6 +1,8 @@
 ![vrJASS Logo](http://i.imgur.com/UyuRc3b.jpg?1)
 
 #vrJASS
+[![Build Status](https://travis-ci.org/Ruk33/vrJASS.svg?branch=master)](https://travis-ci.org/Ruk33/vrJASS)
+
 _Because you deserve a better yet familiar flavor_
 
 _Even better flavor than before_
@@ -104,6 +106,8 @@ For this, you might wanna check the com.ruke.vrjassc.translator.expression packa
 and the TranslationPhase class.
 
 ## Travis
+https://travis-ci.org/Ruk33/vrJASS
+
 To create and upload a new release
 ```
 $ // make changes
