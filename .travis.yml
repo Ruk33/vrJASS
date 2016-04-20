@@ -12,7 +12,7 @@ before_install:
 
 deploy:
   provider: releases
-  api_key: "32cffde08d785fc53245e8e2617d40d50a550bdc"
+  api_key: "c55b09fcc0b8d9b253d83ca9fda8ef9d8baa07f7"
   file: "build/libs/vrjassc-jar-with-dependencies.jar"
   skip_cleanup: true
   on:
