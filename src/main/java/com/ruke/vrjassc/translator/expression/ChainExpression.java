@@ -66,9 +66,9 @@ public class ChainExpression extends Expression {
 						
 						Expression lastInstance = null;
 						
-						for (Expression i : this.expressions) {
-							if (i.getSymbol().getType() instanceof UserTypeSymbol) {
-								lastInstance = i;
+						for (Expression expr : this.expressions) {
+							if (expr.getSymbol().getType() instanceof UserTypeSymbol) {
+								lastInstance = expr;
 							}
 						}
 						

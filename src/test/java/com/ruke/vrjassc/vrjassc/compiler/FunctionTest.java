@@ -215,7 +215,7 @@ public class FunctionTest extends TestHelper {
 		String code =
 			"struct foo\n" + 
 			"    public method equals takes foo e returns boolean\n" + 
-			"        return this cast integer == e cast integer\n" + 
+			"        return cast this to integer == cast e to integer\n" +
 			"    endmethod\n" + 
 			"endstruct";
 			

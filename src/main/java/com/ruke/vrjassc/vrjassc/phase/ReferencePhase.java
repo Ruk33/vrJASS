@@ -408,14 +408,24 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitCode(CodeContext ctx) {
-		if (!this.validator.mustBeValidCode(this.visit(ctx.expression()), ctx.getStart())) {
+		Symbol code = null;
+
+		if (ctx.chainExpression() != null) {
+			code = this.visit(ctx.chainExpression());
+		} else {
+			code = this.scopes.peek().resolve(ctx.validName().getText());
+			this.symbols.put(ctx.validName(), code);
+		}
+
+		if (!this.validator.mustBeValidCode(code, ctx.getStart())) {
 			throw this.validator.getException();
 		}
+
 		return this.scopes.get(0).resolve("code");
 	}
 
 	@Override
-	public Symbol visitSuper(SuperContext ctx) {
+	public Symbol visitSuperExpression(SuperExpressionContext ctx) {
 		if (!this.validator.mustBeAbleToUseSuper(this._class, ctx.getStart())) {
 			throw this.validator.getException();
 		}
@@ -424,7 +434,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	}
 
 	@Override
-	public Symbol visitThis(ThisContext ctx) {
+	public Symbol visitThisExpression(ThisExpressionContext ctx) {
 		return this.scopes.peek().resolve("this");
 	}
 	
@@ -508,7 +518,15 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitCast(CastContext ctx) {		
 		Symbol original = this.visit(ctx.original);
-		Symbol cast = this.visit(ctx.casted);
+		Symbol cast = null;
+
+		if (ctx.chainExpression() != null) {
+			cast = this.visit(ctx.chainExpression());
+		} else {
+			cast = this.scopes.peek().resolve(ctx.validName().getText());
+			this.symbols.put(ctx.validName(), cast);
+		}
+
 		Symbol result = new CastSymbol(original, cast, ctx.getStart());
 		
 		this.symbols.put(ctx, result);
@@ -522,49 +540,47 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.symbols.put(ctx, symbol);
 		return symbol;
 	}
-		
+
+	@Override
+	public Symbol visitMemberExpression(MemberExpressionContext ctx) {
+		if (ctx.variableExpression() != null) {
+			return this.visit(ctx.variableExpression());
+		}
+
+		return this.visit(ctx.functionExpression());
+	}
+
 	@Override
 	public Symbol visitChainExpression(ChainExpressionContext ctx) {
 		ScopeSymbol scope = this.scopes.peek();
-		
-		Symbol prevSymbol = null;
-		Symbol symbol = null;
-		int pushed = 0;
+		ScopeSymbol parentScope = null;
 
-		if (!this.validator.mustBeValidSuperChainExpression(ctx)) {
-			throw this.validator.getException();
-		}
-		
-		for (ExpressionContext expr : ctx.expression()) {
-			symbol = this.visit(expr);
-			this.symbols.put(expr, symbol);
-			
-			if (this.validator.mustHaveAccess(scope, symbol, expr.getStart())) {				
-				if (symbol.getType() instanceof Scope) { // class
-					this.scopes.push((ScopeSymbol) symbol.getType()).toggleEnclosingScope();
-					pushed++;
-				} else if (symbol instanceof Scope) { // library
-					this.scopes.push((ScopeSymbol) symbol).toggleEnclosingScope();
-					pushed++;
-				} else if (prevSymbol != null) {
-					if (!this.validator.mustBeValidMember(prevSymbol, symbol, expr.getStart())) {
-						throw this.validator.getException();
-					}
-				}
-			} else {
+		Symbol parent = this.visit(ctx.getChild(0));
+		Symbol member = null;
+
+		for (MemberExpressionContext expr : ctx.memberExpression()) {
+			if (parent.getType() instanceof ScopeSymbol) {
+				parentScope = (ScopeSymbol) parent.getType();
+			} else if (parent instanceof ScopeSymbol) {
+				parentScope = (ScopeSymbol) parent;
+			}
+
+			this.scopes.push(parentScope);
+			member = this.visit(expr);
+			this.scopes.pop();
+
+			if (!this.validator.mustHaveAccess(scope, member, expr.getStart())) {
 				throw this.validator.getException();
 			}
-			
-			prevSymbol = symbol;
+
+			if (!this.validator.mustBeValidMember(parent, member, expr.getStart())) {
+				throw this.validator.getException();
+			}
+
+			parent = member;
 		}
-		
-		// if we pushed scopes, come back to the original
-		while (pushed != 0) {
-			this.scopes.pop().toggleEnclosingScope();
-			pushed--;
-		}
-		
-		return symbol;
+
+		return member;
 	}
 	
 	@Override

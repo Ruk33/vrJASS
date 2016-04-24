@@ -38,7 +38,7 @@ public class LibraryTest extends TestHelper {
 				+ "endstruct\n"
 			+ "endlibrary\n"
 			+ "function lorem returns foo.bar\n"
-				+ "return 0 cast foo.bar\n"
+				+ "return cast 0 to foo.bar\n"
 			+ "endfunction";
 		
 		String expected =

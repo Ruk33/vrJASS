@@ -69,7 +69,13 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	@Override
 	public Expression visitCast(CastContext ctx) {		
 		Expression expression = this.visit(ctx.original);
-		Expression cast = this.visit(ctx.casted);
+		Expression cast = null;
+
+		if (ctx.chainExpression() != null) {
+			cast = this.visit(ctx.chainExpression());
+		} else {
+			cast = new VariableExpression(this.symbols.get(ctx.validName()), null);
+		}
 		
 		return new CastExpression(expression, cast);
 	}
@@ -102,8 +108,15 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitCode(CodeContext ctx) {
-		Symbol func = this.visit(ctx.expression()).getSymbol();
-		return new FunctionExpression(func, true, new ExpressionList());
+		Symbol function = null;
+
+		if (ctx.chainExpression() != null) {
+			function = this.visit(ctx.chainExpression()).getSymbol();
+		} else {
+			function = this.symbols.get(ctx.validName());
+		}
+
+		return new FunctionExpression(function, true, new ExpressionList());
 	}
 
 	@Override
@@ -229,32 +242,43 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
-	public Expression visitSuper(SuperContext ctx) {
+	public Expression visitSuperExpression(SuperExpressionContext ctx) {
 		return new SuperExpression(this._class.getSuper());
 	}
 
 	@Override
-	public Expression visitThis(ThisContext ctx) {
+	public Expression visitThisExpression(ThisExpressionContext ctx) {
 		Symbol _this = this.symbols.get(ctx);
 		
 		if (_this == null) {
 			// methods create a 'this' parameter, that is why
 			// the symbol bag returns null
 			_this = new Symbol("this", null, null);
+			_this.setType(this._class);
 		}
 		
 		return new VariableExpression(_this, null);
 	}
-	
+
+	@Override
+	public Expression visitMemberExpression(MemberExpressionContext ctx) {
+		if (ctx.variableExpression() != null) {
+			return this.visit(ctx.variableExpression());
+		}
+
+		return this.visit(ctx.functionExpression());
+	}
+
 	@Override
 	public Expression visitChainExpression(ChainExpressionContext ctx) {
 		ChainExpression chain = new ChainExpression();
 		
 		chain.setHashtableName(Config.STRUCT_HASHTABLE_NAME);
-		
-		for (ExpressionContext expr : ctx.expression()) {
-			Expression e = this.visit(expr);
-			chain.append(e, null);
+
+		chain.append(this.visit(ctx.getChild(0)), null);
+
+		for (MemberExpressionContext expr : ctx.memberExpression()) {
+			chain.append(this.visit(expr), null);
 		}
 		
 		return chain;

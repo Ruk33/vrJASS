@@ -2,47 +2,66 @@ grammar vrjass;
 
 init: topDeclaration* EOF;
 
-topDeclaration:
-	NL
-	|typeDefinition
-	|nativeDefinition
-	|globalDefinition
-	|libraryDefinition
-	|interfaceDefinition
-	|structDefinition
-	|functionDefinition
+topDeclaration
+    : NL
+	| typeDefinition
+	| nativeDefinition
+	| globalDefinition
+	| libraryDefinition
+	| interfaceDefinition
+	| structDefinition
+	| functionDefinition
 	;
 
 // Refers to a valid variable type, like integer, reals, etc.
 validType: expression;
-validName: ID|END;
+validName: ID | END;
 
 variableDeclaration: 
 	type=validType ARRAY? name=validName (EQ value=expression)?;
 
-expression:
-	functionDefinitionExpression #AnonymousExpression
-	|INT #Integer
-	|REAL #Real
-	|STRING #String
-	|MINUS expression #Negative
-	|NOT expression #Not
-	|(TRUE | FALSE) #Boolean	
-	|NULL #Null
-	|THIS #This
-	|SUPER #Super
-	|validName (BRACKET_LEFT index=expression BRACKET_RIGHT)? #VariableExpression
-	|validName PAREN_LEFT arguments? PAREN_RIGHT #FunctionExpression
-	|expression DOT expression #ChainExpression
-	|original=expression CAST casted=expression #Cast
-	|FUNCTION expression #Code
-	|left=expression DIV right=expression #Div
-	|left=expression TIMES right=expression #Mult
-	|left=expression MINUS right=expression #Minus
-	|left=expression PLUS right=expression #Plus
-	|left=expression operator=(EQEQ | NOT_EQ | GREATER | GREATER_EQ | LESS | LESS_EQ) right=expression #Comparison
-	|left=expression operator=(OR | AND) right=expression #Logical
-	|PAREN_LEFT expression PAREN_RIGHT #Parenthesis
+variableExpression: validName (BRACKET_LEFT index=expression BRACKET_RIGHT)?;
+
+functionExpression: validName PAREN_LEFT arguments? PAREN_RIGHT;
+
+parenthesis: PAREN_LEFT expression PAREN_RIGHT;
+
+thisExpression: THIS;
+
+superExpression: SUPER;
+
+memberExpression: variableExpression | functionExpression;
+
+chainExpression:
+    (parenthesis | superExpression | thisExpression | variableExpression | functionExpression | cast) (DOT memberExpression)+;
+
+cast: CAST original=expression TO (chainExpression | validName);
+
+expression
+    : parenthesis                               #ignoreParenthesisExpression
+    | cast                                      #ignoreCastExpression
+    | MINUS expression                          #Negative
+    | NOT expression                            #Not
+    | left=expression DIV right=expression      #Div
+    | left=expression TIMES right=expression    #Mult
+    | left=expression MINUS right=expression    #Minus
+    | left=expression PLUS right=expression     #Plus
+	| functionDefinitionExpression              #AnonymousExpression
+	| variableExpression                        #ignoreVariableExpression
+	| functionExpression                        #ignoreFunctionExpression
+	| chainExpression                           #ignoreChainExpression
+	| FUNCTION (validName | chainExpression)    #Code
+
+	| left=expression operator=(EQEQ | NOT_EQ | GREATER | GREATER_EQ | LESS | LESS_EQ) right=expression #Comparison
+
+	| left=expression operator=(OR | AND) right=expression #Logical
+
+	| INT               #Integer
+    | REAL              #Real
+    | STRING            #String
+    | (TRUE | FALSE)    #Boolean
+    | NULL              #Null
+    | thisExpression    #ignoreThis
 	;
 
 typeDefinition: 
@@ -78,12 +97,12 @@ globalDefinition:
 libraryRequirements: 
 	validName (COMMA validName)*;
 
-libraryStatement:
-	NL
-	|globalDefinition
-	|interfaceDefinition
-	|structDefinition
-	|functionDefinition
+libraryStatement
+    : NL
+	| globalDefinition
+	| interfaceDefinition
+	| structDefinition
+	| functionDefinition
 	;
 
 libraryDefinition:
@@ -113,10 +132,11 @@ interfaceDefinition:
 propertyStatement:
 	(PRIVATE | PUBLIC)? STATIC? variableDeclaration NL;
 
-structStatement:
-	propertyStatement
-	|functionDefinition
-	|functionSignature;
+structStatement
+    : propertyStatement
+	| functionDefinition
+	| functionSignature
+	;
 
 implementsList: validName (COMMA validName)*;
 
@@ -132,19 +152,16 @@ structDefinition:
  * Functions
  * ---------------------------------------------------------------------------
  */
-returnType: 
-	expression | NOTHING;
+returnType: expression | NOTHING;
 
-parameter: 
-	variableDeclaration;
+parameter: variableDeclaration;
 
-parameters: 
-	(parameter (COMMA parameter)*)
-	|NOTHING
+parameters
+    : (parameter (COMMA parameter)*)
+	| NOTHING
 	;
 
-arguments: 
-	expression (COMMA expression)*;
+arguments: expression (COMMA expression)*;
 
 functionSignature: 
 	(PRIVATE | PUBLIC)? ABSTRACT? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
@@ -157,33 +174,29 @@ functionDefinitionExpression:
 functionDefinition: functionDefinitionExpression NL;
 
 
-statement:
-	NL
-	|localVariableStatement
-	|assignmentStatement
-	|functionStatement
-	|loopStatement
-	|whileLoopStatement
-	|breakStatement
-	|exitWhenStatement
-	|ifStatement
-	|returnStatement
+statement
+    : NL
+	| localVariableStatement
+	| assignmentStatement
+	| functionStatement
+	| loopStatement
+	| whileLoopStatement
+	| breakStatement
+	| exitWhenStatement
+	| ifStatement
+	| returnStatement
 	;
 
-localVariableStatement: 
-	LOCAL variableDeclaration NL;
+localVariableStatement: LOCAL variableDeclaration NL;
 
 assignmentStatement: 
 	SET name=expression operator=(PLUS | MINUS | TIMES | DIV)? EQ value=expression NL;
 
-functionStatement:
-	CALL expression NL;
+functionStatement: CALL expression NL;
 
-breakStatement:
-	BREAK NL;
+breakStatement: BREAK NL;
 
-exitWhenStatement:
-	EXITWHEN expression NL;
+exitWhenStatement: EXITWHEN expression NL;
 
 loopStatement:
 	LOOP NL
@@ -221,6 +234,7 @@ WHILE: 'while';
 ENDWHILE: 'endwhile';
 END: 'end';
 CAST: 'cast';
+TO: 'to';
 LIBRARY: 'library';
 ENDLIBRARY: 'endlibrary';
 INITIALIZER: 'initializer';

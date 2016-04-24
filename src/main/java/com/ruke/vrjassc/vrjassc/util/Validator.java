@@ -33,7 +33,7 @@ public class Validator {
 		return this.exception;
 	}
 
-	public boolean mustBeValidSuperChainExpression(vrjassParser.ChainExpressionContext ctx) {
+	/*public boolean mustBeValidSuperChainExpression(vrjassParser.ChainExpressionContext ctx) {
 		boolean first = true;
 
 		for (vrjassParser.ExpressionContext expression : ctx.expression()) {
@@ -46,7 +46,7 @@ public class Validator {
 		}
 
 		return true;
-	}
+	}*/
 
 	public boolean mustBeAbleToUseSuper(ClassSymbol _class, Token token) {
 		this.validated = _class;

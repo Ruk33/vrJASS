@@ -7,19 +7,6 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
-	public void superMustBeFirst() {
-		this.expectedEx.expect(InvalidStatementException.class);
-		this.expectedEx.expectMessage("3:5 'super' must be the first element in chain expression");
-		this.run(
-		"struct foo\n" +
-			"method bar\n" +
-				"call this.super.bar()\n" +
-			"end\n" +
-		"end"
-		);
-	}
-
-	@Test
 	public void superOnNoExtend() {
 		this.expectedEx.expect(SuperException.class);
 		this.expectedEx.expectMessage("3:5 Struct <foo> can not use super since it does not extends from anything");
@@ -143,7 +130,7 @@ public class ClassTest extends TestHelper {
 			+ "struct bar extends foo\n"
 			+ "endstruct\n"
 			+ "function lorem\n"
-				+ "call foo.bar(0 cast bar)\n"
+				+ "call foo.bar(cast 0 to bar)\n"
 			+ "endfunction"
 		);
 	}
@@ -265,13 +252,13 @@ public class ClassTest extends TestHelper {
 				"    static integer instances\n" + 
 				"    public static method allocate takes nothing returns Object\n" + 
 				"        set Object.instances += 1\n" + 
-				"        return Object.instances cast Object\n" + 
+				"        return cast Object.instances to Object\n" +
 				"    endmethod\n" + 
 				"    public method equals takes Object e returns boolean\n" + 
-				"        return this cast integer == e cast integer\n" + 
+				"        return cast this to integer == cast e to integer\n" +
 				"    endmethod\n" + 
 				"    public method isNull returns boolean\n" + 
-				"        return this cast integer == 0\n" + 
+				"        return cast this to integer == 0\n" +
 				"    endmethod\n" + 
 				"endstruct\n" +
 				"library List\n" + 
@@ -400,7 +387,7 @@ public class ClassTest extends TestHelper {
 		this.run("struct foo\n"
 					+ "public static method allocate takes nothing returns foo\n"
 						+ "local integer i = 1\n"
-						+ "return i cast foo\n"
+						+ "return cast i to foo\n"
 					+ "endmethod\n"
 				+ "endstruct");
 	}
