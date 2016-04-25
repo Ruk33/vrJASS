@@ -7,6 +7,18 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void deallocate() {
+		this.expectedEx.none();
+		this.run(
+		"struct foo\n" +
+			"method deallocate\n" +
+				"call FlushChildHashtable(vrjass_structs, cast this to integer)\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
+	@Test
 	public void superOnNoExtend() {
 		this.expectedEx.expect(SuperException.class);
 		this.expectedEx.expectMessage("3:5 Struct <foo> can not use super since it does not extends from anything");

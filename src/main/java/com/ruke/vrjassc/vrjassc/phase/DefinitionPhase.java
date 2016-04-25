@@ -110,6 +110,13 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		ClassSymbol _class = new ClassSymbol(name, ++this.classesCount, null, token);
 
+		if (this.classesCount == 1) {
+			Symbol structHashtable = new Symbol(Config.STRUCT_HASHTABLE_NAME, null, null);
+			structHashtable.setType(this.primaryScope.resolve("hashtable").getType());
+
+			this.primaryScope.define(structHashtable);
+		}
+
 		_class.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		_class.setModifier(Modifier.ABSTRACT, ctx.ABSTRACT() != null);
 		
