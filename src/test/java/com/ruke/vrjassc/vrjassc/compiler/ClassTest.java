@@ -384,7 +384,7 @@ public class ClassTest extends TestHelper {
 				+ "static integer instances\n"
 				+ "static method allocate takes nothing returns foo\n"
 					+ "set foo.instances += 1\n"
-					+ "call (cast 0 to foo).bar()\n"
+					+ "call cast 0 to foo.bar()\n"
 					+ "call (cast 1 to foo).bar()\n"
 					+ "call BJDebugMsg(\"instance \" + I2S(cast foo.allocate() to integer))\n"
 					+ "return cast foo.instances to foo\n"
@@ -403,7 +403,7 @@ public class ClassTest extends TestHelper {
 			+ "endfunction\n"
 			+ "function struct_foo_allocate takes integer vrjass_type returns integer\n"
 				+ "set struct_foo_instances=struct_foo_instances+1\n"
-				+ "call struct_foo_bar((0))\n"
+				+ "call struct_foo_bar(0)\n"
 				+ "call struct_foo_bar((1))\n" // <-- the power
 				+ "call BJDebugMsg(\"instance \"+I2S(struct_foo_allocate(1)))\n"
 				+ "call SaveInteger(vrjass_structs,struct_foo_instances,vtype,vrjass_type)\n"

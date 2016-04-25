@@ -73,7 +73,14 @@ public class CompilerFacade {
 									String msg,
 									RecognitionException e)
 			{
-				throw new SyntaxErrorException(line, charPositionInLine, msg);
+				throw new SyntaxErrorException(
+					line,
+					charPositionInLine,
+					msg
+						.replaceAll("ID", "identifier")
+						.replaceAll("<EOF>", "end of file")
+						.replace("NL", "new line")
+				);
 			}
 		});
 		

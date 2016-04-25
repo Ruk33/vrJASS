@@ -390,7 +390,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitAssignmentStatement(AssignmentStatementContext ctx) {
-		Expression name = this.visit(ctx.name);
+		Expression name = this.visit(ctx.getChild(1));
 		Operator operator = null;
 		Expression value;
 		
@@ -416,7 +416,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 
 	@Override
 	public Expression visitFunctionStatement(FunctionStatementContext ctx) {
-		return new FunctionStatement(this.visit(ctx.expression()));
+		return new FunctionStatement(this.visit(ctx.getChild(1)));
 	}
 
 	@Override
@@ -529,7 +529,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	public Expression visitArguments(ArgumentsContext ctx) {
 		ExpressionList args = new ExpressionList();
 		
-		for (ExpressionContext expr : ctx.expression()) {
+		for (AllExpressionContext expr : ctx.allExpression()) {
 			args.add(this.visit(expr));
 		}
 		

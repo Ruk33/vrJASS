@@ -49,7 +49,6 @@ public class ChainExpression extends Expression {
 			boolean isOverrided = last.getSymbol().hasModifier(Modifier.OVERRIDE) || !((Overrideable) last.getSymbol()).getImplementations().isEmpty();
 			boolean isSuper = this.expressions.getFirst() instanceof SuperExpression;
 
-
 			FunctionExpression func = ((FunctionExpression) last);
 			boolean useOverrideNamePrev = func.useOverrideName;
 

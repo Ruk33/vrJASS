@@ -14,11 +14,11 @@ topDeclaration
 	;
 
 // Refers to a valid variable type, like integer, reals, etc.
-validType: expression;
+validType: validName | chainExpression;
 validName: ID | END;
 
 variableDeclaration: 
-	type=validType ARRAY? name=validName (EQ value=expression)?;
+	type=validType ARRAY? name=validName (EQ value=allExpression)?;
 
 variableExpression: validName (BRACKET_LEFT index=expression BRACKET_RIGHT)?;
 
@@ -37,6 +37,12 @@ chainExpression:
 
 cast: CAST original=expression TO (chainExpression | validName);
 
+allExpression
+    : expression                                #ignoreExpression
+    | functionDefinitionExpression              #AnonymousExpression
+    | FUNCTION (validName | chainExpression)    #Code
+    ;
+
 expression
     : parenthesis                               #ignoreParenthesisExpression
     | cast                                      #ignoreCastExpression
@@ -46,11 +52,10 @@ expression
     | left=expression TIMES right=expression    #Mult
     | left=expression MINUS right=expression    #Minus
     | left=expression PLUS right=expression     #Plus
-	| functionDefinitionExpression              #AnonymousExpression
+
 	| variableExpression                        #ignoreVariableExpression
 	| functionExpression                        #ignoreFunctionExpression
 	| chainExpression                           #ignoreChainExpression
-	| FUNCTION (validName | chainExpression)    #Code
 
 	| left=expression operator=(EQEQ | NOT_EQ | GREATER | GREATER_EQ | LESS | LESS_EQ) right=expression #Comparison
 
@@ -161,7 +166,7 @@ parameters
 	| NOTHING
 	;
 
-arguments: expression (COMMA expression)*;
+arguments: allExpression (COMMA allExpression)*;
 
 functionSignature: 
 	(PRIVATE | PUBLIC)? ABSTRACT? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
@@ -175,8 +180,7 @@ functionDefinition: functionDefinitionExpression NL;
 
 
 statement
-    : NL
-	| localVariableStatement
+    : localVariableStatement
 	| assignmentStatement
 	| functionStatement
 	| loopStatement
@@ -185,14 +189,15 @@ statement
 	| exitWhenStatement
 	| ifStatement
 	| returnStatement
+	| NL
 	;
 
 localVariableStatement: LOCAL variableDeclaration NL;
 
 assignmentStatement: 
-	SET name=expression operator=(PLUS | MINUS | TIMES | DIV)? EQ value=expression NL;
+	SET (variableExpression | chainExpression) operator=(PLUS | MINUS | TIMES | DIV)? EQ value=allExpression NL;
 
-functionStatement: CALL expression NL;
+functionStatement: CALL (functionExpression | chainExpression) NL;
 
 breakStatement: BREAK NL;
 

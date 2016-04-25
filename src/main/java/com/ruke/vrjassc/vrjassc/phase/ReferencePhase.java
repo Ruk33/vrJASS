@@ -270,8 +270,14 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitValidType(ValidTypeContext ctx) {
-		Symbol type = this.visit(ctx.expression());
-		
+		Symbol type = null;
+
+		if (ctx.chainExpression() != null) {
+			type = this.visit(ctx.chainExpression());
+		} else {
+			type = this.scopes.peek().resolve(ctx.validName().getText());
+		}
+
 		if (!this.validator.mustBeValidType(type, ctx.getStart())) {
 			throw this.validator.getException();
 		}
@@ -464,7 +470,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		if (ctx.arguments() != null) {
 			this.scopes.push(this.enclosingScopes.peek());
 			
-			for (ExpressionContext expr : ctx.arguments().expression()) {
+			for (AllExpressionContext expr : ctx.arguments().allExpression()) {
 				arguments.push(this.visit(expr));
 			}
 			
@@ -585,7 +591,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitAssignmentStatement(AssignmentStatementContext ctx) {
-		Symbol variable = this.visit(ctx.name);
+		Symbol variable = this.visit(ctx.getChild(1));
 		Symbol value = this.visit(ctx.value);
 		
 		if (!this.validator.mustBeTypeCompatible(variable, value, ctx.getStart())) {
@@ -597,7 +603,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitFunctionStatement(FunctionStatementContext ctx) {
-		return this.visit(ctx.expression());
+		return this.visit(ctx.getChild(1));
 	}
 
 	@Override
