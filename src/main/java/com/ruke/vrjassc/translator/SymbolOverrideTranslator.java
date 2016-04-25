@@ -84,6 +84,10 @@ public class SymbolOverrideTranslator {
 		if (!method.hasModifier(Modifier.STATIC)) {
 			params.add(new RawExpression("this"));
 		}
+
+		if (method.getName().equals("allocate")) {
+			params.add(new RawExpression("vtype"));
+		}
 		
 		for (Symbol param : method.getParams()) {
 			params.add(new VariableExpression(param, null));

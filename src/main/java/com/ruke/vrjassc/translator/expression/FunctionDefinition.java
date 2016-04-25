@@ -82,7 +82,7 @@ public class FunctionDefinition extends StatementBody {
 				ChainExpression vtype = new ChainExpression();
 				
 				vtype.setHashtableName(Config.STRUCT_HASHTABLE_NAME);
-				vtype.append(new VariableExpression(e.getSymbol(), null), null);
+				vtype.append(((ReturnStatement) e).getValue(), null);
 				vtype.append(new RawExpression(Config.VTYPE_NAME), null);
 				
 				this.body.add(

@@ -9,6 +9,38 @@ import static org.junit.Assert.assertEquals;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void allocate() {
+		String code =
+		"interface obj\n" +
+			"public static method allocate returns obj\n" +
+		"end\n" +
+		"struct defaultobj implements obj\n" +
+			"public static method allocate returns obj\n" +
+				"return cast 1 to obj\n" +
+			"end\n" +
+		"end";
+
+		String expected =
+		"globals\n" +
+			"hashtable vrjass_structs=InitHashtable()\n" +
+			"integer vtype=-1\n" +
+		"endglobals\n" +
+		"function struct_defaultobj_allocate takes integer vrjass_type returns integer\n" +
+			"call SaveInteger(vrjass_structs,1,vtype,vrjass_type)\n" +
+			"return 1\n" +
+		"endfunction\n" +
+		"function obj_allocate_vtype takes integer vtype returns integer\n" +
+			"if vtype==1 then\n" +
+				"return struct_defaultobj_allocate(vtype)\n" +
+			"else\n" +
+				"return struct_defaultobj_allocate(vtype)\n" +
+			"endif\n" +
+		"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
+
+	@Test
 	@Ignore
 	public void _super() {
 		String code =

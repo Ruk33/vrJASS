@@ -13,6 +13,10 @@ public class ReturnStatement extends Statement {
 			this.value.setParent(this);
 		}
 	}
+
+	public Expression getValue() {
+		return this.value;
+	}
 	
 	@Override
 	public String translate() {
