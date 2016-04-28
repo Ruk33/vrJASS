@@ -7,6 +7,24 @@ import org.junit.Test;
 public class FunctionTest extends TestHelper {
 
 	@Test
+	public void resolveFromAnonFunction() {
+		this.expectedEx.none();
+		this.run(
+		"library foo\n" +
+			"globals\n" +
+				"boolean bar\n" +
+			"end\n" +
+			"function baz\n" +
+				"set bar = false\n" +
+				"call TimerStart(CreateTimer(), 42, false, function\n" +
+					"set bar = true\n" +
+				"end)\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
+	@Test
 	public void emptyLines() {
 		this.expectedEx.none();
 		this.run("public function bool takes boolean b, integer line\n" +

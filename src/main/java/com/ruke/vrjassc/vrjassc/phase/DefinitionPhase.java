@@ -238,10 +238,13 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitAnonymousExpression(AnonymousExpressionContext ctx) {
 		ScopeSymbol prev = this.scope;
-		this.scope = this.primaryScope;
+		this.scope = (ScopeSymbol) this.scope.getParentScope();
+
 		Symbol function = this.visit(ctx.functionDefinitionExpression());
+
 		this.symbols.put(ctx, function);
 		this.scope = prev;
+
 		return function;
 	}
 	
