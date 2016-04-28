@@ -197,7 +197,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			type = this.visit(ctx.expression());
 			Token token = ctx.expression().getStart();
 			
-			if (!this.validator.mustBeValidType(type, token)) {
+			if (!this.validator.mustBeValidType(this.scopes.peek(), type, token)) {
 				throw this.validator.getException();
 			}
 		}
@@ -278,7 +278,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			type = this.scopes.peek().resolve(ctx.validName().getText());
 		}
 
-		if (!this.validator.mustBeValidType(type, ctx.getStart())) {
+		if (!this.validator.mustBeValidType(this.scopes.peek(), type, ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
@@ -287,7 +287,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
-		Scope scope = this.scopes.peek();
+		ScopeSymbol scope = this.scopes.peek();
 		
 		Symbol variable = this.symbols.get(ctx);
 		Symbol type = this.visit(ctx.validType());
@@ -302,7 +302,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		if (ctx.value != null) {
 			Symbol value = this.visit(ctx.value);
 			
-			if (!this.validator.mustBeTypeCompatible(variable, value, typeToken)) {
+			if (!this.validator.mustBeTypeCompatible(scope, variable, value, typeToken)) {
 				throw this.validator.getException();
 			}
 		}
@@ -315,7 +315,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol left = this.visit(ctx.left);
 		Symbol right = this.visit(ctx.right);
 		
-		if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+		if (!this.validator.mustBeValidMathOperation(this.scopes.peek(), left, right, ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
@@ -327,7 +327,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol left = this.visit(ctx.left);
 		Symbol right = this.visit(ctx.right);
 		
-		if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+		if (!this.validator.mustBeValidMathOperation(this.scopes.peek(), left, right, ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
@@ -340,11 +340,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol right = this.visit(ctx.right);
 		
 		if (left.getType().getName().equals("string")) {
-			if (!this.validator.mustBeValidStringConcatenation(left, right, ctx.getStart())) {
+			if (!this.validator.mustBeValidStringConcatenation(this.scopes.peek(), left, right, ctx.getStart())) {
 				throw this.validator.getException();
 			}
 		} else {
-			if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+			if (!this.validator.mustBeValidMathOperation(this.scopes.peek(), left, right, ctx.getStart())) {
 				throw this.validator.getException();
 			}
 		}
@@ -357,7 +357,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol left = this.visit(ctx.left);
 		Symbol right = this.visit(ctx.right);
 		
-		if (!this.validator.mustBeValidMathOperation(left, right, ctx.getStart())) {
+		if (!this.validator.mustBeValidMathOperation(this.scopes.peek(), left, right, ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
@@ -435,8 +435,9 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		if (!this.validator.mustBeAbleToUseSuper(this._class, ctx.getStart())) {
 			throw this.validator.getException();
 		}
-
-		return this._class.getSuper();
+		Symbol _super = new Symbol("super", this.scopes.peek(), null);
+		_super.setType(this._class.getSuper());
+		return _super;
 	}
 
 	@Override
@@ -598,7 +599,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol variable = this.visit(ctx.getChild(1));
 		Symbol value = this.visit(ctx.value);
 		
-		if (!this.validator.mustBeTypeCompatible(variable, value, ctx.getStart())) {
+		if (!this.validator.mustBeTypeCompatible(this.scopes.peek(), variable, value, ctx.getStart())) {
 			throw this.validator.getException();
 		}
 		
@@ -639,7 +640,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol expr = this.visit(ctx.expression());
 		Token token = ctx.expression().getStart();
 		
-		if (!this.validator.mustBeTypeCompatible((Symbol) scope, expr, token)) {
+		if (!this.validator.mustBeTypeCompatible(this.scopes.peek(), (Symbol) scope, expr, token)) {
 			throw this.validator.getException();
 		}
 		

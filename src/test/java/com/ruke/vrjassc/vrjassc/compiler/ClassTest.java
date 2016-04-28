@@ -95,7 +95,7 @@ public class ClassTest extends TestHelper {
 				+ "public method lorem takes integer i\n"
 				+ "endmethod\n"
 				+ "public static method allocate returns foo\n"
-					+ "local foo f = 1 cast foo\n"
+					+ "local foo f = cast 1 to foo\n"
 					+ "return f\n"
 				+ "endmethod\n"
 			+ "endstruct\n"
@@ -110,7 +110,7 @@ public class ClassTest extends TestHelper {
 			+ "function ipsum\n"
 				+ "local bar f = bar.allocate()\n"
 				+ "call f.lorem(1)\n"
-				+ "call (f cast foo).lorem(1)\n"
+				+ "call cast f to foo.lorem(1)\n"
 			+ "endfunction";
 		
 		String expected =
@@ -141,7 +141,7 @@ public class ClassTest extends TestHelper {
 			"function ipsum takes nothing returns nothing\n" +
 				"local integer f=struct_foo_allocate(2)\n" +
 				"call struct_foo_lorem_vtype(f,LoadInteger(vrjass_structs,f,vtype),1)\n" +
-				"call struct_foo_lorem_vtype((f),1,1)\n" +
+				"call struct_foo_lorem_vtype(f,1,1)\n" +
 			"endfunction";
 		
 		assertEquals(expected, this.run(code));
@@ -151,7 +151,7 @@ public class ClassTest extends TestHelper {
 	public void autoAssignType() {
 		String code =
 			"struct foo\n"
-				+ "static method allocate returns foo\n"
+				+ "public static method allocate returns foo\n"
 					+ "local foo f\n"
 					+ "return f\n"
 				+ "endmethod\n"
@@ -245,15 +245,15 @@ public class ClassTest extends TestHelper {
 				+ "hashtable vrjass_structs=InitHashtable()\n"
 				+ "integer vtype=-1\n"
 			+ "endglobals\n"
-			+ "function struct_foo_ipsum takes integer this,boolean b returns nothing\n"
-			+ "endfunction\n"
 			+ "function struct_bar_ipsum takes integer this,boolean b returns nothing\n"
 			+ "endfunction\n"
+			+ "function struct_foo_ipsum takes integer this,boolean b returns nothing\n"
+			+ "endfunction\n"
 			+ "function lorem_ipsum_vtype takes integer this,integer vtype,boolean b returns nothing\n"
-				+ "if vtype==2 then\n"
-					+ "call struct_bar_ipsum(this,b)\n"
-				+ "else\n"
+				+ "if vtype==1 then\n"
 					+ "call struct_foo_ipsum(this,b)\n"
+				+ "else\n"
+					+ "call struct_bar_ipsum(this,b)\n"
 				+ "endif\n"
 			+ "endfunction\n"
 			+ "function dolor takes nothing returns nothing\n"

@@ -7,6 +7,66 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void childStructShouldNotHaveAccessToPrivateProperty() {
+		this.expectedEx.expect(UndefinedSymbolException.class);
+		this.expectedEx.expectMessage("6:9 Element <i> is not defined");
+		this.run(
+		"struct foo\n" +
+			"private integer i\n" +
+		"end\n" +
+		"struct bar extends foo\n" +
+			"method someMethod\n" +
+				"set this.i = 2\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
+	@Test
+	public void childStructShouldNotHaveAccessToPrivateMethod() {
+		this.expectedEx.expect(UndefinedSymbolException.class);
+		this.expectedEx.expectMessage("10:10 Element <someMethod> is not defined");
+		this.run(
+		"struct foo\n" +
+			"protected integer i\n" +
+			"method someMethod\n" +
+				"set this.i = 1\n" +
+			"end\n" +
+		"end\n" +
+		"struct bar extends foo\n" +
+			"method someOtherMethod\n" +
+				"set this.i = 2\n" +
+				"call this.someMethod()\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
+	@Test
+	public void _protected() {
+		this.expectedEx.expect(NoAccessException.class);
+		this.expectedEx.expectMessage("15:6 Element <baz> does not have access to element <i>");
+		this.run(
+		"struct foo\n" +
+			"protected integer i\n" +
+			"public method someMethod\n" +
+				"set this.i = 1\n" +
+			"end\n" +
+		"end\n" +
+		"struct bar extends foo\n" +
+			"method someOtherMethod\n" +
+				"set this.i = 2\n" +
+				"call this.someMethod()\n" +
+			"end\n" +
+		"end\n" +
+		"function baz\n" +
+			"local bar b\n" +
+			"set b.i = 3\n" +
+		"end"
+		);
+	}
+
+	@Test
 	public void shouldNotAllowToCastInterface() {
 		this.expectedEx.expect(InterfaceCastException.class);
 		this.expectedEx.expectMessage("4:14 Cannot cast to foo since it is an interface");
@@ -492,7 +552,7 @@ public class ClassTest extends TestHelper {
 	@Test
 	public void nonValidType() {
 		this.expectedEx.expect(InvalidTypeException.class);
-		this.expectedEx.expectMessage("3:35 <foo> is not a valid type");
+		this.expectedEx.expectMessage("3:35 <foo> is either not a valid type or it could not be reached by <bar>");
 		this.run("library foo\n"
 				+ "endlibrary\n"
 				+ "function bar takes nothing returns foo\n"

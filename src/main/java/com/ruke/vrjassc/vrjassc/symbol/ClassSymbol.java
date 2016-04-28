@@ -47,7 +47,13 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer,
 	}
 	
 	public boolean hasAccessToMember(Symbol member) {
-		if (member == null) return false;
+		if (member == null) {
+			return false;
+		}
+
+		if (member == this) {
+			return true;
+		}
 
 		if (member.hasModifier(Modifier.PROTECTED)) {
 			ClassSymbol _class = this;
@@ -62,11 +68,30 @@ public class ClassSymbol extends UserTypeSymbol implements InitializerContainer,
 			}
 			
 			return false;
-		} else {
-			return this.hasAccess(member);
+		} else if (member.hasModifier(Modifier.PUBLIC)) {
+			return true;
 		}
+
+		if (member.getParentScope() == this) {
+			return true;
+		}
+
+		if (member instanceof ClassSymbol && member.getParentScope() == this.getParentScope()) {
+			return true;
+		}
+
+		return false;
 	}
-	
+
+	@Override
+	public boolean hasAccess(Symbol symbol) {
+		if (symbol.getParentScope() instanceof ClassSymbol) {
+			return this.hasAccessToMember(symbol);
+		}
+
+		return super.hasAccess(symbol);
+	}
+
 	@Override
 	public Symbol resolve(Scope requesting, String name) {
 		Symbol resolved = null;

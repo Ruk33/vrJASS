@@ -174,6 +174,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		FunctionSymbol function = new FunctionSymbol(name, null, token);
 		
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		function.setModifier(Modifier.PROTECTED, ctx.PROTECTED() != null);
 		function.setModifier(Modifier.ABSTRACT, this.scope instanceof InterfaceSymbol);
 
 		if (this.scope instanceof ClassSymbol) {
@@ -309,6 +310,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		Symbol property = this.visit(ctx.variableDeclaration());
 		
 		property.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
+		property.setModifier(Modifier.PROTECTED, ctx.PROTECTED() != null);
 		property.setModifier(Modifier.STATIC, ctx.STATIC() != null);
 		
 		this.symbols.put(ctx, property);

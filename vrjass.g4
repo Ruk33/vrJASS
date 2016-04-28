@@ -135,7 +135,7 @@ interfaceDefinition:
  * ---------------------------------------------------------------------------
  */
 propertyStatement:
-	(PRIVATE | PUBLIC)? STATIC? variableDeclaration NL;
+	(PRIVATE | PUBLIC | PROTECTED)? STATIC? variableDeclaration NL;
 
 structStatement
     : propertyStatement
@@ -146,7 +146,7 @@ structStatement
 implementsList: validName (COMMA validName)*;
 
 structDefinition:
-	(PRIVATE|PUBLIC)? ABSTRACT? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
+	(PRIVATE | PUBLIC)? ABSTRACT? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
 		(NL | structStatement)*
 	(ENDSTRUCT | END) NL
 	;
@@ -169,7 +169,7 @@ parameters
 arguments: allExpression (COMMA allExpression)*;
 
 functionSignature: 
-	(PRIVATE | PUBLIC)? ABSTRACT? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
+	(PRIVATE | PUBLIC | PROTECTED)? ABSTRACT? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
 
 functionDefinitionExpression:
 	functionSignature NL
@@ -248,6 +248,7 @@ THIS: 'this';
 THISTYPE: 'thistype';
 SUPER: 'super';
 DOT: '.';
+PROTECTED: 'protected';
 PRIVATE: 'private';
 PUBLIC: 'public';
 AND: 'and';

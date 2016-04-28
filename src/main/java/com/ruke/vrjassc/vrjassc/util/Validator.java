@@ -116,10 +116,10 @@ public class Validator {
 		return true;
 	}
 	
-	public boolean mustBeValidStringConcatenation(Symbol a, Symbol b, Token token) {
+	public boolean mustBeValidStringConcatenation(Symbol scope, Symbol a, Symbol b, Token token) {
 		this.validated = b;
 		
-		if (!this.mustBeTypeCompatible(a, b, token)) {
+		if (!this.mustBeTypeCompatible(scope, a, b, token)) {
 			this.exception = new InvalidStringConcatenationException(token);
 			return false;
 		}
@@ -127,10 +127,10 @@ public class Validator {
 		return true;
 	}
 	
-	public boolean mustBeValidMathOperation(Symbol a, Symbol b, Token token) {
+	public boolean mustBeValidMathOperation(Symbol scope, Symbol a, Symbol b, Token token) {
 		this.validated = b;
 		
-		if (!this.mustBeTypeCompatible(a, b, token)) {
+		if (!this.mustBeTypeCompatible(scope, a, b, token)) {
 			this.exception = new InvalidMathException(token);
 			return false;
 		}
@@ -190,16 +190,16 @@ public class Validator {
 	 * @param token
 	 * @return
 	 */
-	public boolean mustBeTypeCompatible(Symbol a, Symbol b, Token token) {
+	public boolean mustBeTypeCompatible(Symbol scope, Symbol a, Symbol b, Token token) {
 		this.validated = b;
 		
 		if (a.getType() == null) {
-			this.exception = new InvalidTypeException(token, a);
+			this.exception = new InvalidTypeException(token, scope, token.getText());
 			return false;
 		}
 		
 		if (b.getType() == null) {
-			this.exception = new InvalidTypeException(token, b);
+			this.exception = new InvalidTypeException(token, scope, token.getText());
 			return false;
 		}
 		
@@ -218,7 +218,7 @@ public class Validator {
 			int i = 0;
 			
 			for (Symbol argument : arguments) {
-				if (!this.mustBeTypeCompatible(function.getParams().get(i), argument, token)) {
+				if (!this.mustBeTypeCompatible(function, function.getParams().get(i), argument, token)) {
 					return false;
 				}
 				
@@ -245,11 +245,11 @@ public class Validator {
 		return true;
 	}
 
-	public boolean mustBeValidType(Symbol type, Token token) {
+	public boolean mustBeValidType(Symbol scope, Symbol type, Token token) {
 		this.validated = type;
 		
 		if (type instanceof Type == false) {
-			this.exception = new InvalidTypeException(token, type);
+			this.exception = new InvalidTypeException(token, scope, token.getText());
 			return false;
 		}
 		
