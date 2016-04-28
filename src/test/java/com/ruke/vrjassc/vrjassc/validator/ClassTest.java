@@ -7,6 +7,19 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void shouldNotAllowToCastInterface() {
+		this.expectedEx.expect(InterfaceCastException.class);
+		this.expectedEx.expectMessage("4:14 Cannot cast to foo since it is an interface");
+		this.run(
+		"interface foo\n" +
+		"end\n" +
+		"function bar\n" +
+			"local foo f = cast 0 to foo\n" +
+		"end"
+		);
+	}
+
+	@Test
 	public void deallocate() {
 		this.expectedEx.none();
 		this.run(

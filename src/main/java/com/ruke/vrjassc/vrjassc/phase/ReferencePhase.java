@@ -533,6 +533,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			this.symbols.put(ctx.validName(), cast);
 		}
 
+		if (!this.validator.mustBeCastable(cast, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+
 		Symbol result = new CastSymbol(original, cast, ctx.getStart());
 		
 		this.symbols.put(ctx, result);

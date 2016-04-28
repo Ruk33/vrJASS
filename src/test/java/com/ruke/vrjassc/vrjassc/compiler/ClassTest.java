@@ -16,7 +16,7 @@ public class ClassTest extends TestHelper {
 		"end\n" +
 		"struct defaultobj implements obj\n" +
 			"public static method allocate returns obj\n" +
-				"return cast 1 to obj\n" +
+				"return cast 1 to defaultobj\n" +
 			"end\n" +
 		"end";
 

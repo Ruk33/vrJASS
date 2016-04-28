@@ -33,20 +33,16 @@ public class Validator {
 		return this.exception;
 	}
 
-	/*public boolean mustBeValidSuperChainExpression(vrjassParser.ChainExpressionContext ctx) {
-		boolean first = true;
+	public boolean mustBeCastable(Symbol toCast, Token token) {
+		this.validated = toCast;
 
-		for (vrjassParser.ExpressionContext expression : ctx.expression()) {
-			if (expression instanceof vrjassParser.SuperContext && !first) {
-				this.exception = new InvalidStatementException("'super' must be the first element in chain expression", ctx.getStart());
-				return false;
-			}
-
-			first = false;
+		if (toCast instanceof InterfaceSymbol) {
+			this.exception = new InterfaceCastException(toCast, token);
+			return false;
 		}
 
 		return true;
-	}*/
+	}
 
 	public boolean mustBeAbleToUseSuper(ClassSymbol _class, Token token) {
 		this.validated = _class;
