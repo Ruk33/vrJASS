@@ -287,12 +287,16 @@ public class ClassTest extends TestHelper {
 				+ "method baz takes nothing returns nothing\n"
 			+ "endinterface\n"
 			+ "struct ipsum\n"
-				+ "public method baz takes nothing returns nothing\n"
+				+ "public method bar\n"
+				+ "end\n"
+				+ "method baz takes nothing returns nothing\n"
 				+ "endmethod\n"
 			+ "endstruct\n"
 			+ "struct lorem extends ipsum implements foo\n"
-				+ "method bar takes nothing returns nothing\n"
+				+ "public method bar takes nothing returns nothing\n"
 				+ "endmethod\n"
+				+ "method baz\n"
+				+ "end\n"
 			+ "endstruct"
 		);
 	}
