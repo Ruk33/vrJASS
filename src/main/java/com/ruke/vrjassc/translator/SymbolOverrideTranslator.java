@@ -23,6 +23,10 @@ public class SymbolOverrideTranslator {
 	}
 	
 	private static Statement getCheckBody(Symbol implementation, ExpressionList params) {
+		if (implementation == null) {
+			return new Statement();
+		}
+
 		FunctionExpression func = new FunctionExpression(implementation, false, params);
 		func.useOverrideName = true;
 		

@@ -7,7 +7,6 @@ import de.peeeq.jmpq.JmpqError;
 
 import java.awt.*;
 import java.io.*;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -152,7 +151,13 @@ public class Main {
 		} catch (Exception e) {
 			error = true;
 			if (logWriter != null) {
-				logWriter.write(e.getMessage());
+				String msg = e.getMessage();
+
+				if (msg != null) {
+					logWriter.write(msg);
+				} else {
+					e.printStackTrace(logWriter);
+				}
 			}
 		}
 		

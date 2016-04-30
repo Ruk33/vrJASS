@@ -1,5 +1,9 @@
 package com.ruke.vrjassc.translator.expression;
 
-public abstract class Statement extends Expression {
-	
+public class Statement extends Expression {
+
+    @Override
+    public String translate() {
+        return "\n";
+    }
 }
