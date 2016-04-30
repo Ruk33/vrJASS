@@ -7,6 +7,21 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void implementationMustShareSameVisibility() {
+		this.expectedEx.expect(ImplementationVisibilityException.class);
+		this.expectedEx.expectMessage("5:7 Method <baz> must be PUBLIC");
+		this.run(
+		"interface foo\n" +
+			"public method baz\n" +
+		"end\n" +
+		"struct bar implements foo\n" +
+			"method baz\n" +
+			"end\n" +
+		"end"
+		);
+	}
+
+	@Test
 	public void childStructShouldNotHaveAccessToPrivateProperty() {
 		this.expectedEx.expect(UndefinedSymbolException.class);
 		this.expectedEx.expectMessage("6:9 Element <i> is not defined");

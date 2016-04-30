@@ -379,6 +379,11 @@ public class Validator {
 				return false;
 			}
 
+			if (method.getVisibility() != resolved.getVisibility()) {
+				this.exception = new ImplementationVisibilityException(method, resolved, resolved.getToken());
+				return false;
+			}
+
 			argsMatch = this.mustMatchArguments(
 				(FunctionSymbol) method, 
 				((FunctionSymbol) resolved).getParams(), 

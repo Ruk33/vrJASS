@@ -35,6 +35,16 @@ public class Symbol {
 		this.scope = scope;
 		this.token = token;
 	}
+
+	public Modifier getVisibility() {
+		if (this.hasModifier(Modifier.PUBLIC)) {
+			return Modifier.PUBLIC;
+		} else if (this.hasModifier(Modifier.PROTECTED)) {
+			return Modifier.PROTECTED;
+		}
+
+		return Modifier.PRIVATE;
+	}
 	
 	public String getName() {
 		return this.name;
