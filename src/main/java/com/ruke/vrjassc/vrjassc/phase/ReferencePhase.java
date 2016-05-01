@@ -118,7 +118,20 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		return _interface;
 	}
-	
+
+	@Override
+	public Symbol visitImplementableExtendable(ImplementableExtendableContext ctx) {
+		if (ctx.chainExpression() != null) {
+			return this.visit(ctx.chainExpression());
+		}
+
+		if (!this.validator.mustBeDefined(this.scopes.peek(), ctx.validName().getText(), ctx.getStart())) {
+			throw this.validator.getException();
+		}
+
+		return this.validator.getValidatedSymbol();
+	}
+
 	@Override
 	public Symbol visitStructDefinition(StructDefinitionContext ctx) {		
 		ClassSymbol _class = (ClassSymbol) this.symbols.get(ctx);
@@ -130,18 +143,13 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this._class = _class;
 		
 		if (ctx.extendsFrom != null) {
-			String extendsName = ctx.extendsFrom.getText();
-			Token extendsToken = ctx.extendsFrom.getStart();
+			Symbol _extends = this.visit(ctx.extendsFrom);
 			
-			if (!this.validator.mustBeDefined(_class, extendsName, extendsToken)) {
-				throw this.validator.getException();
-			}
-			
-			if (!this.validator.mustBeExtendableValid(this.validator.getValidatedSymbol(), extendsToken)) {
+			if (!this.validator.mustBeExtendableValid(_extends, ctx.extendsFrom.getStart())) {
 				throw this.validator.getException();
 			}
 
-			ClassSymbol parent = (ClassSymbol) this.validator.getValidatedSymbol();
+			ClassSymbol parent = (ClassSymbol) _extends;
 
 			if (!this.validator.mustImplementAllMethods(parent, _class, token)) {
 				throw this.validator.getException();
@@ -156,21 +164,14 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			String interfaceName;
 			Token interfaceToken;
 			
-			for (ValidNameContext implement : ctx.implementsList().validName()) {
-				interfaceName = implement.getText();
-				interfaceToken = implement.getStart();
-				
-				if (!this.validator.mustBeDefined(_class, interfaceName, interfaceToken)) {
+			for (ImplementableExtendableContext implement : ctx.implementsList().implementableExtendable()) {
+				Symbol _interface = this.visit(implement);
+
+				if (!this.validator.mustBeImplementableTypeValid(this.validator.getValidatedSymbol(), implement.getStart())) {
 					throw this.validator.getException();
 				}
-
-				if (!this.validator.mustBeImplementableTypeValid(this.validator.getValidatedSymbol(), interfaceToken)) {
-					throw this.validator.getException();
-				}
-
-				InterfaceSymbol _interface = (InterfaceSymbol) this.validator.getValidatedSymbol();
 				
-				if (!this.validator.mustImplementAllMethods(_interface, _class, token)) {
+				if (!this.validator.mustImplementAllMethods((InterfaceSymbol) _interface, _class, token)) {
 					throw this.validator.getException();
 				}
 				

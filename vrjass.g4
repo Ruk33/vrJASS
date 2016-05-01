@@ -143,10 +143,11 @@ structStatement
 	| functionSignature
 	;
 
-implementsList: validName (COMMA validName)*;
+implementableExtendable: validName | chainExpression;
+implementsList: implementableExtendable (COMMA implementableExtendable)*;
 
 structDefinition:
-	(PRIVATE | PUBLIC)? ABSTRACT? STRUCT name=validName (EXTENDS extendsFrom=validName)? (IMPLEMENTS implementsList)? NL
+	(PRIVATE | PUBLIC)? ABSTRACT? STRUCT name=validName (EXTENDS extendsFrom=implementableExtendable)? (IMPLEMENTS implementsList)? NL
 		(NL | structStatement)*
 	(ENDSTRUCT | END) NL
 	;

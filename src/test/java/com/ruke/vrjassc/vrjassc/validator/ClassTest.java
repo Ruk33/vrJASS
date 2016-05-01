@@ -7,6 +7,32 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void extendsStructNamespace() {
+		this.expectedEx.none();
+		this.run(
+		"library foo\n" +
+			"public struct bar\n" +
+			"end\n" +
+		"end\n" +
+		"struct baz extends foo.bar\n" +
+		"end"
+		);
+	}
+
+	@Test
+	public void extendsInterfaceNamespace() {
+		this.expectedEx.none();
+		this.run(
+		"library foo\n" +
+			"public interface bar\n" +
+			"end\n" +
+		"end\n" +
+		"struct baz implements foo.bar\n" +
+		"end"
+		);
+	}
+
+	@Test
 	public void implementationMustShareSameVisibility() {
 		this.expectedEx.expect(ImplementationVisibilityException.class);
 		this.expectedEx.expectMessage("5:7 Method <baz> must be PUBLIC");
