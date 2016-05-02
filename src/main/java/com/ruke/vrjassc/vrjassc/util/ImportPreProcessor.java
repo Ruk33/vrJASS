@@ -28,7 +28,7 @@ public class ImportPreProcessor {
                 result += toImport;
             }
 
-            result = result.replaceAll(m.group(1), "");
+            result = result.replaceAll(m.group(1), "\n");
         }
 
         return result;
