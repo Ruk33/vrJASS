@@ -12,7 +12,7 @@ public class Compile {
 	private CompilerFacade compiler = new CompilerFacade();
 	
 	public String run(String code, boolean translate) throws CompileException, IOException {
-		String replacedTabs = code.replace("\t", "    ");
+		String replacedTabs = ImportPreProcessor.process(code.replace("\t", "    ") + "\n");
 		ANTLRInputStream is = new ANTLRInputStream(replacedTabs + "\n");
 		
 		this.compiler.translateCode = translate;
