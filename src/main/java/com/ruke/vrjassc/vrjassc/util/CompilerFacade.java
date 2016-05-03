@@ -56,8 +56,12 @@ public class CompilerFacade {
 		
 		TokenSymbolBag symbols = new TokenSymbolBag();
 		VrJassScope scope = new VrJassScope();
-		scope.define(this.getNatives());
-		
+
+		try {
+			scope.define(this.getNatives());
+		} catch (Exception e) {
+
+		}
 		
 		DefinitionPhase defPhase = new DefinitionPhase(symbols, scope);
 		ReferencePhase refPhase = new ReferencePhase(symbols, scope);
