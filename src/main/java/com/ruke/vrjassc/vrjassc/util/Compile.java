@@ -10,13 +10,21 @@ import java.nio.file.Paths;
 public class Compile {
 
 	private CompilerFacade compiler = new CompilerFacade();
-	
+
+	public void setCommonPath(String path) {
+		this.compiler.commonPath = path;
+	}
+
+	public void setBlizzardPath(String path) {
+		this.compiler.blizzardPath = path;
+	}
+
 	public String run(String code, boolean translate) throws CompileException, IOException {
-		String replacedTabs = ImportPreProcessor.process(code.replace("\t", "    ") + "\n");
-		ANTLRInputStream is = new ANTLRInputStream(replacedTabs + "\n");
+		String replacedTabs = code.replace("\t", "    ") + "\n";
+		ANTLRInputStream is = new ANTLRInputStream(replacedTabs);
 		
 		this.compiler.translateCode = translate;
-		
+
 		return this.compiler.compile(is);
 	}
 	

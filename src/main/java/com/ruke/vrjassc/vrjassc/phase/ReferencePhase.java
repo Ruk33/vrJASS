@@ -142,7 +142,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		ClassSymbol prevClass = this._class;
 		this._class = _class;
 		
-		if (ctx.extendsFrom != null) {
+		if (ctx.extendsFrom != null /*&& !this.definingSymbolTypes*/) {
 			Symbol _extends = this.visit(ctx.extendsFrom);
 			
 			if (!this.validator.mustBeExtendableValid(_extends, ctx.extendsFrom.getStart())) {
@@ -157,10 +157,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			
 			_class.extendsFrom(parent);
 		}
-
-		super.visitStructDefinition(ctx);
 		
-		if (ctx.implementsList() != null) {
+		if (ctx.implementsList() != null && !this.definingSymbolTypes) {
 			String interfaceName;
 			Token interfaceToken;
 			
@@ -178,6 +176,12 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				_class.define(_interface);
 			}
 		}
+
+		if (this.definingSymbolTypes) {
+			this.functionDefinitions.push(ctx);
+		}
+
+		super.visitStructDefinition(ctx);
 
 		Symbol initializer = _class.getInitializer();
 		if (initializer != null && !this.validator.mustBeValidInitializer(initializer, initializer.getToken())) {

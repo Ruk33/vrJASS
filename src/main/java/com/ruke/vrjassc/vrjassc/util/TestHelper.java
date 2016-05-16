@@ -10,7 +10,7 @@ public abstract class TestHelper {
 
 	@Rule
 	public ExpectedException expectedEx = ExpectedException.none();
-	
+
 	protected Compile compile = new Compile();
 	
 	protected String runFromFile(String path) throws IOException {
@@ -21,10 +21,8 @@ public abstract class TestHelper {
 		try {
 			return this.compile.run(code);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
-		
 		return code;
 	}
 	

@@ -78,7 +78,11 @@ public class Main {
 		
 		for (String file : files) {
 			try {
-				if (file.endsWith(".j")) {
+				if (file.toLowerCase().endsWith("blizzard.j")) {
+					compile.setBlizzardPath(file);
+				} else if (file.toLowerCase().endsWith("common.j")) {
+					compile.setCommonPath(file);
+				} else if (file.endsWith(".j")) {
 					toCompile.addAll(Files.readAllLines(Paths.get(file)));
 				} else {
 					editor = new JmpqEditor(new File(file));

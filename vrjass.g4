@@ -4,6 +4,7 @@ init: topDeclaration* EOF;
 
 topDeclaration
     : NL
+    | importStatement
 	| typeDefinition
 	| nativeDefinition
 	| globalDefinition
@@ -12,6 +13,8 @@ topDeclaration
 	| structDefinition
 	| functionDefinition
 	;
+
+importStatement: IMPORT path=STRING NL;
 
 // Refers to a valid variable type, like integer, reals, etc.
 validType: validName | chainExpression;
@@ -234,6 +237,7 @@ returnStatement:
 	RETURN (expression)? NL;
 
 
+IMPORT: 'import';
 ABSTRACT: 'abstract';
 BREAK: 'break';
 WHILE: 'while';
