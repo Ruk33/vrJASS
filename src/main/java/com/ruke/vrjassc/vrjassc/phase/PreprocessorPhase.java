@@ -30,7 +30,7 @@ public class PreprocessorPhase extends vrjassBaseVisitor<Void> {
             Path path = Paths.get(ctx.path.getText().replaceAll("\"", ""));
             String code = String.join("\n", Files.readAllLines(path)) + "\n";
 
-            this.compiler.compile(this.symbols, new ANTLRInputStream(code), true, false);
+            this.compiler.compile(this.symbols, new ANTLRInputStream(code), true, false, false);
         } catch (CompileException e) {
             throw new ImportException(ctx.getStart(), e);
         } catch (IOException e) {

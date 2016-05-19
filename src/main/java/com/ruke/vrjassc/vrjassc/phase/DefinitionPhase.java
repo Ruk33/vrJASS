@@ -136,9 +136,11 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitParameter(ParameterContext ctx) {
 		Symbol parameter = this.visit(ctx.variableDeclaration());
-		parameter.setModifier(Modifier.LOCAL, true);
-		
-		((FunctionSymbol) this.scope).defineParam(parameter);
+
+		if (parameter != null) {
+			parameter.setModifier(Modifier.LOCAL, true);
+			((FunctionSymbol) this.scope).defineParam(parameter);
+		}
 		
 		return parameter;
 	}
@@ -258,6 +260,10 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 	@Override
 	public Symbol visitVariableDeclaration(VariableDeclarationContext ctx) {
+		if (ctx.validName() == null) {
+			return null;
+		}
+
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
@@ -295,13 +301,15 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	@Override
 	public Symbol visitLocalVariableStatement(LocalVariableStatementContext ctx) {
 		Symbol variable = this.visit(ctx.variableDeclaration());
-		
-		variable.setModifier(Modifier.LOCAL, true);
-		variable.setModifier(Modifier.PRIVATE, true);
-		
-		this.symbols.put(ctx, variable);
-		this.defineOrThrowAlreadyDefinedException(this.scope, variable);
-		
+
+		if (variable != null) {
+			variable.setModifier(Modifier.LOCAL, true);
+			variable.setModifier(Modifier.PRIVATE, true);
+
+			this.symbols.put(ctx, variable);
+			this.defineOrThrowAlreadyDefinedException(this.scope, variable);
+		}
+
 		return variable;
 	}
 	

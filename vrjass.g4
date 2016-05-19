@@ -21,7 +21,7 @@ validType: validName | chainExpression;
 validName: ID | END;
 
 variableDeclaration: 
-	type=validType ARRAY? name=validName (EQ value=allExpression)?;
+	type=validType (ARRAY? name=validName (EQ value=allExpression)?)?;
 
 variableExpression: validName (BRACKET_LEFT index=expression BRACKET_RIGHT)?;
 
@@ -36,7 +36,7 @@ superExpression: SUPER;
 memberExpression: variableExpression | functionExpression;
 
 chainExpression:
-    (parenthesis | superExpression | thisExpression | variableExpression | functionExpression | cast) (DOT memberExpression)+;
+    (parenthesis | superExpression | thisExpression | variableExpression | functionExpression | cast) (DOT memberExpression?)+;
 
 cast: CAST original=expression TO (chainExpression | validName);
 

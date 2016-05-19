@@ -34,6 +34,13 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	private Stack<ParserRuleContext> functionDefinitions;
 	private boolean definingSymbolTypes = true;
 
+	private int line = -1;
+	private int col = -1;
+	private ScopeSymbol catchedScope;
+	private Symbol catchedSymbol;
+	private Class catchSymbolType;
+	private Type catchTypeCompatible;
+
 	public void setValidator(Validator validator) {
 		this.validator = validator;
 	}
@@ -50,7 +57,28 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.setValidator(new Validator());
 		this.validator.scope = scope;
 	}
-	
+
+	public void catchSymbolIn(int line, int col) {
+		this.line = line;
+		this.col = col;
+	}
+
+	public Symbol getCatchedSymbol() {
+		return this.catchedSymbol;
+	}
+
+	public ScopeSymbol getCatchedScope() {
+		return this.catchedScope;
+	}
+
+	public Class getCatchSymbolType() {
+		return this.catchSymbolType;
+	}
+
+	public Type getCatchTypeCompatible() {
+		return this.catchTypeCompatible;
+	}
+
 	@Override
 	public Symbol visitInit(InitContext ctx) {
 		super.visitInit(ctx);
@@ -283,6 +311,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			type = this.scopes.peek().resolve(ctx.validName().getText());
 		}
 
+		if (this.line == ctx.getStart().getLine() && ctx.getStop().getCharPositionInLine() == this.col) {
+			this.catchedScope = this.scopes.peek();
+			this.catchedSymbol = type;
+			this.catchSymbolType = BuiltInTypeSymbol.class;
+		}
+
+		if (this.line > 0) {
+			return type;
+		}
+
 		if (!this.validator.mustBeValidType(this.scopes.peek(), type, ctx.getStart())) {
 			throw this.validator.getException();
 		}
@@ -297,19 +335,27 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol variable = this.symbols.get(ctx);
 		Symbol type = this.visit(ctx.validType());
 		Token typeToken = ctx.validType().getStart();
-		
-		if (!this.validator.mustHaveAccess(scope, type, typeToken)) {
+		boolean searchingSymbol = this.line > 0;
+
+		if (!searchingSymbol && !this.validator.mustHaveAccess(scope, type, typeToken)) {
 			throw this.validator.getException();
 		}
+
+		if (variable != null) {
+			variable.setType((Type) type);
+		}
 		
-		variable.setType((Type) type);
-		
-		if (ctx.value != null) {
+		if (variable != null && ctx.value != null) {
 			Symbol value = this.visit(ctx.value);
 			
 			if (!this.validator.mustBeTypeCompatible(scope, variable, value, typeToken)) {
 				throw this.validator.getException();
 			}
+		}
+
+		if (ctx.validName() != null && this.line == ctx.getStart().getLine() && ctx.validName().getStop().getCharPositionInLine() == this.col) {
+			this.catchedScope = scope;
+			this.catchedSymbol = variable;
 		}
 		
 		return variable;
@@ -498,31 +544,35 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
+
+		boolean searchingSymbol = this.line > 0;
 		
-		if (!this.validator.mustBeDefined(scope, name, token)) {
+		if (!this.validator.mustBeDefined(scope, name, token) && !searchingSymbol) {
 			throw this.validator.getException();
 		}
 		
 		Symbol variable = this.validator.getValidatedSymbol();
-		
-		if (!this.validator.mustBeDeclaredBeforeUsed(variable, ctx.getStart())) {
-			throw this.validator.getException();
+
+		if (variable != null) {
+			if (!this.validator.mustBeDeclaredBeforeUsed(variable, ctx.getStart())) {
+				throw this.validator.getException();
+			}
+
+			if (ctx.index != null) {
+				// chain expressions can modifiy the current scope so restore it
+				// to avoid failing
+				// example: this.foo[this.bar]
+				// 'this' will update the current scope to whatever class it points to
+				// then it will look for foo (which it will find it), but then it will
+				// try to find 'this' and it will fail (because the current scope is
+				// the class
+				this.scopes.push(this.enclosingScopes.peek());
+				this.visit(ctx.index);
+				this.scopes.pop();
+			}
+
+			this.symbols.put(ctx, variable);
 		}
-		
-		if (ctx.index != null) {
-			// chain expressions can modifiy the current scope so restore it
-			// to avoid failing
-			// example: this.foo[this.bar]
-			// 'this' will update the current scope to whatever class it points to
-			// then it will look for foo (which it will find it), but then it will
-			// try to find 'this' and it will fail (because the current scope is
-			// the class
-			this.scopes.push(this.enclosingScopes.peek());
-			this.visit(ctx.index);
-			this.scopes.pop();
-		}
-		
-		this.symbols.put(ctx, variable);
 		
 		return variable;
 	}
@@ -585,6 +635,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			member = this.visit(expr);
 			this.scopes.pop();
 
+			if (member == null) {
+				break;
+			}
+
 			if (!this.validator.mustHaveAccess(scope, member, expr.getStart())) {
 				throw this.validator.getException();
 			}
@@ -594,6 +648,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			}
 
 			parent = member;
+		}
+
+		if (this.line == ctx.getStart().getLine() && ctx.getStop().getCharPositionInLine() == this.col) {
+			this.catchedScope = scope;
+			this.catchedSymbol = parent;
 		}
 
 		return member;
@@ -613,7 +672,18 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	
 	@Override
 	public Symbol visitFunctionStatement(FunctionStatementContext ctx) {
-		return this.visit(ctx.getChild(1));
+		Symbol function = this.visit(ctx.getChild(1));
+
+		if (this.line == ctx.getStart().getLine()) {
+			this.catchSymbolType = FunctionSymbol.class;
+		}
+
+		if (function == null && this.line == ctx.getStart().getLine() && ctx.getStop().getCharPositionInLine() == this.col) {
+			this.catchedScope = this.scopes.peek();
+			this.catchedSymbol = function;
+		}
+
+		return function;
 	}
 
 	@Override
@@ -640,12 +710,15 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			return null;
 		}
 		
-		Scope scope = this.scopes.peek();
+		ScopeSymbol scope = this.scopes.peek();
 		
 		Symbol expr = this.visit(ctx.expression());
 		Token token = ctx.expression().getStart();
-		
-		if (!this.validator.mustBeTypeCompatible(this.scopes.peek(), (Symbol) scope, expr, token)) {
+
+		if (expr == null && this.line == ctx.getStart().getLine()) {
+			this.catchedScope = scope;
+			this.catchTypeCompatible = scope.getType();
+		} else if (!this.validator.mustBeTypeCompatible(this.scopes.peek(), scope, expr, token)) {
 			throw this.validator.getException();
 		}
 		
