@@ -11,6 +11,10 @@ public class Compile {
 
 	private CompilerFacade compiler = new CompilerFacade();
 
+	public CompilerFacade getCompiler() {
+		return this.compiler;
+	}
+
 	public void setCommonPath(String path) {
 		this.compiler.commonPath = path;
 	}

@@ -4,7 +4,6 @@ import com.ruke.vrjassc.autocomplete.AutoComplete;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import com.ruke.vrjassc.vrjassc.util.Compile;
-import com.sun.org.apache.bcel.internal.generic.ARRAYLENGTH;
 import de.peeeq.jmpq.JmpqEditor;
 import de.peeeq.jmpq.JmpqError;
 
@@ -102,7 +101,6 @@ public class Main {
 					
 					editor.close();
 				}
-				toCompile.add("\n");
 			} catch (Exception e) {
 				error = true;
 				if (logWriter != null) {
@@ -113,18 +111,26 @@ public class Main {
 		
 		try {
 			if (onlySuggestions) {
-				ArrayList<String> suggestions = new ArrayList<String>();
-				AutoComplete autocomplete = new AutoComplete(String.join("\n", toCompile), Integer.valueOf(suggestionOptions[0]), Integer.valueOf(suggestionOptions[1]));
+				ArrayList<String> result = new ArrayList<String>();
+				String code = String.join("\n", toCompile);
+				AutoComplete autocomplete = new AutoComplete(
+					compile.getCompiler(),
+					code,
+					Integer.valueOf(suggestionOptions[0]),
+					Integer.valueOf(suggestionOptions[1])
+				);
 
 				if (suggestionOptions.length == 3) {
 					autocomplete.setLimit(Integer.valueOf(suggestionOptions[2]));
 				}
 
-				for (Symbol s : autocomplete.get()) {
-					suggestions.add(s.getName());
+				ArrayList<Symbol> suggestions = autocomplete.get();
+
+				for (Symbol s : suggestions) {
+					result.add(s.getName());
 				}
 
-				System.out.println(suggestions);
+				System.out.println(result);
 			} else if (resultPath == null) {
 				compile.run(String.join("\n", toCompile), false);
 			} else {

@@ -11,13 +11,36 @@ import java.util.ArrayList;
 public class AutoCompleteTest {
 
     @Test
+    public void shouldSuggestOnlyStructMembers() {
+        String code =
+            "struct foo\n" +
+                "public method bar\n" +
+                "end\n" +
+                "public static method lorem\n" +
+                "end\n" +
+                "method baz\n" +
+                "end\n" +
+            "end\n" +
+            "function bar\n" +
+                "local foo f\n" +
+                "call f.\n" +
+            "end";
+
+        AutoComplete autocomplete = new AutoComplete(code, 11, 7);
+        ArrayList<Symbol> suggestions = autocomplete.get();
+
+        Assert.assertEquals(1, suggestions.size());
+        Assert.assertEquals("bar", suggestions.get(0).getName());
+    }
+
+    @Test
     public void shouldSuggestCompatibleTypesOnReturn() {
         String code =
             "function foo returns integer\n" +
                 "return getunitp\n" +
             "end";
 
-        AutoComplete autocomplete = new AutoComplete(code, 2, 8);
+        AutoComplete autocomplete = new AutoComplete(code, 2, 15);
         ArrayList<Symbol> suggestions = autocomplete.get();
 
         Assert.assertEquals(4, suggestions.size());
@@ -34,7 +57,7 @@ public class AutoCompleteTest {
                 "local fl\n" +
             "end";
 
-        AutoComplete autocomplete = new AutoComplete(code, 2, 7);
+        AutoComplete autocomplete = new AutoComplete(code, 2, 8);
         ArrayList<Symbol> suggestions = autocomplete.get();
 
         Assert.assertEquals(2, suggestions.size());
@@ -48,7 +71,7 @@ public class AutoCompleteTest {
             "function foo takes fl\n" +
             "end";
 
-        AutoComplete autocomplete = new AutoComplete(code, 1, 20);
+        AutoComplete autocomplete = new AutoComplete(code, 1, 21);
         ArrayList<Symbol> suggestions = autocomplete.get();
 
         Assert.assertEquals(2, suggestions.size());
@@ -78,7 +101,7 @@ public class AutoCompleteTest {
                 "call getunita\n" +
             "end";
 
-        AutoComplete autocomplete = new AutoComplete(code, 2, 6);
+        AutoComplete autocomplete = new AutoComplete(code, 2, 13);
         ArrayList<Symbol> suggestions = autocomplete.get();
 
         Assert.assertEquals(3, suggestions.size());

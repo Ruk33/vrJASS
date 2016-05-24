@@ -60,7 +60,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 
 	public void catchSymbolIn(int line, int col) {
 		this.line = line;
-		this.col = col;
+		this.col = col-1;
 	}
 
 	public Symbol getCatchedSymbol() {
@@ -650,7 +650,7 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			parent = member;
 		}
 
-		if (this.line == ctx.getStart().getLine() && ctx.getStop().getCharPositionInLine() == this.col) {
+		if (this.line == ctx.getStart().getLine() && ctx.getStop().getCharPositionInLine() == this.col + 1) {
 			this.catchedScope = scope;
 			this.catchedSymbol = parent;
 		}
@@ -676,11 +676,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 
 		if (this.line == ctx.getStart().getLine()) {
 			this.catchSymbolType = FunctionSymbol.class;
-		}
 
-		if (function == null && this.line == ctx.getStart().getLine() && ctx.getStop().getCharPositionInLine() == this.col) {
-			this.catchedScope = this.scopes.peek();
-			this.catchedSymbol = function;
+			if (this.catchedScope == null) {
+				this.catchedScope = this.scopes.peek();
+			}
 		}
 
 		return function;

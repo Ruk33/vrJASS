@@ -54,7 +54,8 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		String name = ctx.validName().getText();
 		Token token = ctx.validName().getStart();
 		
-		Symbol type = new BuiltInTypeSymbol(name, this.scope, token);	
+		Symbol type = new BuiltInTypeSymbol(name, this.scope, token);
+		type.setModifier(Modifier.STATIC, true);
 		
 		this.symbols.put(ctx, type);
 		this.scope.define(type);

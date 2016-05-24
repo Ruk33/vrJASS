@@ -8,15 +8,21 @@ import java.util.ArrayList;
 
 public class AutoComplete {
 
+    private CompilerFacade compiler;
     private String code;
     private int line;
     private int col;
     private int limit = -1;
 
-    public AutoComplete(String code, int line, int col) {
+    public AutoComplete(CompilerFacade compiler, String code, int line, int col) {
+        this.compiler = compiler;
         this.code = code;
         this.line = line;
         this.col = col-1;
+    }
+
+    public AutoComplete(String code, int line, int col) {
+        this(new CompilerFacade(), code, line, col);
     }
 
     public void setLimit(int limit) {
@@ -24,13 +30,33 @@ public class AutoComplete {
     }
 
     private void completeSuggestions(ArrayList<Symbol> suggestions, String word, Class type, ScopeSymbol scope, Symbol symbol, Type compatibleWith) {
-        if (symbol instanceof ScopeSymbol) {
-            for (Symbol child : ((ScopeSymbol) symbol).getChilds().values()) {
+        Symbol parent = null;
+        boolean onlyStatic = false;
+
+        if (symbol != null) {
+            if (symbol instanceof ScopeSymbol) {
+                parent = symbol;
+                onlyStatic = true;
+            } else if (symbol.getType() instanceof ScopeSymbol) {
+                parent = (Symbol) symbol.getType();
+            }
+        }
+
+        if (parent instanceof ScopeSymbol) {
+            for (Symbol child : ((ScopeSymbol) parent).getChilds().values()) {
                 if (this.limit > 0 && this.limit <= suggestions.size()) {
                     return;
                 }
 
+                if (onlyStatic != child.hasModifier(Modifier.STATIC)) {
+                    continue;
+                }
+
                 if (type != null && child.getClass() != type) {
+                    continue;
+                }
+
+                if (compatibleWith != null && !compatibleWith.isTypeCompatible(child)) {
                     continue;
                 }
 
@@ -38,14 +64,10 @@ public class AutoComplete {
                     continue;
                 }
 
-                if (word.matches("\\w+")) {
-                    if (!child.getName().toLowerCase().contains(word.toLowerCase())) {
+                if (word != null) {
+                    if (!child.getName().toLowerCase().contains(word)) {
                         continue;
                     }
-                }
-
-                if (compatibleWith != null && !compatibleWith.isTypeCompatible(child)) {
-                    continue;
                 }
 
                 suggestions.add(child);
@@ -74,16 +96,15 @@ public class AutoComplete {
     }
 
     public ArrayList<Symbol> get() {
-        CompilerFacade compiler = new CompilerFacade();
         ArrayList<Symbol> suggestions = new ArrayList<Symbol>();
         String[] codeLines = this.code.split("\n");
         String word = "";
 
-        compiler.catchSymbolIn(this.line, this.col);
-        compiler.translateCode = false;
+        this.compiler.catchSymbolIn(this.line, this.col);
+        this.compiler.translateCode = false;
 
         try {
-            compiler.compile(
+            this.compiler.compile(
                 new VrJassScope(),
                 new ANTLRInputStream(this.code),
                 false,
@@ -92,16 +113,26 @@ public class AutoComplete {
             );
 
             if (codeLines.length >= this.line-1 && codeLines[this.line-1].length() >= this.col) {
-                word = codeLines[this.line-1].substring(this.col);
+                int validCol = this.col;
+
+                while (validCol > 0 && String.valueOf(codeLines[this.line - 1].charAt(validCol - 1)).matches("\\w")) {
+                    validCol--;
+                }
+
+                word = codeLines[this.line - 1].substring(validCol).toLowerCase().trim();
+
+                if (!word.matches("\\w+")) {
+                    word = null;
+                }
             }
 
             this.completeSuggestions(
                 suggestions,
                 word,
-                compiler.getCatchedSymbolType(),
-                compiler.getCatchedScope(),
-                compiler.getCatchedSymbol(),
-                compiler.getCatchedTypeCompatible()
+                this.compiler.getCatchedSymbolType(),
+                this.compiler.getCatchedScope(),
+                this.compiler.getCatchedSymbol(),
+                this.compiler.getCatchedTypeCompatible()
             );
         } catch (Exception e) {
             e.printStackTrace();
