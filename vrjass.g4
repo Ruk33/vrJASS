@@ -51,6 +51,7 @@ expression
     | cast                                      #ignoreCastExpression
     | MINUS expression                          #Negative
     | NOT expression                            #Not
+    | left=expression MOD right=expression      #Modulo
     | left=expression DIV right=expression      #Div
     | left=expression TIMES right=expression    #Mult
     | left=expression MINUS right=expression    #Minus
@@ -303,6 +304,7 @@ PAREN_RIGHT: ')';
 BRACKET_LEFT: '[';
 BRACKET_RIGHT: ']';
 COMMA: ',';
+MOD: '%';
 DIV: '/';
 TIMES: '*';
 MINUS: '-';

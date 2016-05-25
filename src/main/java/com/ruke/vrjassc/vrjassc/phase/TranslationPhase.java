@@ -125,6 +125,14 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	}
 
 	@Override
+	public Expression visitModulo(ModuloContext ctx) {
+		Expression a = this.visit(ctx.left);
+		Expression b = this.visit(ctx.right);
+
+		return new ModuloExpression(a, b);
+	}
+
+	@Override
 	public Expression visitDiv(DivContext ctx) {
 		Expression a = this.visit(ctx.left);
 		Expression b = this.visit(ctx.right);

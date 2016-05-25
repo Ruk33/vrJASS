@@ -9,6 +9,25 @@ import static org.junit.Assert.assertEquals;
 public class FunctionTest extends TestHelper {
 
 	@Test
+	public void modulo() {
+		String code =
+			"function foo\n" +
+				"local integer i = 2 % 1\n" +
+				"local real r = 2.1 % 1\n" +
+			"end";
+
+		String expected =
+			"globals\n" +
+			"endglobals\n" +
+			"function foo takes nothing returns nothing\n" +
+				"local integer i=ModuloReal(2,1)\n" +
+				"local real r=ModuloReal(2.1,1)\n" +
+			"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
+
+	@Test
 	public void continueStatement() {
 		String code =
 			"function foo\n" +
