@@ -1,6 +1,7 @@
 package com.ruke.vrjassc.translator.expression;
 
 import com.ruke.vrjassc.vrjassc.symbol.BuiltInTypeSymbol;
+import com.ruke.vrjassc.vrjassc.symbol.Modifier;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 
 /**
@@ -19,6 +20,7 @@ public class LoopStatement extends StatementBody {
 
 		this._continue = new Symbol("vr_c_" + LOOP_CONTINUE_COUNTER, null, null);
 		this._continue.setType(new BuiltInTypeSymbol("boolean", null, null));
+		this._continue.setModifier(Modifier.LOCAL, true);
 
 		this.add(new VariableStatement(this._continue, null));
 

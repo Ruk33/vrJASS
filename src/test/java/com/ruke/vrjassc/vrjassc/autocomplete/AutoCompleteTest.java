@@ -4,7 +4,6 @@ import com.ruke.vrjassc.autocomplete.AutoComplete;
 import com.ruke.vrjassc.vrjassc.symbol.Symbol;
 import org.junit.Assert;
 import org.junit.Test;
-import sun.java2d.SunGraphicsEnvironment;
 
 import java.util.ArrayList;
 

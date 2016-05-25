@@ -12,9 +12,9 @@ public class FunctionTest extends TestHelper {
 	public void continueStatement() {
 		String code =
 			"function foo\n" +
-				"local integer i\n" +
-				"set i = 1\n" +
+				"local integer i = 0\n" +
 				"loop\n" +
+					"set i = i + 1\n" +
 					"exitwhen i > 9\n" +
 					"if i == 3 then\n" +
 						"continue\n" +
@@ -23,7 +23,6 @@ public class FunctionTest extends TestHelper {
 						"continue\n" +
 					"endif\n" +
 					"call BJDebugMsg(I2S(i))\n" +
-					"set i = i + 1\n" +
 				"endloop\n" +
 			"end";
 
@@ -31,12 +30,12 @@ public class FunctionTest extends TestHelper {
 			"globals\n" +
 			"endglobals\n" +
 			"function foo takes nothing returns nothing\n" +
-				"boolean vr_c_0=false\n" +
+				"local boolean vr_c_0=false\n" +
 				"local integer i=0\n" +
-				"set i=1\n" +
 				"loop\n" +
 					"set vr_c_0=false\n" +
 					"loop\n" +
+						"set i=i+1\n" +
 						"exitwhen i>9\n" +
 						"if i==3 then\n" +
 							"set vr_c_0=true\n" +
@@ -47,7 +46,6 @@ public class FunctionTest extends TestHelper {
 							"exitwhen true\n" +
 						"endif\n" +
 						"call BJDebugMsg(I2S(i))\n" +
-						"set i=i+1\n" +
 					"endloop\n" +
 					"exitwhen vr_c_0==false\n" +
 				"endloop\n" +
