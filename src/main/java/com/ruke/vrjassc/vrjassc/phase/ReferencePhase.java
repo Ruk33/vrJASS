@@ -693,7 +693,16 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		return this.visit(ctx.expression());
 	}
-	
+
+	@Override
+	public Symbol visitContinueStatement(ContinueStatementContext ctx) {
+		if (!this.validator.mustBeInsideOfLoop(ctx, ctx.getStart())) {
+			throw this.validator.getException();
+		}
+
+		return null;
+	}
+
 	@Override
 	public Symbol visitBreakStatement(BreakStatementContext ctx) {
 		if (!this.validator.mustBeInsideOfLoop(ctx, ctx.getStart())) {

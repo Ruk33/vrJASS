@@ -424,7 +424,12 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		BooleanExpression condition = new BooleanExpression(this.visit(ctx.expression()));
 		return new ExitWhenStatement(condition);
 	}
-	
+
+	@Override
+	public Expression visitContinueStatement(ContinueStatementContext ctx) {
+		return new ContinueStatement();
+	}
+
 	@Override
 	public Expression visitBreakStatement(BreakStatementContext ctx) {
 		return new ExitWhenStatement(new RawExpression("true"));

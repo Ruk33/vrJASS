@@ -43,6 +43,24 @@ public class StatementBody extends StatementList {
 			}
 		}
 	}
+
+	public LoopStatement getLoop() {
+		Expression loop = this;
+
+		while (loop instanceof LoopStatement == false) {
+			if (loop == null) {
+				break;
+			}
+
+			loop = loop.getParent();
+		}
+
+		if (loop instanceof LoopStatement) {
+			return (LoopStatement) loop;
+		}
+
+		return null;
+	}
 	
 	public void add(Statement e) {
 		if (e == null) {
@@ -50,7 +68,6 @@ public class StatementBody extends StatementList {
 		}
 		
 		e.setParent(this);
-		
 		this.getUsedFunctions().addAll(e.getUsedFunctions());
 		
 		if (e instanceof VariableStatement) {

@@ -191,6 +191,7 @@ statement
 	| whileLoopStatement
 	| breakStatement
 	| exitWhenStatement
+	| continueStatement
 	| ifStatement
 	| returnStatement
 	| NL
@@ -206,6 +207,8 @@ functionStatement: CALL (functionExpression | chainExpression) NL;
 breakStatement: BREAK NL;
 
 exitWhenStatement: EXITWHEN expression NL;
+
+continueStatement: CONTINUE NL;
 
 loopStatement:
 	LOOP NL
@@ -264,6 +267,7 @@ ARRAY: 'array';
 LOCAL: 'local';
 SET: 'set';
 EXITWHEN: 'exitwhen';
+CONTINUE: 'continue';
 CALL: 'call';
 GLOBALS: 'globals';
 ENDGLOBALS: 'endglobals';

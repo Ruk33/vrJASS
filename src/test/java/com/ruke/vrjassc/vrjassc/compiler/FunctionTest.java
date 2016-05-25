@@ -7,6 +7,54 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class FunctionTest extends TestHelper {
+
+	@Test
+	public void continueStatement() {
+		String code =
+			"function foo\n" +
+				"local integer i\n" +
+				"set i = 1\n" +
+				"loop\n" +
+					"exitwhen i > 9\n" +
+					"if i == 3 then\n" +
+						"continue\n" +
+					"endif\n" +
+					"if i == 5 then\n" +
+						"continue\n" +
+					"endif\n" +
+					"call BJDebugMsg(I2S(i))\n" +
+					"set i = i + 1\n" +
+				"endloop\n" +
+			"end";
+
+		String expected =
+			"globals\n" +
+			"endglobals\n" +
+			"function foo takes nothing returns nothing\n" +
+				"boolean vr_c_0=false\n" +
+				"local integer i=0\n" +
+				"set i=1\n" +
+				"loop\n" +
+					"set vr_c_0=false\n" +
+					"loop\n" +
+						"exitwhen i>9\n" +
+						"if i==3 then\n" +
+							"set vr_c_0=true\n" +
+							"exitwhen true\n" +
+						"endif\n" +
+						"if i==5 then\n" +
+							"set vr_c_0=true\n" +
+							"exitwhen true\n" +
+						"endif\n" +
+						"call BJDebugMsg(I2S(i))\n" +
+						"set i=i+1\n" +
+					"endloop\n" +
+					"exitwhen vr_c_0==false\n" +
+				"endloop\n" +
+			"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
 	
 	@Test
 	public void anonymousFunction() {
