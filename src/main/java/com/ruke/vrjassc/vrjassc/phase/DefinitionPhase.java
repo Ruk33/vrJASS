@@ -43,7 +43,17 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		
 		scope.define(child);
 	}
-	
+
+	@Override
+	public Symbol visitGenericExpression(GenericExpressionContext ctx) {
+		GenericType generic = new GenericType(ctx.validType().getText(), null, ctx.validType().getStart());
+
+		this.defineOrThrowAlreadyDefinedException(this.scope, generic);
+		this.scope.setGeneric(generic);
+
+		return generic;
+	}
+
 	@Override
 	public Symbol visitNativeDefinition(NativeDefinitionContext ctx) {
 		return this.visit(ctx.functionSignature());

@@ -16,8 +16,10 @@ topDeclaration
 
 importStatement: IMPORT path=STRING NL;
 
+genericExpression: LESS validType GREATER;
+
 // Refers to a valid variable type, like integer, reals, etc.
-validType: validName | chainExpression;
+validType: (validName | chainExpression) genericExpression?;
 validName: ID | END;
 
 variableDeclaration: 
@@ -151,7 +153,7 @@ implementableExtendable: validName | chainExpression;
 implementsList: implementableExtendable (COMMA implementableExtendable)*;
 
 structDefinition:
-	(PRIVATE | PUBLIC)? ABSTRACT? STRUCT name=validName (EXTENDS extendsFrom=implementableExtendable)? (IMPLEMENTS implementsList)? NL
+	(PRIVATE | PUBLIC)? ABSTRACT? STRUCT name=validName genericExpression? (EXTENDS extendsFrom=implementableExtendable)? (IMPLEMENTS implementsList)? NL
 		(NL | structStatement)*
 	(ENDSTRUCT | END) NL
 	;

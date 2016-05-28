@@ -90,7 +90,12 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		
 		return null;
 	}
-	
+
+	@Override
+	public Symbol visitGenericExpression(GenericExpressionContext ctx) {
+		return this.visit(ctx.validType());
+	}
+
 	@Override
 	public Symbol visitTypeDefinition(TypeDefinitionContext ctx) {
 		return this.symbols.get(ctx);
@@ -336,6 +341,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol type = this.visit(ctx.validType());
 		Token typeToken = ctx.validType().getStart();
 		boolean searchingSymbol = this.line > 0;
+
+		if (ctx.validType().genericExpression() != null) {
+			variable.setGeneric(this.visit(ctx.validType().genericExpression()));
+		}
 
 		if (!searchingSymbol && !this.validator.mustHaveAccess(scope, type, typeToken)) {
 			throw this.validator.getException();
@@ -629,6 +638,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				parentScope = (ScopeSymbol) parent.getType();
 			} else if (parent instanceof ScopeSymbol) {
 				parentScope = (ScopeSymbol) parent;
+			}
+
+			if (parent.getType() instanceof UserTypeSymbol && parent.getGeneric() != null) {
+				((UserTypeSymbol) parent.getType()).getGeneric().setType(parent.getGeneric().getType());
 			}
 
 			this.scopes.push(parentScope);

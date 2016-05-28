@@ -29,11 +29,21 @@ public class Symbol {
 	 */
 	protected Token token;
 
+	protected Symbol generic;
+
 	public Symbol(String name, Scope scope, Token token) {
 		this.name = name;
 		this.modifiers = new HashMap<Modifier, Boolean>();
 		this.scope = scope;
 		this.token = token;
+	}
+
+	public void setGeneric(Symbol generic) {
+		this.generic = generic;
+	}
+
+	public Symbol getGeneric() {
+		return this.generic;
 	}
 
 	public Modifier getVisibility() {

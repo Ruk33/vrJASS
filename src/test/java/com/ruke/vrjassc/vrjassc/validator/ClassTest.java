@@ -7,6 +7,29 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void genericsInStruct() {
+		this.expectedEx.expect(IncompatibleTypeException.class);
+		this.expectedEx.expectMessage("14:7 Element <element> must have/return a value of type <integer> but given <boolean>");
+		this.run(
+			"struct foo<e>\n" +
+				"e fe\n" +
+				"public method getFe returns e\n" +
+					"return this.fe\n" +
+				"end\n" +
+				"public method bar takes e element returns e\n" +
+					"set this.fe = e\n" +
+					"return e\n" +
+				"end\n" +
+			"end\n" +
+			"function baz\n" +
+				"local foo<integer> f\n" +
+				"call f.bar(2 + f.getFe())\n" +
+				"call f.bar(true)\n" +
+			"end"
+		);
+	}
+
+	@Test
 	public void extendsStructNamespace() {
 		this.expectedEx.none();
 		this.run(
