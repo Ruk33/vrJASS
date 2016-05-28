@@ -633,7 +633,11 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol parent = this.visit(ctx.getChild(0));
 		Symbol member = null;
 
+		Symbol generic = null;
+
 		for (MemberExpressionContext expr : ctx.memberExpression()) {
+			generic = null;
+
 			if (parent.getType() instanceof ScopeSymbol) {
 				parentScope = (ScopeSymbol) parent.getType();
 			} else if (parent instanceof ScopeSymbol) {
@@ -641,7 +645,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			}
 
 			if (parent.getType() instanceof UserTypeSymbol && parent.getGeneric() != null) {
-				((UserTypeSymbol) parent.getType()).getGeneric().setType(parent.getGeneric().getType());
+				generic = parent.getGeneric();
+				((UserTypeSymbol) parent.getType()).getGeneric().setType(generic.getType());
 			}
 
 			this.scopes.push(parentScope);
@@ -658,6 +663,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 
 			if (!this.validator.mustBeValidMember(parent, member, expr.getStart())) {
 				throw this.validator.getException();
+			}
+
+			if (generic != null && member.getGeneric() != null && member instanceof FunctionSymbol) {
+				((FunctionSymbol) member).registerGeneric(generic);
 			}
 
 			parent = member;

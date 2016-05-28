@@ -82,6 +82,19 @@ public class FunctionExpression extends Expression {
 		}
 		
 		String name = Prefix.build(symbol);
+
+		if (this.getParent() instanceof ChainExpression) {
+			LinkedList<Expression> exprs = ((ChainExpression) this.getParent()).getExpressions();
+			if (this.getSymbol().getGeneric() != null) {
+				Symbol lastGeneric = null;
+
+				for (int i = exprs.size()-1; lastGeneric == null; i--) {
+					lastGeneric = exprs.get(i).getSymbol().getGeneric();
+				}
+
+				name += "_" + lastGeneric.getType().getName();
+			}
+		}
 		
 		if (this.getParent() != null) {
 			MutualRecursion recursion = this.getParent().getMutualRecursion(this.getSymbol());

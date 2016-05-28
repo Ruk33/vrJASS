@@ -515,7 +515,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 	@Override
 	public Expression visitFunctionDefinitionExpression(FunctionDefinitionExpressionContext ctx) {
 		FunctionSymbol symbol = (FunctionSymbol) this.symbols.get(ctx);
-		StatementBody function = new FunctionDefinition(symbol);
+		FunctionDefinition function = new FunctionDefinition(symbol);
 		Expression e;
 		
 		if (!symbol.getImplementations().isEmpty() || symbol.hasModifier(Modifier.ABSTRACT)) {
@@ -528,6 +528,10 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			if (e != null) {
 				function.add((Statement) e);
 			}
+		}
+
+		if (symbol.getGenerics().size() > 0) {
+			function = new GenericFunctionDefinition(function);
 		}
 		
 		return function;

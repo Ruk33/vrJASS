@@ -4,11 +4,14 @@ import org.antlr.v4.runtime.Token;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 public class FunctionSymbol extends ScopeSymbol implements Overrideable {
 
 	protected Collection<Symbol> implementations;
+
+	protected Set<Symbol> generics;
 	
 	protected FunctionSymbol original;
 	
@@ -19,13 +22,39 @@ public class FunctionSymbol extends ScopeSymbol implements Overrideable {
 	public FunctionSymbol(String name, Scope scope, Token token) {
 		super(name, scope, token);
 		this.implementations = new HashSet<Symbol>();
+		this.generics = new HashSet<Symbol>();
 		this.params = new Stack<Symbol>();
 	}
-	
+
+	@Override
+	public Symbol getGeneric() {
+		Symbol generic = ((Symbol) this.getParentScope()).getGeneric();
+
+		for (Symbol param : this.getParams()) {
+			if (param.getType() == generic) {
+				return generic;
+			}
+		}
+
+		if (this.getType() == generic) {
+			return generic;
+		}
+
+		return null;
+	}
+
 	public Collection<Symbol> getImplementations() {
 		return this.implementations;
 	}
-	
+
+	public void registerGeneric(Symbol generic) {
+		this.generics.add(generic);
+	}
+
+	public Collection<Symbol> getGenerics() {
+		return this.generics;
+	}
+
 	public void addImplementation(FunctionSymbol f) {
 		// Dont override initializers
 		if ("onInit".equals(this.getName())) {

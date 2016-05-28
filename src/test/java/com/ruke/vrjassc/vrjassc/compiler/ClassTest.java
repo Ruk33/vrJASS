@@ -9,6 +9,52 @@ import static org.junit.Assert.assertEquals;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void generic() {
+		String code =
+			"struct foo<e>\n" +
+				"public method bar takes e element returns e\n" +
+					"return element\n" +
+				"end\n" +
+				"public method lorem returns foo\n" +
+					"return this\n" +
+				"end\n" +
+			"end\n" +
+			"function baz\n" +
+				"local foo<integer> fi\n" +
+				"call fi.bar(1)\n" +
+				"local foo<boolean> fb\n" +
+				"call fb.bar(true)\n" +
+				"call fb.lorem().bar(true)\n" +
+				"call fi.lorem().bar(2)\n" +
+			"end";
+
+		String expected =
+			"globals\n" +
+				"hashtable vrjass_structs=InitHashtable()\n" +
+				"integer vtype=-1\n" +
+			"endglobals\n" +
+			"function struct_foo_bar_boolean takes integer this,boolean element returns boolean\n" +
+				"return element\n" +
+			"endfunction\n" +
+			"function struct_foo_bar_integer takes integer this,integer element returns integer\n" +
+				"return element\n" +
+			"endfunction\n" +
+			"function struct_foo_lorem takes integer this returns integer\n" +
+				"return this\n" +
+			"endfunction\n" +
+			"function baz takes nothing returns nothing\n" +
+				"local integer fb=0\n" +
+				"local integer fi=0\n" +
+				"call struct_foo_bar_integer(fi,1)\n" +
+				"call struct_foo_bar_boolean(fb,true)\n" +
+				"call struct_foo_bar_boolean(struct_foo_lorem(fb),true)\n" +
+				"call struct_foo_bar_integer(struct_foo_lorem(fi),2)\n" +
+			"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
+
+	@Test
 	public void allocate() {
 		String code =
 		"interface obj\n" +

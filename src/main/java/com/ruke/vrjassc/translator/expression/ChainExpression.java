@@ -16,6 +16,10 @@ public class ChainExpression extends Expression {
 		this.chainTranslator = new ChainExpressionTranslator();
 		this.expressions = new LinkedList<Expression>();
 	}
+
+	public LinkedList<Expression> getExpressions() {
+		return this.expressions;
+	}
 	
 	public void setHashtableName(String name) {
 		this.chainTranslator.setHashtableName(name);
