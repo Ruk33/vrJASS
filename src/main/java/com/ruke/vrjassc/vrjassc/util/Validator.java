@@ -171,7 +171,9 @@ public class Validator {
 		if (VariableTypeDetector.isJassType(name)) {
 			this.validated = this.scope.resolve(name);
 		} else {
-			this.validated = scope.resolve(name);
+			if (scope != null && name != null) {
+				this.validated = scope.resolve(name);
+			}
 		}
 		
 		if (this.validated == null) {
@@ -206,6 +208,16 @@ public class Validator {
 		if (!a.isTypeCompatible(b) && !b.isTypeCompatible(a)) {
 			this.exception = new IncompatibleTypeException(token, a, b.getType());
 			return false;
+		}
+
+		if (a.getType() instanceof GenericType && b.getType() instanceof GenericType) {
+			Symbol genericA = ((GenericType) a.getType()).getGeneric();
+			Symbol genericB = ((GenericType) b.getType()).getGeneric();
+
+			if (genericA != null && !genericA.isTypeCompatible(genericB)) {
+				this.exception = new IncompatibleTypeException(token, a, genericB.getType());
+				return false;
+			}
 		}
 		
 		return true;
@@ -247,6 +259,11 @@ public class Validator {
 
 	public boolean mustBeValidType(Symbol scope, Symbol type, Token token) {
 		this.validated = type;
+
+		if (type == null) {
+			this.exception = new UndefinedSymbolException(token, token.getText());
+			return false;
+		}
 		
 		if (type instanceof Type == false) {
 			this.exception = new InvalidTypeException(token, scope, token.getText());

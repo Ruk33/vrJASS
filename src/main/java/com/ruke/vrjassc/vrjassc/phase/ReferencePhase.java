@@ -231,9 +231,9 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 	public Symbol visitReturnType(ReturnTypeContext ctx) {
 		Symbol type = null;
 		
-		if (ctx.expression() != null) {
-			type = this.visit(ctx.expression());
-			Token token = ctx.expression().getStart();
+		if (ctx.validType() != null) {
+			type = this.visit(ctx.validType());
+			Token token = ctx.validType().getStart();
 			
 			if (!this.validator.mustBeValidType(this.scopes.peek(), type, token)) {
 				throw this.validator.getException();
@@ -251,7 +251,8 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		this.enclosingScopes.push(function);
 		
 		if (ctx.returnType() != null) {
-			function.setType((Type) this.visit(ctx.returnType()));
+			Symbol type = this.visit(ctx.returnType());
+			function.setType((Type) type);
 		}
 		
 		if (ctx.parameters() != null) {
@@ -326,6 +327,15 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 			return type;
 		}
 
+		if (ctx.genericExpression() != null && type != null) {
+			Symbol generic = new GenericType(type.getName(), this.scopes.peek(), ctx.getStart());
+
+			generic.setType((Type) type);
+			generic.setGeneric(this.visit(ctx.genericExpression()));
+
+			type = generic;
+		}
+
 		if (!this.validator.mustBeValidType(this.scopes.peek(), type, ctx.getStart())) {
 			throw this.validator.getException();
 		}
@@ -341,10 +351,6 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol type = this.visit(ctx.validType());
 		Token typeToken = ctx.validType().getStart();
 		boolean searchingSymbol = this.line > 0;
-
-		if (ctx.validType().genericExpression() != null) {
-			variable.setGeneric(this.visit(ctx.validType().genericExpression()));
-		}
 
 		if (!searchingSymbol && !this.validator.mustHaveAccess(scope, type, typeToken)) {
 			throw this.validator.getException();
@@ -634,19 +640,27 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		Symbol member = null;
 
 		Symbol generic = null;
+		Symbol parentType = null;
 
 		for (MemberExpressionContext expr : ctx.memberExpression()) {
 			generic = null;
+			parentType = (Symbol) parent.getType();
 
-			if (parent.getType() instanceof ScopeSymbol) {
-				parentScope = (ScopeSymbol) parent.getType();
+			if (parentType instanceof GenericType) {
+				generic = parentType;
+				parentType = (Symbol) parentType.getType();
+
+				parentType.getGeneric().setType(generic.getType());
+			}
+
+			if (parentType instanceof ScopeSymbol) {
+				parentScope = (ScopeSymbol) parentType;
 			} else if (parent instanceof ScopeSymbol) {
 				parentScope = (ScopeSymbol) parent;
 			}
 
-			if (parent.getType() instanceof UserTypeSymbol && parent.getGeneric() != null) {
-				generic = parent.getGeneric();
-				((UserTypeSymbol) parent.getType()).getGeneric().setType(generic.getType());
+			if (parentType instanceof UserTypeSymbol && parent.getType() instanceof GenericType) {
+				parentType.getGeneric().setType((Type)((Symbol) parent.getType()).getGeneric());
 			}
 
 			this.scopes.push(parentScope);

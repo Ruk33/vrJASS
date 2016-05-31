@@ -7,6 +7,20 @@ import org.junit.Test;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void mustBeCompatibleGeneric() {
+		this.expectedEx.expect(IncompatibleTypeException.class);
+		this.expectedEx.expectMessage("5:7 Element <bar> must have/return a value of type <foo> but given <string>");
+		this.run(
+			"public struct foo<E>\n" +
+			"end\n" +
+			"function bar returns foo<integer>\n" +
+				"local foo<string> f = cast 1 to foo\n" +
+				"return f\n" +
+			"end"
+		);
+	}
+
+	@Test
 	public void genericsInStruct() {
 		this.expectedEx.expect(IncompatibleTypeException.class);
 		this.expectedEx.expectMessage("14:7 Element <element> must have/return a value of type <integer> but given <boolean>");

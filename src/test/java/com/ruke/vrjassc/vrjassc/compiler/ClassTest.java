@@ -9,6 +9,31 @@ import static org.junit.Assert.assertEquals;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void returnGeneric() {
+		String code =
+			"struct foo<E>\n" +
+			"end\n" +
+			"struct bar\n" +
+				"public method baz returns foo<string>\n" +
+					"local foo<string> i = cast 1 to foo\n" +
+					"return i\n" +
+				"end\n" +
+			"end";
+
+		String expected =
+			"globals\n" +
+				"hashtable vrjass_structs=InitHashtable()\n" +
+				"integer vtype=-1\n" +
+			"endglobals\n" +
+			"function struct_bar_baz takes integer this returns integer\n" +
+				"local integer i=1\n" +
+				"return i\n" +
+			"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
+
+	@Test
 	public void generic() {
 		String code =
 			"struct foo<e>\n" +
@@ -33,10 +58,10 @@ public class ClassTest extends TestHelper {
 				"hashtable vrjass_structs=InitHashtable()\n" +
 				"integer vtype=-1\n" +
 			"endglobals\n" +
-			"function struct_foo_bar_boolean takes integer this,boolean element returns boolean\n" +
+			"function struct_foo_bar_integer takes integer this,integer element returns integer\n" +
 				"return element\n" +
 			"endfunction\n" +
-			"function struct_foo_bar_integer takes integer this,integer element returns integer\n" +
+			"function struct_foo_bar_boolean takes integer this,boolean element returns boolean\n" +
 				"return element\n" +
 			"endfunction\n" +
 			"function struct_foo_lorem takes integer this returns integer\n" +

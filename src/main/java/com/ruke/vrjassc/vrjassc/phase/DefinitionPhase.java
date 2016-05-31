@@ -160,8 +160,8 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 	public Symbol visitReturnType(ReturnTypeContext ctx) {
 		Symbol type = null;
 		
-		if (ctx.expression() != null) {
-			type = this.scope.resolve(ctx.expression().getText());
+		if (ctx.validType() != null) {
+			type = this.scope.resolve(ctx.validType().getText());
 			if (type instanceof Type) {
 				this.scope.setType((Type) type);
 			}

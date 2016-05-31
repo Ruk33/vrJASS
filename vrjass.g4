@@ -164,7 +164,7 @@ structDefinition:
  * Functions
  * ---------------------------------------------------------------------------
  */
-returnType: expression | NOTHING;
+returnType: validType | NOTHING;
 
 parameter: variableDeclaration;
 

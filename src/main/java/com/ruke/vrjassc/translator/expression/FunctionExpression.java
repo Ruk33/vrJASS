@@ -1,9 +1,6 @@
 package com.ruke.vrjassc.translator.expression;
 
-import com.ruke.vrjassc.vrjassc.symbol.FunctionSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.InterfaceSymbol;
-import com.ruke.vrjassc.vrjassc.symbol.Modifier;
-import com.ruke.vrjassc.vrjassc.symbol.Symbol;
+import com.ruke.vrjassc.vrjassc.symbol.*;
 import com.ruke.vrjassc.vrjassc.util.MutualRecursion;
 import com.ruke.vrjassc.vrjassc.util.Prefix;
 import com.ruke.vrjassc.vrjassc.util.VariableTypeDetector;
@@ -83,16 +80,14 @@ public class FunctionExpression extends Expression {
 		
 		String name = Prefix.build(symbol);
 
-		if (this.getParent() instanceof ChainExpression) {
+		if (this.getParent() instanceof ChainExpression && this.getSymbol().getGeneric() != null) {
 			LinkedList<Expression> exprs = ((ChainExpression) this.getParent()).getExpressions();
-			if (this.getSymbol().getGeneric() != null) {
-				Symbol lastGeneric = null;
 
-				for (int i = exprs.size()-1; lastGeneric == null; i--) {
-					lastGeneric = exprs.get(i).getSymbol().getGeneric();
+			for (int i = exprs.size() - 1; i >= 0; i--) {
+				if (exprs.get(i).getSymbol().getType() instanceof GenericType) {
+					name += "_" + ((Symbol) exprs.get(i).getSymbol().getType()).getGeneric().getName();
+					break;
 				}
-
-				name += "_" + lastGeneric.getType().getName();
 			}
 		}
 		
