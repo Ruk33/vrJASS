@@ -9,7 +9,7 @@ public class ClassTest extends TestHelper {
 	@Test
 	public void mustBeCompatibleGeneric() {
 		this.expectedEx.expect(IncompatibleTypeException.class);
-		this.expectedEx.expectMessage("5:7 Element <bar> must have/return a value of type <foo> but given <string>");
+		this.expectedEx.expectMessage("5:7 Element <bar> must have/return a value of type <foo<integer>> but given <string>");
 		this.run(
 			"public struct foo<E>\n" +
 			"end\n" +

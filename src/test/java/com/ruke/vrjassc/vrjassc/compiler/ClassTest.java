@@ -9,6 +9,49 @@ import static org.junit.Assert.assertEquals;
 public class ClassTest extends TestHelper {
 
 	@Test
+	public void genericAsParamArgs() {
+		String code =
+			"struct foo<e>\n" +
+				"public method add takes e element\n" +
+				"end\n" +
+			"end\n" +
+			"struct bar<e>\n" +
+				"public method remove takes e element\n" +
+				"end\n" +
+			"end\n" +
+			"function baz takes foo<integer> f, bar<string> b\n" +
+				"call f.add(2)\n" +
+				"call b.remove(\"lorem\")\n" +
+			"end\n" +
+			"function lorem\n" +
+				"local foo<integer> f = cast 1 to foo\n" +
+				"local bar<string> b = cast 2 to bar\n" +
+				"call baz(f, b)\n" +
+			"end";
+
+		String expected =
+			"globals\n" +
+				"hashtable vrjass_structs=InitHashtable()\n" +
+				"integer vtype=-1\n" +
+			"endglobals\n" +
+			"function struct_foo_add_integer takes integer this,integer element returns nothing\n" +
+			"endfunction\n" +
+			"function struct_bar_remove_string takes integer this,string element returns nothing\n" +
+			"endfunction\n" +
+			"function baz takes integer f,integer b returns nothing\n" +
+				"call struct_foo_add_integer(f,2)\n" +
+				"call struct_bar_remove_string(b,\"lorem\")\n" +
+			"endfunction\n" +
+			"function lorem takes nothing returns nothing\n" +
+				"local integer f=1\n" +
+				"local integer b=2\n" +
+				"call baz(f,b)\n" +
+			"endfunction";
+
+		assertEquals(expected, this.run(code));
+	}
+
+	@Test
 	public void returnGeneric() {
 		String code =
 			"struct foo<E>\n" +
