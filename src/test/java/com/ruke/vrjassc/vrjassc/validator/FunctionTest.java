@@ -267,8 +267,8 @@ public class FunctionTest extends TestHelper {
 	
 	@Test
 	public void callWithIncompatibleArguments() {
-		this.expectedEx.expect(IncompatibleTypeException.class);
-		this.expectedEx.expectMessage("4:5 Element <b> must have/return a value of type <integer> but given <boolean>");
+		this.expectedEx.expect(ArgumentException.class);
+		this.expectedEx.expectMessage("4:5 Mismatched type, expected <integer> but found <boolean>");
 		this.run("function foo takes integer a, integer b returns nothing\n"
 				+ "endfunction\n"
 				+ "function bar takes nothing returns nothing\n"

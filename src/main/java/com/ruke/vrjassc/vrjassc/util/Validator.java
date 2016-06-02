@@ -231,6 +231,11 @@ public class Validator {
 			
 			for (Symbol argument : arguments) {
 				if (!this.mustBeTypeCompatible(function, function.getParams().get(i), argument, token)) {
+					this.exception = new ArgumentException(
+						token,
+						function.getParams().get(i).getType(),
+						argument.getType()
+					);
 					return false;
 				}
 				

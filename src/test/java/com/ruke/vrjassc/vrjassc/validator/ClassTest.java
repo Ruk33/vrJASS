@@ -22,8 +22,8 @@ public class ClassTest extends TestHelper {
 
 	@Test
 	public void genericsInStruct() {
-		this.expectedEx.expect(IncompatibleTypeException.class);
-		this.expectedEx.expectMessage("14:7 Element <element> must have/return a value of type <integer> but given <boolean>");
+		this.expectedEx.expect(ArgumentException.class);
+		this.expectedEx.expectMessage("14:7 Mismatched type, expected <integer> but found <boolean>");
 		this.run(
 			"struct foo<e>\n" +
 				"e fe\n" +
@@ -366,8 +366,8 @@ public class ClassTest extends TestHelper {
 	
 	@Test
 	public void shouldMatchParamsInAbstractMethods() {
-		this.expectedEx.expect(IncompatibleTypeException.class);
-		this.expectedEx.expectMessage("5:7 Element <i> must have/return a value of type <integer> but given <boolean>");
+		this.expectedEx.expect(ArgumentException.class);
+		this.expectedEx.expectMessage("5:7 Mismatched type, expected <integer> but found <boolean>");
 		this.run(
 			"interface foo\n"
 				+ "method bar takes integer i returns nothing\n"
