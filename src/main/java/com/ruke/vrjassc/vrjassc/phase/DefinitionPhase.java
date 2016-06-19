@@ -175,13 +175,13 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		String name = null;
 		Token token = null;
 		
-		if (ctx.validName() == null) {
+		if (ctx.functionValidName() == null) {
 			this.anonymousCount++;
 			name = Config.ANONYMOUS_FUNCTIONS_PREFIX + "_" + String.valueOf(this.anonymousCount);
 			token = ctx.getStart();
 		} else {
-			name = ctx.validName().getText();
-			token = ctx.validName().getStart();
+			name = ctx.functionValidName().getText();
+			token = ctx.functionValidName().getStart();
 		}
 		
 		FunctionSymbol function = new FunctionSymbol(name, null, token);
@@ -189,6 +189,7 @@ public class DefinitionPhase extends vrjassBaseVisitor<Symbol> {
 		function.setModifier(Modifier.PUBLIC, ctx.PUBLIC() != null);
 		function.setModifier(Modifier.PROTECTED, ctx.PROTECTED() != null);
 		function.setModifier(Modifier.ABSTRACT, this.scope instanceof InterfaceSymbol);
+		function.setModifier(Modifier.OPERATOR, ctx.OPERATOR() != null);
 
 		if (this.scope instanceof ClassSymbol) {
 			// Check for abstract definition

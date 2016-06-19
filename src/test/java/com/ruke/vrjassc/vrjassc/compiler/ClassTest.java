@@ -77,6 +77,7 @@ public class ClassTest extends TestHelper {
 	}
 
 	@Test
+	@Ignore
 	public void generic() {
 		String code =
 			"struct foo<e>\n" +

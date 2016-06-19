@@ -28,13 +28,9 @@ public class FunctionSymbol extends ScopeSymbol implements Overrideable {
 
 	@Override
 	public Symbol getGeneric() {
-		Symbol parentGeneric = ((Symbol) this.getParentScope()).getGeneric();
-
 		for (Symbol param : this.getParams()) {
 			if (param.getType() instanceof GenericType) {
-				if (param.getType() == parentGeneric) {
-					return parentGeneric;
-				}
+				return (Symbol) param.getType();
 			}
 		}
 

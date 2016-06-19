@@ -33,6 +33,31 @@ public class Validator {
 		return this.exception;
 	}
 
+	public boolean mustBeValidMethodOperator(Symbol operator, Token token) {
+		this.validated = operator;
+
+		String opName = operator.getName();
+		Stack<Symbol> params = ((FunctionSymbol) operator).getParams();
+
+		switch (operator.getName()) {
+			case "[]":
+				if (operator.getType() == null || params.size() != 1 || !params.get(0).getType().getName().equals("integer")) {
+					this.exception = new BracketOperatorException(token, operator);
+					return false;
+				}
+				break;
+
+			case "[]=":
+				if (params.size() != 2 || !params.get(0).getType().getName().equals("integer")) {
+					this.exception = new BracketOperatorException(token, operator);
+					return false;
+				}
+				break;
+		}
+
+		return true;
+	}
+
 	public boolean mustBeCastable(Symbol toCast, Token token) {
 		this.validated = toCast;
 
@@ -194,7 +219,12 @@ public class Validator {
 	 */
 	public boolean mustBeTypeCompatible(Symbol scope, Symbol a, Symbol b, Token token) {
 		this.validated = b;
-		
+
+		if (a.hasModifier(Modifier.OPERATOR) && a.getName().equals("[]=")) {
+			Symbol value = ((FunctionSymbol) a).getParams().get(1);
+			return this.mustBeTypeCompatible(scope, value, b, token);
+		}
+
 		if (a.getType() == null) {
 			this.exception = new InvalidTypeException(token, scope, token.getText());
 			return false;
@@ -204,20 +234,16 @@ public class Validator {
 			this.exception = new InvalidTypeException(token, scope, token.getText());
 			return false;
 		}
-		
+
 		if (!a.isTypeCompatible(b) && !b.isTypeCompatible(a)) {
-			this.exception = new IncompatibleTypeException(token, a, b.getType());
-			return false;
-		}
+			Type btype = b.getType();
 
-		if (a.getType() instanceof GenericType && b.getType() instanceof GenericType) {
-			Symbol genericA = ((GenericType) a.getType()).getGeneric();
-			Symbol genericB = ((GenericType) b.getType()).getGeneric();
-
-			if (genericA != null && !genericA.isTypeCompatible(genericB)) {
-				this.exception = new IncompatibleTypeException(token, a, genericB.getType());
-				return false;
+			if (btype instanceof GenericType) {
+				btype = ((GenericType) btype).getGeneric().getType();
 			}
+
+			this.exception = new IncompatibleTypeException(token, a, btype);
+			return false;
 		}
 		
 		return true;

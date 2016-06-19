@@ -21,6 +21,7 @@ genericExpression: LESS validType GREATER;
 // Refers to a valid variable type, like integer, reals, etc.
 validType: (validName | chainExpression) genericExpression?;
 validName: ID | END;
+functionValidName: validName | ('[]' '='?);
 
 variableDeclaration: 
 	type=validType (ARRAY? name=validName (EQ value=allExpression)?)?;
@@ -176,7 +177,7 @@ parameters
 arguments: allExpression (COMMA allExpression)*;
 
 functionSignature: 
-	(PRIVATE | PUBLIC | PROTECTED)? ABSTRACT? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD) (name=validName)? (TAKES parameters)? (RETURNS returnType)?;
+	(PRIVATE | PUBLIC | PROTECTED)? ABSTRACT? CONSTANT? STATIC? (NATIVE | FUNCTION | METHOD | OPERATOR) (name=functionValidName)? (TAKES parameters)? (RETURNS returnType)?;
 
 functionDefinitionExpression:
 	functionSignature NL
@@ -243,6 +244,7 @@ returnStatement:
 	RETURN (expression)? NL;
 
 
+OPERATOR: 'operator';
 IMPORT: 'import';
 ABSTRACT: 'abstract';
 BREAK: 'break';

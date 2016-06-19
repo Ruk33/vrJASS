@@ -25,4 +25,8 @@ public class BuiltInTypeSymbol extends Symbol implements Type {
 		);
 	}
 
+	@Override
+	public boolean isUserType() {
+		return false;
+	}
 }

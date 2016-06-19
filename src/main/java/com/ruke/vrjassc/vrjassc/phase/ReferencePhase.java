@@ -258,6 +258,12 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 		if (ctx.parameters() != null) {
 			this.visit(ctx.parameters());
 		}
+
+		if (function.hasModifier(Modifier.OPERATOR)) {
+			if (!this.validator.mustBeValidMethodOperator(function, function.getToken())) {
+				throw this.validator.getException();
+			}
+		}
 		
 		this.scopes.pop();
 		this.enclosingScopes.pop();
@@ -573,8 +579,10 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				throw this.validator.getException();
 			}
 
+			this.symbols.put(ctx, variable);
+
 			if (ctx.index != null) {
-				// chain expressions can modifiy the current scope so restore it
+				// chain expressions can modify the current scope so restore it
 				// to avoid failing
 				// example: this.foo[this.bar]
 				// 'this' will update the current scope to whatever class it points to
@@ -584,9 +592,30 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				this.scopes.push(this.enclosingScopes.peek());
 				this.visit(ctx.index);
 				this.scopes.pop();
-			}
 
-			this.symbols.put(ctx, variable);
+				if (variable.getType().isUserType() && !variable.hasModifier(Modifier.ARRAY)) {
+					String operator;
+
+					if (ctx.getParent() instanceof AssignmentStatementContext) {
+						operator = "[]=";
+					} else {
+						operator = "[]";
+					}
+
+					Symbol overloaded = ((ScopeSymbol) variable.getType()).resolve(operator);
+					Symbol result = overloaded;
+
+
+					if (overloaded.getGeneric() != null) {
+						result = new GenericType("", this.scopes.peek(), null);
+						result.setType(variable.getType());
+
+						((FunctionSymbol) overloaded).registerGeneric((Symbol) variable.getType());
+					}
+
+					return result;
+				}
+			}
 		}
 		
 		return variable;

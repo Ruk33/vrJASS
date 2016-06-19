@@ -244,6 +244,18 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		
 		if (ctx.index != null) {
 			index = this.visit(ctx.index);
+
+			if (symbol.getType() instanceof UserTypeSymbol) {
+				Symbol operator = ((UserTypeSymbol) symbol.getType()).resolve("[]");
+				if (operator != null) {
+					ExpressionList el = new ExpressionList();
+
+					el.add(new VariableExpression(symbol, null));
+					el.add(index);
+
+					return new FunctionExpression(operator, false, el);
+				}
+			}
 		}
 		
 		return new VariableExpression(symbol, index);
@@ -417,6 +429,19 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		if (operator != null) {
 			// avoid mutual recursion
 			value = new MathExpression(new RawExpression(name.translate(), name.getSymbol()), operator, value);
+		}
+
+		if (name.getSymbol().getType().isUserType() && name instanceof VariableExpression) {
+			if (!name.getSymbol().hasModifier(Modifier.ARRAY) && ((VariableExpression) name).getIndex() != null) {
+				ExpressionList el = new ExpressionList();
+				Symbol op = ((ScopeSymbol) name.getSymbol().getType()).resolve("[]=");
+
+				el.add(new VariableExpression(name.getSymbol(), null));
+				el.add(((VariableExpression) name).getIndex());
+				el.add(value);
+
+				return new FunctionStatement(new FunctionExpression(op, false, el));
+			}
 		}
 		
 		return new AssignmentStatement(name, value);

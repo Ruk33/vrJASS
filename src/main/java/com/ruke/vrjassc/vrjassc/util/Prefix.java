@@ -23,7 +23,7 @@ public class Prefix {
 			}
 			
 			if (!e.isEmpty()) {
-				return String.join("_", e);
+				return String.join("_", e).replace("[]=", "bracket_set_op").replace("[]", "bracket_op");
 			}
 		}
 		

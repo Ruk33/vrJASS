@@ -41,4 +41,9 @@ public abstract class UserTypeSymbol extends ScopeSymbol implements Type {
 		return false;
 	}
 
+	@Override
+	public boolean isUserType() {
+		return true;
+	}
+
 }

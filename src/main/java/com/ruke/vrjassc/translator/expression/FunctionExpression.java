@@ -80,15 +80,8 @@ public class FunctionExpression extends Expression {
 		
 		String name = Prefix.build(symbol);
 
-		if (this.getParent() instanceof ChainExpression && this.getSymbol().getGeneric() != null) {
-			LinkedList<Expression> exprs = ((ChainExpression) this.getParent()).getExpressions();
-
-			for (int i = exprs.size() - 1; i >= 0; i--) {
-				if (exprs.get(i).getSymbol().getType() instanceof GenericType) {
-					name += "_" + ((Symbol) exprs.get(i).getSymbol().getType()).getGeneric().getName();
-					break;
-				}
-			}
+		if (this.getSymbol().getGeneric() != null && ((Symbol) this.getSymbol().getParentScope()).getGeneric() != null) {
+			name += "_" + this.getSymbol().getGeneric().getName();
 		}
 		
 		if (this.getParent() != null) {

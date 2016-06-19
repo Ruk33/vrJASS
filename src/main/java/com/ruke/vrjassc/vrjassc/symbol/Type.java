@@ -2,8 +2,10 @@ package com.ruke.vrjassc.vrjassc.symbol;
 
 public interface Type {
 	
-	public String getName();
+	String getName();
 
-	public boolean isTypeCompatible(Symbol symbol);
+	boolean isTypeCompatible(Symbol symbol);
+
+	boolean isUserType();
 	
 }
