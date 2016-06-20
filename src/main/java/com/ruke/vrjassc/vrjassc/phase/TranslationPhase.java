@@ -245,8 +245,8 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		if (ctx.index != null) {
 			index = this.visit(ctx.index);
 
-			if (symbol.getType() instanceof UserTypeSymbol) {
-				Symbol operator = ((UserTypeSymbol) symbol.getType()).resolve("[]");
+			if (symbol.getType().isUserType()) {
+				Symbol operator = ((ScopeSymbol) symbol.getType()).resolve("[]");
 				if (operator != null) {
 					ExpressionList el = new ExpressionList();
 

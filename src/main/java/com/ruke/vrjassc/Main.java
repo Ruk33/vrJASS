@@ -7,7 +7,6 @@ import com.ruke.vrjassc.vrjassc.util.Compile;
 import de.peeeq.jmpq.JmpqEditor;
 import de.peeeq.jmpq.JmpqError;
 
-import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -194,14 +193,6 @@ public class Main {
 		
 		if (logWriter != null) {
 			logWriter.close();
-			
-			try {
-				if (error) {
-					Desktop.getDesktop().edit(logFile);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
