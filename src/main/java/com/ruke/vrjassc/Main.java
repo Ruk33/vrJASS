@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class Main {
+	
+	static final int COMPILE_ERROR_STATUS_CODE = 1;
+	static final int JMPQ_ERROR_STATUS_CODE = 2;
+	static final int IO_ERROR_STATUS_CODE = 3;
+	static final int OTHER_ERROR_STATUS_CODE = 4;
 
 	protected static void displayHelp() {
 		System.out.println("-help Display this help!");
@@ -39,7 +44,6 @@ public class Main {
 		ArrayList<String> toCompile = new ArrayList<String>();
 		String resultPath = null;
 		String logPath = null;
-		boolean error = false;
 		boolean onlySuggestions = false;
 		String[] suggestionOptions = null;
 		
@@ -101,7 +105,6 @@ public class Main {
 					editor.close();
 				}
 			} catch (Exception e) {
-				error = true;
 				if (logWriter != null) {
 					logWriter.write(e.getMessage());
 				}
@@ -149,7 +152,6 @@ public class Main {
 				}
 			}
 		} catch (CompileException ce) {
-			error = true;
 			System.out.println(ce.getMessage());
 			
 			if (logWriter != null) {
@@ -168,18 +170,19 @@ public class Main {
 					logWriter.write(System.lineSeparator() + toCompile.get(i).replace("\t", "    "));
 				}
 			}
+			
+			System.exit(COMPILE_ERROR_STATUS_CODE);
 		} catch (JmpqError jmpqe) {
-			error = true;
 			if (logWriter != null) {
 				logWriter.write(jmpqe.getMessage());
 			}
+			System.exit(JMPQ_ERROR_STATUS_CODE);
 		} catch (IOException e) {
-			error = true;
 			if (logWriter != null) {
 				logWriter.write("Could not load blizzard.j or common.j");
 			}
+			System.exit(IO_ERROR_STATUS_CODE);
 		} catch (Exception e) {
-			error = true;
 			if (logWriter != null) {
 				String msg = e.getMessage();
 
@@ -189,6 +192,7 @@ public class Main {
 					e.printStackTrace(logWriter);
 				}
 			}
+			System.exit(OTHER_ERROR_STATUS_CODE);
 		}
 		
 		if (logWriter != null) {
