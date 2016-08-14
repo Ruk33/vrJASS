@@ -594,23 +594,30 @@ public class ReferencePhase extends vrjassBaseVisitor<Symbol> {
 				this.scopes.pop();
 
 				if (variable.getType().isUserType() && !variable.hasModifier(Modifier.ARRAY)) {
-					String operator;
+					Symbol set = ((ScopeSymbol) variable.getType()).resolve("[]=");
+					Symbol get = ((ScopeSymbol) variable.getType()).resolve("[]");
 
-					if (ctx.getParent() instanceof AssignmentStatementContext) {
-						operator = "[]=";
-					} else {
-						operator = "[]";
+					if (set != null && variable.getType() instanceof GenericType) {
+						((FunctionSymbol) set).registerGeneric((Symbol) variable.getType());
 					}
 
-					Symbol overloaded = ((ScopeSymbol) variable.getType()).resolve(operator);
-					Symbol result = overloaded;
+					if (get != null && variable.getType() instanceof GenericType) {
+						((FunctionSymbol) get).registerGeneric((Symbol) variable.getType());
+					}
 
+					Symbol overloaded;
+
+					if (ctx.getParent() instanceof AssignmentStatementContext) {
+						overloaded = set;
+					} else {
+						overloaded = get;
+					}
+
+					Symbol result = overloaded;
 
 					if (overloaded.getGeneric() != null) {
 						result = new GenericType("", this.scopes.peek(), null);
 						result.setType(variable.getType());
-
-						((FunctionSymbol) overloaded).registerGeneric((Symbol) variable.getType());
 					}
 
 					return result;

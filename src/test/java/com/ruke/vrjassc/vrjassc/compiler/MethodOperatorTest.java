@@ -11,13 +11,16 @@ public class MethodOperatorTest extends TestHelper {
         String code =
             "struct foo<e>\n" +
                 "e element\n" +
+                "public operator [] takes integer i returns e\n" +
+                    "return this.element\n" +
+                "end\n" +
                 "public operator []= takes integer i, e element\n" +
                     "set this.element = element\n" +
                 "end\n" +
             "end\n" +
             "function baz\n" +
                 "local foo<string> s = cast 1 to foo\n" +
-                "set s[1] = \"something!\"\n" +
+                "set s[1] += \"something!\"\n" +
             "end";
 
         String expected =
@@ -26,12 +29,15 @@ public class MethodOperatorTest extends TestHelper {
                 "hashtable vrjass_structs=InitHashtable()\n" +
                 "integer vtype=-1\n" +
             "endglobals\n" +
+            "function struct_foo_bracket_op_string takes integer this,integer i returns string\n" +
+                "return LoadStr(vrjass_structs,this,struct_foo_element)\n" +
+            "endfunction\n" +
             "function struct_foo_bracket_set_op_string takes integer this,integer i,string element returns nothing\n" +
                 "call SaveStr(vrjass_structs,this,struct_foo_element,element)\n" +
             "endfunction\n" +
             "function baz takes nothing returns nothing\n" +
                 "local integer s=1\n" +
-                "call struct_foo_bracket_set_op_string(s,1,\"something!\")\n" +
+                "call struct_foo_bracket_set_op_string(s,1,struct_foo_bracket_op_string(s,1)+\"something!\")\n" +
             "endfunction";
 
         Assert.assertEquals(expected, this.run(code));

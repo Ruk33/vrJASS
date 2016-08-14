@@ -246,7 +246,14 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			index = this.visit(ctx.index);
 
 			if (symbol.getType().isUserType()) {
-				Symbol operator = ((ScopeSymbol) symbol.getType()).resolve("[]");
+				Symbol operator = null;
+				
+				if (ctx.getParent() instanceof AssignmentStatementContext) {
+					operator = ((ScopeSymbol) symbol.getType()).resolve("[]=");
+				} else {
+					operator = ((ScopeSymbol) symbol.getType()).resolve("[]");
+				}
+				
 				if (operator != null) {
 					ExpressionList el = new ExpressionList();
 
@@ -427,20 +434,26 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 		value = this.visit(ctx.value);
 		
 		if (operator != null) {
-			// avoid mutual recursion
-			value = new MathExpression(new RawExpression(name.translate(), name.getSymbol()), operator, value);
-		}
-
-		if (name.getSymbol().getType().isUserType() && name instanceof VariableExpression) {
-			if (!name.getSymbol().hasModifier(Modifier.ARRAY) && ((VariableExpression) name).getIndex() != null) {
-				ExpressionList el = new ExpressionList();
-				Symbol op = ((ScopeSymbol) name.getSymbol().getType()).resolve("[]=");
-
-				el.add(new VariableExpression(name.getSymbol(), null));
-				el.add(((VariableExpression) name).getIndex());
-				el.add(value);
-
-				return new FunctionStatement(new FunctionExpression(op, false, el));
+			if (name.getSymbol() instanceof FunctionSymbol) {
+				Symbol s = ((FunctionSymbol) name.getSymbol()).resolve("[]");
+				ExpressionList nameArgs = ((FunctionExpression) name).getArguments();
+				ExpressionList args = new ExpressionList();
+				
+				args.add(new RawExpression(nameArgs.getList().get(0)));
+				args.add(new RawExpression(nameArgs.getList().get(1)));
+				
+				value = new MathExpression(
+					new FunctionExpression(s, false, args),
+					operator,
+					value
+				);
+			} else {
+				// Avoid mutual recursion
+				value = new MathExpression(
+					new RawExpression(name.translate(), name.getSymbol()),
+					operator,
+					value
+				);
 			}
 		}
 		
@@ -555,7 +568,7 @@ public class TranslationPhase extends vrjassBaseVisitor<Expression> {
 			}
 		}
 
-		if (symbol.getGenerics().size() > 0) {
+		if (!symbol.getGenerics().isEmpty()) {
 			function = new GenericFunctionDefinition(function);
 		}
 		

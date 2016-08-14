@@ -33,6 +33,10 @@ public class AutoComplete {
         Symbol parent = null;
         boolean onlyStatic = false;
 
+        if (this.limit > 0 && this.limit <= suggestions.size()) {
+            return;
+        }
+
         if (symbol != null) {
             if (symbol instanceof ScopeSymbol) {
                 parent = symbol;

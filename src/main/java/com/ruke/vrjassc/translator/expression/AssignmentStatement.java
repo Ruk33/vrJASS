@@ -25,6 +25,9 @@ public class AssignmentStatement extends Statement {
 			} else {
 				return "call " + this.name.translate();
 			}
+		} else if (this.name instanceof FunctionExpression) {
+			((FunctionExpression) this.name).getArguments().add(this.value);
+            return new FunctionStatement(this.name).translate();
 		}
 		
 		return "set " + this.name.translate() + "=" + this.value.translate();
