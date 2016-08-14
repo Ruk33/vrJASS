@@ -107,7 +107,10 @@ public class Main {
 			} catch (Exception e) {
 				if (logWriter != null) {
 					logWriter.write(e.getMessage());
+					logWriter.close();
 				}
+				
+				System.exit(OTHER_ERROR_STATUS_CODE);
 			}
 		}
 		
@@ -140,7 +143,6 @@ public class Main {
 				writer = new PrintWriter(tmpFile, "UTF-8");
 				
 				writer.write(compile.run(String.join("\n", toCompile)));
-				
 				writer.close();
 				
 				if (resultPath.endsWith("w3x") || resultPath.endsWith("w3m")) {
@@ -169,17 +171,21 @@ public class Main {
 					
 					logWriter.write(System.lineSeparator() + toCompile.get(i).replace("\t", "    "));
 				}
+				
+				logWriter.close();
 			}
 			
 			System.exit(COMPILE_ERROR_STATUS_CODE);
 		} catch (JmpqError jmpqe) {
 			if (logWriter != null) {
 				logWriter.write(jmpqe.getMessage());
+				logWriter.close();
 			}
 			System.exit(JMPQ_ERROR_STATUS_CODE);
 		} catch (IOException e) {
 			if (logWriter != null) {
 				logWriter.write("Could not load blizzard.j or common.j");
+				logWriter.close();
 			}
 			System.exit(IO_ERROR_STATUS_CODE);
 		} catch (Exception e) {
@@ -191,12 +197,10 @@ public class Main {
 				} else {
 					e.printStackTrace(logWriter);
 				}
+				
+				logWriter.close();
 			}
 			System.exit(OTHER_ERROR_STATUS_CODE);
-		}
-		
-		if (logWriter != null) {
-			logWriter.close();
 		}
 	}
 
