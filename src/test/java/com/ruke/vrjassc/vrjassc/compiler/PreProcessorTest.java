@@ -3,6 +3,7 @@ package com.ruke.vrjassc.vrjassc.compiler;
 import com.ruke.vrjassc.vrjassc.util.ProjectPath;
 import com.ruke.vrjassc.vrjassc.util.TestHelper;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URL;
@@ -15,15 +16,15 @@ public class PreProcessorTest extends TestHelper {
     }
 
     @Test
+    @Ignore
     public void shouldIncludeCodeOnce() {
         String path = ProjectPath.getTest() + "/compiler/import-test.j";
-
         String code =
         "function bar\n" +
             "call foo()\n" +
         "end\n" +
         "import \"" + path + "\"\n" +
-        "import \"" + path + "\"";
+        "import \"" + path + "\"\n";
 
         String expected =
         "globals\n" +

@@ -19,6 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
 
+/**
+ * @deprecated Use Compiler.Compiler instead
+ */
 public class CompilerFacade {
 	
 	static VrJassScope nativeScope = null;
@@ -106,7 +109,7 @@ public class CompilerFacade {
 
 		symbols.define(this.getNatives());
 
-		PreprocessorPhase procPhase = new PreprocessorPhase(this, symbols);
+		PreprocessorPhase procPhase = new PreprocessorPhase(null);
 		DefinitionPhase defPhase = new DefinitionPhase(tokenBag, symbols);
 		ReferencePhase refPhase = new ReferencePhase(tokenBag, symbols);
 
