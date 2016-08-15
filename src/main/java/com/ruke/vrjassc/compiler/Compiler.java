@@ -3,6 +3,7 @@ package com.ruke.vrjassc.compiler;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassLexer;
 import com.ruke.vrjassc.vrjassc.antlr4.vrjassParser;
 import com.ruke.vrjassc.vrjassc.exception.CompileException;
+import com.ruke.vrjassc.vrjassc.exception.FileException;
 import com.ruke.vrjassc.vrjassc.phase.DefinitionPhase;
 import com.ruke.vrjassc.vrjassc.phase.PreprocessorPhase;
 import com.ruke.vrjassc.vrjassc.phase.ReferencePhase;
@@ -25,6 +26,11 @@ public class Compiler {
     private File file;
     
     /**
+     * True if we're using a temporary file
+     */
+    private boolean isTemp;
+    
+    /**
      * Symbols (variables, functions, etc.) collected during compilation
      */
     private ScopeSymbol symbols = new VrJassScope();
@@ -41,6 +47,8 @@ public class Compiler {
     public Compiler(String code) {
         try {
             this.file = File.createTempFile(String.valueOf(code.hashCode()), null);
+            this.isTemp = true;
+            
             PrintWriter writer = new PrintWriter(this.file);
             
             writer.write(code);
@@ -93,10 +101,10 @@ public class Compiler {
             
             definition.visit(parser.init());
             parser.reset();
-    
+
             reference.visit(parser.init());
             parser.reset();
-            
+
             return translator.visit(parser.init()).translate();
         }
         
@@ -114,7 +122,7 @@ public class Compiler {
      * @param symbols   Collected symbols
      * @param imports   Already imported/compiled files
      */
-    private void handleImports(ScopeSymbol symbols, Set<File> imports) throws IOException {
+    private void handleImports(ScopeSymbol symbols, Set<File> imports) throws CompileException, IOException {
         if (!imports.add(this.file)) {
             return;
         }
@@ -133,20 +141,32 @@ public class Compiler {
     
         parser.removeErrorListeners();
     
-        preprocessor.visit(parser.init());
-        parser.reset();
-    
-        definition.visit(parser.init());
-        parser.reset();
-        
-        for (File file : preprocessor.getFiles()) {
-            new Compiler(file).handleImports(symbols, imports);
-        }
-    
-        // We don't need this phase on natives
-        if (!this.isNative()) {
-            reference.visit(parser.init());
+        try {
+            preprocessor.visit(parser.init());
             parser.reset();
+    
+            definition.visit(parser.init());
+            parser.reset();
+    
+            for (File file : preprocessor.getFiles()) {
+                new Compiler(file).handleImports(symbols, imports);
+            }
+    
+            // We don't need this phase on natives
+            if (!this.isNative()) {
+                reference.visit(parser.init());
+                parser.reset();
+            }
+        } catch (CompileException e) {
+            if (!this.isTemp && e instanceof FileException == false) {
+                e = new FileException(this.file, e);
+            }
+            
+            if (e.getFile() == null) {
+                e.setFile(this.file);
+            }
+            
+            throw e;
         }
     }
     

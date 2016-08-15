@@ -2,8 +2,11 @@ package com.ruke.vrjassc.vrjassc.exception;
 
 import org.antlr.v4.runtime.Token;
 
+import java.io.File;
+
 public abstract class CompileException extends RuntimeException {
 
+	protected File file;
 	protected int line;
 	protected int charPos;
 
@@ -16,6 +19,14 @@ public abstract class CompileException extends RuntimeException {
 			this.line = token.getLine();
 			this.charPos = token.getCharPositionInLine();
 		}
+	}
+	
+	public void setFile(File file) {
+		this.file = file;
+	}
+	
+	public File getFile() {
+		return this.file;
 	}
 
 	public int getLine() {
